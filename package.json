@@ -1,0 +1,123 @@
+{
+  "name": "znn-typescript-sdk",
+  "version": "0.1.0-beta-1",
+  "description": "TypeScript/JavaScript SDK for interacting with the Zenon Network of Momentum (NoM).",
+  "keywords": [
+    "zenon",
+    "nom",
+    "znn",
+    "sdk",
+    "blockchain",
+    "web3",
+    "typescript",
+    "javascript"
+  ],
+  "author": {
+    "name": "digitalSloth",
+    "url": "https://github.com/digitalSloth"
+  },
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/digitalSloth/znn-typescript-sdk.git"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "browser": "./dist/browser/bundle.browser.mjs",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "browser": {
+        "import": "./dist/browser/bundle.browser.mjs",
+        "require": "./dist/browser/bundle.browser.js"
+      },
+      "import": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist/",
+    "lib/pow.js",
+    "lib/pow.wasm"
+  ],
+  "bin": {
+    "znn-cli": "./dist/cli/cli.cjs"
+  },
+  "scripts": {
+    "build:esm": "tsc",
+    "build:cli": "webpack --config webpack.cli.config.cjs",
+    "build:browser": "webpack --config webpack.browser.config.cjs",
+    "build:wasm": "./scripts/build-wasm.sh",
+    "build": "npm run clean && npm run lint && npm run build:esm && npm run build:cli && npm run build:browser",
+    "clean": "node -e \"var { rmdirSync, existsSync } = require('fs'), path = require('path'); ['./.nyc_output', './coverage', './dist'].forEach(fPath => {if (existsSync(path.join(__dirname, fPath))) rmdirSync(path.join(__dirname, fPath), { recursive: true })}); process.exit(0);\"",
+    "clean:all": "npm run clean && (rm -r ./node_modules || true)",
+    "cli:dev": "npm run build:cli && node dist/cli/cli.cjs",
+    "cover": "c8 npm run test",
+    "cover:check": "c8 --check-coverage npm run test",
+    "lint": "eslint --ext .ts src/**/*.ts cli/**/*.ts test/**/*.ts --no-warn-ignored",
+    "lint:fix": "eslint --ext .ts --fix src/**/*.ts cli/**/*.ts test/**/*.ts --no-warn-ignored",
+    "prepare": "npm run build",
+    "test": "mocha -r tsx 'test/**/*.spec.ts'",
+    "upgrade": "npx npm-check -u"
+  },
+  "devDependencies": {
+    "@types/argon2-browser": "^1.18.4",
+    "@types/chai": "^4.3.16",
+    "@types/figlet": "^1.5.8",
+    "@types/isomorphic-fetch": "^0.0.39",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^22.15.0",
+    "@types/webpack-env": "^1.18.8",
+    "@typescript-eslint/eslint-plugin": "^8.32.0",
+    "@typescript-eslint/parser": "^8.32.0",
+    "assert": "^2.1.0",
+    "base64-loader": "^1.0.0",
+    "c8": "^10.1.3",
+    "chai": "^5.2.0",
+    "commander": "^13.1.0",
+    "copy-webpack-plugin": "^12.0.2",
+    "crypto-browserify": "^3.12.1",
+    "eslint": "^9.26.0",
+    "events": "^3.3.0",
+    "figlet": "^1.7.0",
+    "mocha": "^11.2.0",
+    "node-polyfill-webpack-plugin": "^4.1.0",
+    "os-browserify": "^0.3.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "source-map-support": "^0.5.21",
+    "stream-browserify": "^3.0.0",
+    "ts-loader": "^9.5.1",
+    "ts-mocha": "^11.1.0",
+    "ts-node": "^10.9.2",
+    "tsx": "^4.19.4",
+    "typescript": "^5.4.5",
+    "url": "^0.11.4",
+    "util": "^0.12.5",
+    "vm-browserify": "^1.1.2",
+    "webpack": "^5.92.0",
+    "webpack-cli": "^6.0.0",
+    "webpack-node-externals": "^3.0.0"
+  },
+  "dependencies": {
+    "@eslint/eslintrc": "^3.3.1",
+    "@eslint/js": "^9.26.0",
+    "@noble/ed25519": "^2.2.3",
+    "@noble/hashes": "^1.8.0",
+    "@open-rpc/client-js": "^1.7.3",
+    "@scure/bip39": "^1.6.0",
+    "argon2": "^0.43.0",
+    "argon2-browser": "^1.18.0",
+    "bech32": "^2.0.0",
+    "bignumber.js": "^9.3.0",
+    "buffer": "^6.0.3",
+    "decimal.js": "^10.5.0",
+    "ed25519-hd-key": "^1.3.0",
+    "globals": "^16.1.0",
+    "rpc-websockets": "^9.2.0"
+  }
+}

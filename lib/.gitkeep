@@ -1,0 +1,2 @@
+# This directory will contain the pre-built WASM module
+# pow.js and pow.wasm will be placed here after running npm run build:wasm

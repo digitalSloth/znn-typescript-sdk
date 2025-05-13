@@ -1,0 +1,26 @@
+import { WSUpdateStream, WsClient } from "../client/websocket.js";
+import { Address } from "../model/primitives/address.js";
+import { Api } from "./base.js";
+
+export class SubscribeApi extends Api<WsClient> {
+    async subscribeTo(params: any): Promise<WSUpdateStream> {
+        const response = await this.client.sendRequest("ledger.subscribe", params);
+        return this.client.newSubscription(response)
+    }
+
+    toMomentums(): Promise<WSUpdateStream> {
+        return this.subscribeTo(["momentums"])
+    }
+
+    toAllAccountBlocks(): Promise<WSUpdateStream> {
+        return this.subscribeTo(["allAccountBlocks"])
+    };
+
+    toAccountBlocksByAddress(address: Address): Promise<WSUpdateStream> {
+        return this.subscribeTo(["accountBlocksByAddress", address.toString()])
+    };
+
+    toUnreceivedAccountBlocksByAddress(address: Address): Promise<WSUpdateStream> {
+        return this.subscribeTo(["unreceivedAccountBlocksByAddress", address.toString()])
+    };
+}

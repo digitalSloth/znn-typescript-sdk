@@ -1,0 +1,15 @@
+# Generated directories & files:
+coverage/
+dist/
+node_modules/
+wasm/
+.eslint.json
+test.js
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Project files:
+.idea/
+*.sublime-*
