@@ -92,6 +92,7 @@ const makeWrapTokenRequestJson = (overrides: Record<string, any> = {}) => ({
     fee: "10",
     signature: "sig",
     creationMomentumHeight: 123,
+    confirmationsToFinality: 500,
     ...overrides
 });
 
@@ -114,6 +115,7 @@ const makeUnwrapTokenRequestJson = (overrides: Record<string, any> = {}) => ({
     signature: "sig",
     redeemed: 0,
     revoked: 0,
+    redeemableIn: 500,
     ...overrides
 });
 
