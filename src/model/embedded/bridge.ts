@@ -136,7 +136,8 @@ export class WrapTokenRequest extends Model {
         public amount: BigNumber,
         public fee: BigNumber,
         public signature: string,
-        public creationMomentumHeight: number
+        public creationMomentumHeight: number,
+        public confirmationsToFinality: number
     ) {
         super()
     }
@@ -152,7 +153,8 @@ export class WrapTokenRequest extends Model {
             BigNumber.from(json.amount.toString()),
             BigNumber.from(json.fee.toString()),
             json.signature,
-            json.creationMomentumHeight
+            json.creationMomentumHeight,
+            json.confirmationsToFinality,
         );
     }
 }
@@ -186,7 +188,8 @@ export class UnwrapTokenRequest extends Model {
         public amount: BigNumber,
         public signature: string,
         public redeemed: number,
-        public revoked: number
+        public revoked: number,
+        public redeemableIn: number
     ) {
         super()
     }
@@ -204,7 +207,8 @@ export class UnwrapTokenRequest extends Model {
             BigNumber.from(json.amount.toString()),
             json.signature,
             json.redeemed,
-            json.revoked
+            json.revoked,
+            json.redeemableIn,
         );
     }
 }
