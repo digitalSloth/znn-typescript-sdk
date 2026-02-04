@@ -6,6 +6,7 @@ describe("Amount", () => {
         it("should multiply number by 10^decimals and return BigNumber", () => {
             expect(extractNumberDecimals(5, 2).toString()).to.equal("500");
             expect(extractNumberDecimals(1.23, 3).toString()).to.equal("1230");
+            expect(extractNumberDecimals(0.00000001, 8).toString()).to.equal("1");
             expect(extractNumberDecimals(0, 5).toString()).to.equal("0");
         });
 
@@ -34,6 +35,7 @@ describe("Amount", () => {
         it("should divide number by 10^decimals and return string", () => {
             expect(addNumberDecimals(500, 2)).to.equal("5");
             expect(addNumberDecimals(1230, 3)).to.equal("1.23");
+            expect(addNumberDecimals(1, 8)).to.equal("0.00000001");
             expect(addNumberDecimals(0, 5)).to.equal("0");
         });
 
