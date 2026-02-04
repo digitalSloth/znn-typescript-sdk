@@ -135,9 +135,13 @@ console.log('Empty hash:', EMPTY_HASH.toString());
 - QSR: 8 decimals
 
 ```javascript
-import { extractNumberDecimals } from 'znn-typescript-sdk';
+import { extractNumberDecimals, addNumberDecimals } from 'znn-typescript-sdk';
 
-const znnAmount = extractNumberDecimals(1, 8);     // 1 ZNN = 100000000
+// Converts humand readable number to non-fractional number
+const znnAmount = extractNumberDecimals(1, 8);
+
+// Converts non-fractional number to humand readable number
+const dispplayValue = addNumberDecimals(100000000, 8);
 ```
 ---
 

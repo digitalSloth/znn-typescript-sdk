@@ -1,5 +1,6 @@
 # ZNN TypeScript SDK
 
+[![Version](https://img.shields.io/github/v/tag/digitalSloth/znn-typescript-sdk?label=version)](https://github.com/digitalSloth/znn-typescript-sdk/tags)
 [![Tests](https://github.com/digitalSloth/znn-typescript-sdk/actions/workflows/tests.yml/badge.svg?branch=main)](https://github.com/digitalSloth/znn-typescript-sdk/actions/workflows/tests.yml)
 [![Coverage](https://github.com/digitalSloth/znn-typescript-sdk/actions/workflows/coverage.yml/badge.svg?branch=main)](https://github.com/digitalSloth/znn-typescript-sdk/actions/workflows/coverage.yml)
 
