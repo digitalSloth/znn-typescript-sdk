@@ -6,6 +6,10 @@ export {
 } from "./zenon.js";
 
 //
+// Client exports
+export type { WsClientOptions } from "./client/index.js";
+
+//
 // ABI exports
 export * from "./abi/index.js";
 

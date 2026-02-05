@@ -1,4 +1,4 @@
-import { Client, WsClient, newClient } from "./client/index.js";
+import { Client, WsClient, newClient, type WsClientOptions } from "./client/index.js";
 import { SubscribeApi, LedgerApi, StatsApi, EmbeddedApi } from "./api/index.js";
 import { AccountBlockTemplate } from "./model/nom/accountBlock.js";
 import { KeyPair } from "./wallet/index.js";
@@ -53,12 +53,12 @@ export class Zenon {
         }
     }
 
-    async initialize(serverUrl = this.defaultServerUrl, retry = true, timeout = 30000) {
+    async initialize(serverUrl = this.defaultServerUrl, timeout = 30000, wsOptions?: WsClientOptions) {
         this.client = newClient(serverUrl);
 
         // If it's a WebSocket client, initialize it
         if (this.client instanceof WsClient) {
-            await this.client.initialize(serverUrl, retry, timeout);
+            await this.client.initialize(serverUrl, timeout, wsOptions);
         }
 
         this._setClient(this.client);

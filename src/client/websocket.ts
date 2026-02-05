@@ -14,6 +14,13 @@ enum WebsocketStatus {
     Stopped,
 }
 
+export interface WsClientOptions {
+    autoconnect?: boolean;
+    reconnect?: boolean;
+    reconnect_interval?: number;
+    max_reconnects?: number;
+}
+
 type WSSubscriptionCallback = (data: any[]) => void;
 
 class WSSubscriptions {
@@ -69,11 +76,21 @@ export class WsClient implements ClientInterface {
         this.subscriptions = new WSSubscriptions();
     }
 
-    initialize(url: string, retry = true, timeout = 30000): Promise<void> {
+    initialize(url: string, timeout = 30000, options?: WsClientOptions): Promise<void> {
         return new Promise<void>(async (resolve, reject) => {
             try {
                 this.url = url;
-                this._wsRpc2Client = new webSocket(this.url, {autoconnect: true, reconnect: retry});
+
+                // Merge default options with user-provided options
+                const wsOptions = {
+                    autoconnect: true,
+                    reconnect: true,
+                    reconnect_interval: 1000,
+                    max_reconnects: 0, // 0 = unlimited reconnects
+                    ...options
+                };
+
+                this._wsRpc2Client = new webSocket(this.url, wsOptions);
 
                 logger.info(
                     `Initializing websocket connection to:${this.url} on chainIdentifier ${Zenon.getChainIdentifier()}`
@@ -108,13 +125,13 @@ export class WsClient implements ClientInterface {
         return this._websocketIntendedState;
     }
 
-    async restart(): Promise<void> {
+    async restart(options?: WsClientOptions): Promise<void> {
         if (this._websocketIntendedState != WebsocketStatus.Running) {
             return;
         }
         if (this._wsRpc2Client != null && this._wsRpc2Client!.isClosed == true) {
             logger.info("Restarting websocket connection ...");
-            await this.initialize(this.url!, true);
+            await this.initialize(this.url!, 30000, options);
             logger.info("Websocket connection successfully restarted");
         }
     }

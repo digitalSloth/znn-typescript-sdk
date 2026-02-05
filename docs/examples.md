@@ -14,8 +14,36 @@ await zenon.initialize('wss://node.zenonhub.io:35998');
 ```
 
 Connection options:
-- **HTTP**: `https://node.zenonhub.io:35997`
-- **WebSocket**: `wss://node.zenonhub.io:35998`
+- **HTTP**: `https://node.zenonhub.io:35997` - For simple API calls
+- **WebSocket**: `wss://node.zenonhub.io:35998` - For real-time subscriptions and transactions
+
+### WebSocket Configuration
+
+For long-running operations (like PoW generation), you can configure WebSocket reconnection behavior:
+
+```javascript
+import { Zenon } from 'znn-typescript-sdk';
+import { WsClientOptions } from 'znn-typescript-sdk';
+
+const zenon = Zenon.getInstance();
+
+// Use defaults (auto-reconnect enabled)
+await zenon.initialize('wss://node.zenonhub.io:35998');
+
+// Custom timeout (in milliseconds)
+await zenon.initialize('wss://node.zenonhub.io:35998', 60000);
+
+// Custom reconnection settings
+const wsOptions: WsClientOptions = {
+  reconnect: true,           // Enable auto-reconnect
+  reconnect_interval: 1000,  // 1 second between attempts
+  max_reconnects: 0          // 0 = unlimited attempts
+};
+
+await zenon.initialize('wss://node.zenonhub.io:35998', 30000, wsOptions);
+```
+
+**Note:** WebSocket connections automatically reconnect if dropped during operations. The default settings work well for most cases, including PoW generation.
 
 ---
 
