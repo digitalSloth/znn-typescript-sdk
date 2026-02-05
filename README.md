@@ -179,17 +179,19 @@ const path = Zenon.getPowBasePath();
 
 ### Instance Methods
 
-##### `initialize(url: string): Promise<void>`
+##### `initialize(url: string, timeout?: number, wsOptions?: WsClientOptions): Promise<void>`
 
 Connect to a Zenon node via HTTP or WebSocket.
 
 ```javascript
-// WebSocket (for subscriptions)
+// WebSocket (for subscriptions and transactions)
 await zenon.initialize('wss://node.zenonhub.io:35998');
 
 // HTTP (for simple requests)
 await zenon.initialize('https://node.zenonhub.io:35997');
 ```
+
+> **Note:** WebSocket connections automatically reconnect if dropped during long-running operations (e.g., PoW generation). The default settings are suitable for most use cases.
 
 ##### `clearConnection(): void`
 
