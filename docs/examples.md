@@ -243,7 +243,7 @@ await zenon.initialize('wss://node.zenonhub.io:35998');
 const wallet = KeyStore.fromMnemonic('your mnemonic here...');
 const keyPair = wallet.getKeyPair(0);
 
-const block = await zenon.embedded.plasma.fuse(
+const block = zenon.embedded.plasma.fuse(
   keyPair.getAddress(),
   extractNumberDecimals(100, 8) // 100 QSR
 );
@@ -268,7 +268,7 @@ const keyPair = wallet.getKeyPair(0);
 const entries = await zenon.embedded.plasma.getEntriesByAddress(keyPair.getAddress())
 
 for (const entry of entries.list) {
-  const block = await zenon.embedded.plasma.cancel(entry.id);
+  const block = zenon.embedded.plasma.cancel(entry.id);
   const tx = await zenon.send(block, keyPair);
 }
 

@@ -56,7 +56,7 @@ export class PlasmaApi extends Api {
     //
     // Contract methods
 
-    async fuse(beneficiary: Address, amount: BigNumberish): Promise<AccountBlockTemplate> {
+    fuse(beneficiary: Address, amount: BigNumberish): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             PLASMA_ADDRESS,
             QSR_ZTS,
@@ -67,7 +67,7 @@ export class PlasmaApi extends Api {
         );
     }
 
-    async cancel(id: Hash): Promise<AccountBlockTemplate> {
+    cancel(id: Hash): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             PLASMA_ADDRESS,
             QSR_ZTS,
