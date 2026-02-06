@@ -51,7 +51,7 @@ export class TokenApi extends Api {
     //
     // Contract methods
 
-    async issueToken(
+    issueToken(
         tokenName: string,
         tokenSymbol: string,
         tokenDomain: string,
@@ -61,7 +61,7 @@ export class TokenApi extends Api {
         mintable: boolean,
         burnable: boolean,
         utility: boolean
-    ): Promise<AccountBlockTemplate> {
+    ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             TOKEN_ADDRESS,
             ZNN_ZTS,
