@@ -1,3 +1,4 @@
+export { EmbeddedContract } from "./embeddedContract.js"
 export { Accelerator } from "./accelerator.js"
 export { Bridge } from "./bridge.js"
 export { Common } from "./common.js"
