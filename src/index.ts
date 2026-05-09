@@ -53,6 +53,7 @@ export {
     SPORK_ADDRESS,
     ACCELERATOR_ADDRESS,
     BRIDGE_ADDRESS,
+    HTLC_ADDRESS,
 
     Hash,
     EMPTY_HASH,
