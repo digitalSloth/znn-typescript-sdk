@@ -10,6 +10,10 @@ export {
 export type { WsClientOptions } from "./client/index.js";
 
 //
+// Crypto exports
+export { Crypto } from "./crypto/index.js";
+
+//
 // ABI exports
 //export * from "./abi/index.js";
 
