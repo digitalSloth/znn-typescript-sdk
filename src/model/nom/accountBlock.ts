@@ -20,6 +20,17 @@ export enum BlockTypeEnum {
     ContractReceive = 5,
 }
 
+export enum ReceiveBlockTypeEnum {
+    GenesisReceive = 1,
+    UserReceive = 3,
+    ContractReceive = 5,
+}
+
+export enum SendBlockTypeEnum {
+    UserSend = 2,
+    ContractSend = 4,
+}
+
 export interface AccountBlockTemplateOptions {
     version?: number;
     chainIdentifier?: number;
