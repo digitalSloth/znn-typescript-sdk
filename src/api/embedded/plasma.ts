@@ -2,7 +2,7 @@ import {BigNumber, BigNumberish} from "../../utilities/bignumber.js";
 import { MEMORY_POOL_PAGE_SIZE, RPC_MAX_PAGE_SIZE } from "../../zenon.js";
 import { Api } from "../base.js";
 import { Plasma } from "../../embedded/plasma.js";
-import { FusionEntryList, GetRequiredPowParam, GetRequiredPowResponse, PlasmaInfo } from "../../model/embedded/plasma.js";
+import { FusionEntryList, GetRequiredPowParam, GetRequiredPowResponse, PlasmaInfo, PlasmaVariables } from "../../model/embedded/plasma.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
 import { Address, PLASMA_ADDRESS, Hash, QSR_ZTS } from "../../model/primitives/index.js";
 
@@ -53,6 +53,11 @@ export class PlasmaApi extends Api {
         return GetRequiredPowResponse.fromJson(response);
     }
 
+    async getVariables(): Promise<PlasmaVariables> {
+        const response = await this.client.sendRequest("embedded.plasma.getVariables", []);
+        return PlasmaVariables.fromJson(response!);
+    }
+
     //
     // Contract methods
 
@@ -74,6 +79,27 @@ export class PlasmaApi extends Api {
             BigNumber.from(0),
             Plasma.abi.encodeFunctionData("CancelFuse", [
                 id.getBytes()
+            ])
+        );
+    }
+
+    setVariables(
+        maxBasePlasmaInMomentum: number,
+        fusedPlasmaTarget: number,
+        powPlasmaTarget: number,
+        maxPriceChangePercent: number,
+        priceChangeDenominator: number
+    ): AccountBlockTemplate {
+        return AccountBlockTemplate.callContract(
+            PLASMA_ADDRESS,
+            QSR_ZTS,
+            BigNumber.from(0),
+            Plasma.abi.encodeFunctionData("SetVariables", [
+                maxBasePlasmaInMomentum,
+                fusedPlasmaTarget,
+                powPlasmaTarget,
+                maxPriceChangePercent,
+                priceChangeDenominator
             ])
         );
     }

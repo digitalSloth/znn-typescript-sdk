@@ -6,7 +6,8 @@ import {
     FusionEntryList,
     GetRequiredPowParam,
     GetRequiredPowResponse,
-    PlasmaInfo
+    PlasmaInfo,
+    PlasmaVariables
 } from "../../../src/model/embedded/plasma.js";
 import { AccountBlockTemplate } from "../../../src/model/nom/index.js";
 import {
@@ -37,8 +38,7 @@ const makeFusionEntryListJson = (overrides: Record<string, any> = {}) => ({
         qsrAmount: "100",
         beneficiary: ADDRESS,
         expirationHeight: 123,
-        id: HASH_A,
-        isRevocable: true
+        id: HASH_A
     }],
     ...overrides
 });
@@ -140,6 +140,50 @@ describe("PlasmaApi", () => {
 
             expect(template.amount.toString()).to.equal("0");
             expect(template.tokenStandard.toString()).to.equal(QSR_ZTS.toString());
+            expect(template.data.toString("hex"))
+                .to.equal(Buffer.from(arrayify(expectedData)).toString("hex"));
+        });
+    });
+
+    describe("getVariables", () => {
+        it("should fetch and parse plasma variables", async () => {
+            const mockResponse = {
+                maxBasePlasmaInMomentum: 4200000,
+                fusedPlasmaTarget: 1050000,
+                powPlasmaTarget: 1050000,
+                maxPriceChangePercent: 10,
+                priceChangeDenominator: 20
+            };
+            mockClient.setMockResponse("embedded.plasma.getVariables", mockResponse);
+
+            const result = await plasmaApi.getVariables();
+
+            const lastCall = mockClient.getLastCall();
+            expect(lastCall).to.exist;
+            expect(lastCall!.method).to.equal("embedded.plasma.getVariables");
+            expect(lastCall!.parameters).to.deep.equal([]);
+
+            expect(result).to.be.instanceOf(PlasmaVariables);
+            expect(result.maxBasePlasmaInMomentum).to.equal(4200000);
+            expect(result.fusedPlasmaTarget).to.equal(1050000);
+            expect(result.powPlasmaTarget).to.equal(1050000);
+            expect(result.maxPriceChangePercent).to.equal(10);
+            expect(result.priceChangeDenominator).to.equal(20);
+        });
+    });
+
+    describe("setVariables", () => {
+        it("should build a set variables block", async () => {
+            const template = await plasmaApi.setVariables(4200000, 1050000, 1050000, 10, 20);
+
+            const expectedData = PlasmaContract.abi.encodeFunctionData("SetVariables", [
+                4200000, 1050000, 1050000, 10, 20
+            ]);
+
+            expect(template).to.be.instanceOf(AccountBlockTemplate);
+            expect(template.toAddress.toString()).to.equal(PLASMA_ADDRESS.toString());
+            expect(template.tokenStandard.toString()).to.equal(QSR_ZTS.toString());
+            expect(template.amount.toString()).to.equal("0");
             expect(template.data.toString("hex"))
                 .to.equal(Buffer.from(arrayify(expectedData)).toString("hex"));
         });
