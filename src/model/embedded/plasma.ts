@@ -111,11 +111,11 @@ export class GetRequiredPowResponse extends Model {
 
 export class PlasmaVariables extends Model {
     constructor(
-        public MaxBasePlasmaInMomentum: number,
-        public FusedPlasmaTarget: number,
-        public PowPlasmaTarget: number,
-        public MaxPriceChangePercent: number,
-        public PriceChangeDenominator: number
+        public maxBasePlasmaInMomentum: number,
+        public fusedPlasmaTarget: number,
+        public powPlasmaTarget: number,
+        public maxPriceChangePercent: number,
+        public priceChangeDenominator: number
     ) {
         super()
     }
