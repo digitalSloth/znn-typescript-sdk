@@ -1,5 +1,7 @@
 export {
     BlockTypeEnum,
+    SendBlockTypeEnum,
+    ReceiveBlockTypeEnum,
     AccountBlockTemplateOptions,
     AccountBlockTemplate,
     AccountBlockConfirmationDetail,

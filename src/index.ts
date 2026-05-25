@@ -10,8 +10,12 @@ export {
 export type { WsClientOptions } from "./client/index.js";
 
 //
+// Crypto exports
+export { Crypto } from "./crypto/index.js";
+
+//
 // ABI exports
-export * from "./abi/index.js";
+//export * from "./abi/index.js";
 
 //
 // API exports
@@ -21,6 +25,24 @@ export {
     SubscribeApi,
     EmbeddedApi,
 } from "./api/index.js";
+
+//
+// Embedded exports
+export {
+    EmbeddedContract,
+    Accelerator as AcceleratorContract,
+    Bridge as BridgeContract,
+    Common as CommonContract,
+    Htlc as HtlcContract,
+    Liquidity as LiquidityContract,
+    Pillar as PillarContract,
+    Plasma as PlasmaContract,
+    Sentinel as SentinelContract,
+    Spork as SporkContract,
+    Stake as StakeContract,
+    Swap as SwapContract,
+    Token as TokenContract,
+} from "./embedded/index.js"
 
 //
 // Model exports
@@ -53,6 +75,7 @@ export {
     SPORK_ADDRESS,
     ACCELERATOR_ADDRESS,
     BRIDGE_ADDRESS,
+    HTLC_ADDRESS,
 
     Hash,
     EMPTY_HASH,
