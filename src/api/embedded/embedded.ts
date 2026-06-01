@@ -11,6 +11,7 @@ import { SporkApi } from "./spork.js";
 import { StakeApi } from "./stake.js";
 import { SwapApi } from "./swap.js";
 import { TokenApi } from "./token.js";
+import { WasmApi } from "./wasm.js";
 
 
 export class EmbeddedApi extends Api {
@@ -26,6 +27,7 @@ export class EmbeddedApi extends Api {
         public stake = new StakeApi(),
         public swap = new SwapApi(),
         public token = new TokenApi(),
+        public wasm = new WasmApi(),
     ){
         super()
     }
@@ -43,5 +45,6 @@ export class EmbeddedApi extends Api {
         this.stake.setClient(client);
         this.swap.setClient(client);
         this.token.setClient(client);
+        this.wasm.setClient(client);
     }
 }

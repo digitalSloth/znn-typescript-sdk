@@ -275,6 +275,82 @@ for (const entry of entries.list) {
 zenon.clearConnection();
 ```
 
+### Deploy a WASM Contract
+
+```javascript
+import { Zenon, KeyStore, QSR_ZTS, extractNumberDecimals } from 'znn-typescript-sdk';
+
+const zenon = Zenon.getInstance();
+await zenon.initialize('wss://node.zenonhub.io:35998');
+
+const wallet = KeyStore.fromMnemonic('your mnemonic here...');
+const keyPair = wallet.getKeyPair(0);
+
+// Bytecode and salt must be prepared beforehand
+const bytecode = Buffer.from('...'); // compiled .wasm bytes
+const salt = Buffer.alloc(32, 0);    // 32-byte salt (choose your own)
+const qsrDeposit = extractNumberDecimals(1, 8); // 1 QSR minimum
+
+const block = zenon.embedded.wasm.deploy(bytecode, salt, true, qsrDeposit);
+const tx = await zenon.send(block, keyPair);
+console.log('Deploy tx:', tx.hash.toString());
+
+zenon.clearConnection();
+```
+
+### Execute a WASM Contract
+
+```javascript
+import { Zenon, KeyStore, Address } from 'znn-typescript-sdk';
+
+const zenon = Zenon.getInstance();
+await zenon.initialize('wss://node.zenonhub.io:35998');
+
+const wallet = KeyStore.fromMnemonic('your mnemonic here...');
+const keyPair = wallet.getKeyPair(0);
+
+// The 0x02 deployed contract address
+const contractAddr = Address.parse('z1qz...');
+
+// Encode args for the contract's execute entry point
+const args = Buffer.from([...]);
+
+const block = zenon.embedded.wasm.execute(contractAddr, 'myFunction', args);
+const tx = await zenon.send(block, keyPair);
+console.log('Execute tx:', tx.hash.toString());
+
+zenon.clearConnection();
+```
+
+### Query WASM Contract State
+
+```javascript
+import { Zenon, Address, Hash } from 'znn-typescript-sdk';
+
+const zenon = Zenon.getInstance();
+await zenon.initialize('wss://node.zenonhub.io:35998');
+
+const contractAddr = Address.parse('z1qz...');
+
+// Get contract info (deployer, version, halted, etc.)
+const info = await zenon.embedded.wasm.getContract(contractAddr);
+console.log('Deployer:', info.deployer.toString());
+console.log('Halted:', info.halted);
+
+// Read-only view call
+const result = await zenon.embedded.wasm.callView(contractAddr, 'getValue', Buffer.from([]));
+console.log('View result:', result.toString('hex'));
+
+// Get contract events
+const topic = Hash.parse('abcd...');
+const events = await zenon.embedded.wasm.getEvents(contractAddr, topic, 0, 999999, 0, 10);
+for (const event of events.list) {
+  console.log('Event data:', event.data.toString('hex'));
+}
+
+zenon.clearConnection();
+```
+
 ---
 
 ## Subscriptions

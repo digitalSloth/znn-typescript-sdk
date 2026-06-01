@@ -107,7 +107,7 @@ await zenon.initialize('wss://node.zenonhub.io:35998');
 
 Transaction block templates are built via `zenon.embedded.<contract>.<method>(...)`. These return an `AccountBlockTemplate`, not a sent transaction. To actually send, pass the template to `zenon.send(block, keyPair)`.
 
-Available embedded contracts: `accelerator`, `bridge`, `htlc`, `liquidity`, `pillar`, `plasma`, `sentinel`, `spork`, `stake`, `swap`, `token`.
+Available embedded contracts: `accelerator`, `bridge`, `htlc`, `liquidity`, `pillar`, `plasma`, `sentinel`, `spork`, `stake`, `swap`, `token`, `wasm`.
 
 ### Static Configuration (call before `initialize`)
 
@@ -140,7 +140,7 @@ BIP44 derivation path: `m/44'/73404'/0'/0/<index>`
 
 ```typescript
 import { ZNN_ZTS, QSR_ZTS, EMPTY_ZTS, EMPTY_HASH, EMPTY_ADDRESS } from 'znn-typescript-sdk';
-import { PLASMA_ADDRESS, PILLAR_ADDRESS, /* etc. */ } from 'znn-typescript-sdk';
+import { PLASMA_ADDRESS, PILLAR_ADDRESS, WASM_ADDRESS, /* etc. */ } from 'znn-typescript-sdk';
 ```
 
 ### Amount Helpers

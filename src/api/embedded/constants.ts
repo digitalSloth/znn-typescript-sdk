@@ -58,3 +58,22 @@ export const PROPOSAL_VOTING_STATUS: number = 0;
 export const PROPOSAL_ACTIVE_STATUS: number = 1;
 export const PROPOSAL_PAID_STATUS: number = 2;
 export const PROPOSAL_CLOSED_STATUS: number = 3;
+
+// WASM
+export const WASM_MIN_DEPOSIT: number = 100_000_000; // 1 QSR (floor for bytecode cost)
+export const WASM_ZNN_DEPLOY_FEE: number = 100_000_000; // 1 ZNN burned at Activate
+export const WASM_QSR_PER_BYTE_OF_BYTECODE: number = 500;
+export const WASM_QSR_PER_BYTE_OF_STATE: number = 1000;
+export const WASM_MAX_BYTECODE_SIZE: number = 14336; // 14 KiB
+export const WASM_MAX_CHUNK_COUNT: number = 18;
+export const WASM_MAX_CHUNK_DATA_SIZE: number = 15800;
+export const WASM_MAX_ARGS_BYTES: number = 15800;
+export const WASM_CHUNK_TTL_MOMENTUMS: number = 1440;
+export const WASM_ADMINISTRATOR_DELAY: number = 1440;
+export const WASM_EXECUTION_GAS_LIMIT: number = 250_000;
+export const WASM_ON_RECEIVE_GAS_LIMIT: number = 25_000;
+export const WASM_MAX_EVENTS_PER_EXECUTE: number = 256;
+export const WASM_MAX_EVENT_DATA_PER_EVENT: number = 4096;
+export const WASM_MAX_EVENT_BYTES_PER_EXECUTE: number = 65536;
+export const WASM_MAX_VIEW_RETURN_SIZE: number = 65536;
+export const WASM_MAX_DESCENDANT_BLOCKS: number = 16;

@@ -5,6 +5,7 @@ export {
     AccountBlockTemplateOptions,
     AccountBlockTemplate,
     AccountBlockConfirmationDetail,
+    AccountBlockEvent,
     AccountBlock,
     AccountBlockList
 } from "./accountBlock.js"

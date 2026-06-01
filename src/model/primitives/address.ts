@@ -84,6 +84,7 @@ const SPORK_ADDRESS = Address.parse("z1qxemdeddedxsp0rkxxxxxxxxxxxxxxxx956u48");
 const ACCELERATOR_ADDRESS = Address.parse("z1qxemdeddedxaccelerat0rxxxxxxxxxxp4tk22");
 const BRIDGE_ADDRESS = Address.parse("z1qxemdeddedxdrydgexxxxxxxxxxxxxxxmqgr0d");
 const HTLC_ADDRESS = Address.parse("z1qxemdeddedxhtlcxxxxxxxxxxxxxxxxxygecvw");
+const WASM_ADDRESS = Address.parse("z1qxemdeddedxwasmxxxxxxxxxxxxxxxxxr38qaq");
 
 export {
     EMPTY_ADDRESS,
@@ -98,5 +99,6 @@ export {
     ACCELERATOR_ADDRESS,
     BRIDGE_ADDRESS,
     HTLC_ADDRESS,
+    WASM_ADDRESS,
 }
 

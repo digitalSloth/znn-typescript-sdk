@@ -42,6 +42,7 @@ export {
     Stake as StakeContract,
     Swap as SwapContract,
     Token as TokenContract,
+    Wasm as WasmContract,
 } from "./embedded/index.js"
 
 //
@@ -53,7 +54,7 @@ export * from "./model/embedded/index.js"
 // NoM
 export {
     BlockTypeEnum, AccountBlockTemplateOptions, AccountBlockTemplate,
-    AccountBlockConfirmationDetail, AccountBlock, AccountBlockList,
+    AccountBlockConfirmationDetail, AccountBlockEvent, AccountBlock, AccountBlockList,
     AccountHeader,
     AccountInfo, BalanceInfoListItem,
     DetailedMomentum, DetailedMomentumList,
@@ -76,6 +77,7 @@ export {
     ACCELERATOR_ADDRESS,
     BRIDGE_ADDRESS,
     HTLC_ADDRESS,
+    WASM_ADDRESS,
 
     Hash,
     EMPTY_HASH,

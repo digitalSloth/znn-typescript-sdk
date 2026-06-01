@@ -185,6 +185,22 @@ All APIs are available on the `zenon` object.
 - `zenon.embedded.token.burnToken(tokenStandard, amount)` - Burn tokens
 - `zenon.embedded.token.updateToken(tokenStandard, owner, isMintable, isBurnable)` - Update token settings
 
+### WASM
+- `zenon.embedded.wasm.getContract(contractAddress)` - Get WASM contract info and metadata
+- `zenon.embedded.wasm.getHaltStatus(contractAddress)` - Get halt status of a contract
+- `zenon.embedded.wasm.getEvents(contractAddress, topic, fromHeight, toHeight, pageIndex, pageSize)` - Get contract events by topic over a height range
+- `zenon.embedded.wasm.getStats()` - Get aggregate WASM runtime statistics
+- `zenon.embedded.wasm.callView(contractAddress, fn, args)` - Read-only view call against a deployed contract
+- `zenon.embedded.wasm.deploy(bytecode, salt, upgradeable, amount?)` - Deploy a contract (single-shot, bytecode must fit in one block)
+- `zenon.embedded.wasm.deployChunk(wasmAddr, salt, chunkIndex, totalChunks, chunkData, amount?)` - Upload one chunk of a chunked deployment
+- `zenon.embedded.wasm.finalizeDeploy(wasmAddr, salt, upgradeable)` - Assemble and finalize a chunked deployment
+- `zenon.embedded.wasm.discardChunks(wasmAddr, salt)` - Abandon an in-progress chunked deployment
+- `zenon.embedded.wasm.upgrade(wasmAddr, newBytecode)` - Replace an upgradeable contract's bytecode
+- `zenon.embedded.wasm.halt()` - Emergency-pause a contract (administrator only)
+- `zenon.embedded.wasm.unhalt()` - Resume a halted contract (administrator only)
+- `zenon.embedded.wasm.changeAdministrator(newAdmin)` - Propose a new administrator (two-phase, time-locked)
+- `zenon.embedded.wasm.execute(contractAddress, fn, args)` - Invoke a deployed contract's execute entry point
+
 ---
 
 ## Error Handling

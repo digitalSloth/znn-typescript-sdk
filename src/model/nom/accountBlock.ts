@@ -55,6 +55,7 @@ export interface AccountBlockTemplateOptions {
 interface AccountBlockOptions extends AccountBlockTemplateOptions {
     token?: Token;
     descendantBlocks?: Array<AccountBlock>;
+    events?: Array<AccountBlockEvent>;
     basePlasma?: number;
     usedPlasma?: number;
     changesHash?: Hash;
@@ -209,9 +210,40 @@ export class AccountBlockConfirmationDetail extends Model {
     }
 }
 
+export class AccountBlockEvent extends Model {
+
+    constructor(
+        public contractAddress: Address,
+        public topic: Hash,
+        public indexed: boolean,
+        public data: Buffer
+    ) {
+        super()
+    }
+
+    static fromJson(json: {[key: string]: any}): AccountBlockEvent {
+        return new AccountBlockEvent(
+            Address.parse(json.contractAddress),
+            Hash.parse(json.topic),
+            json.indexed,
+            json.data ? Buffer.from(json.data, "base64") : Buffer.from([])
+        );
+    }
+
+    toJson(): {[key: string]: any} {
+        return {
+            contractAddress: this.contractAddress.toString(),
+            topic: this.topic.toString(),
+            indexed: this.indexed,
+            data: this.data.toString("base64"),
+        };
+    }
+}
+
 export class AccountBlock extends AccountBlockTemplate {
     public token?: Token;
     public descendantBlocks: Array<AccountBlock>;
+    public events: Array<AccountBlockEvent>;
     public basePlasma: number;
     public usedPlasma: number;
     public changesHash: Hash;
@@ -222,6 +254,7 @@ export class AccountBlock extends AccountBlockTemplate {
         super(options);
         this.token = options.token;
         this.descendantBlocks = options.descendantBlocks ?? [];
+        this.events = options.events ?? [];
         this.basePlasma = options.basePlasma ?? 0;
         this.usedPlasma = options.usedPlasma ?? 0;
         this.changesHash = options.changesHash ?? EMPTY_HASH;
@@ -255,6 +288,9 @@ export class AccountBlock extends AccountBlockTemplate {
             descendantBlocks: json.descendantBlocks
                 ? json.descendantBlocks.map((block: {[key: string]: any}) => AccountBlock.fromJson(block))
                 : undefined,
+            events: json.events
+                ? json.events.map((event: {[key: string]: any}) => AccountBlockEvent.fromJson(event))
+                : undefined,
             basePlasma: json.basePlasma,
             usedPlasma: json.usedPlasma,
             changesHash: json.changesHash ? Hash.parse(json.changesHash) : undefined,
@@ -268,6 +304,7 @@ export class AccountBlock extends AccountBlockTemplate {
             ...super.toJson(),
             token: this.token?.toJson(),
             descendantBlocks: this.descendantBlocks.map((block: AccountBlock) => block.toJson()),
+            events: this.events.map((event: AccountBlockEvent) => event.toJson()),
             basePlasma: this.basePlasma,
             usedPlasma: this.usedPlasma,
             changesHash: this.changesHash.toString(),
