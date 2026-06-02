@@ -148,11 +148,11 @@ describe("PlasmaApi", () => {
     describe("getVariables", () => {
         it("should fetch and parse plasma variables", async () => {
             const mockResponse = {
-                maxBasePlasmaInMomentum: 4200000,
-                fusedPlasmaTarget: 1050000,
-                powPlasmaTarget: 1050000,
-                maxPriceChangePercent: 10,
-                priceChangeDenominator: 20
+                MaxBasePlasmaInMomentum: 4200000,
+                FusedPlasmaTarget: 1050000,
+                PowPlasmaTarget: 1050000,
+                MaxPriceChangePercent: 10,
+                PriceChangeDenominator: 20
             };
             mockClient.setMockResponse("embedded.plasma.getVariables", mockResponse);
 
