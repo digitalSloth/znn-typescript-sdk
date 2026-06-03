@@ -89,6 +89,20 @@ describe("Zenon", () => {
         expect(Zenon.getPowBasePath()).to.equal("/");
     });
 
+    it("should register and clear a custom PoW provider", () => {
+        const provider = async () => "0000000000000000";
+
+        Zenon.setPowProvider(provider);
+        expect(Zenon.getPowProvider()).to.equal(provider);
+
+        Zenon.clearPowProvider();
+        expect(Zenon.getPowProvider()).to.be.undefined;
+    });
+
+    it("should throw from usePowWorker outside a browser environment", () => {
+        expect(() => Zenon.usePowWorker()).to.throw(/only supported in browser/);
+    });
+
     it("should send transactions through the utility helper", async () => {
         const zenon = Zenon.getInstance();
         const keyPair = KeyPair.fromPrivateKey(Buffer.alloc(32, 1));

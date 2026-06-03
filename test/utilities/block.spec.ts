@@ -1,5 +1,6 @@
 import { expect } from "chai";
-import { isSendBlock, isReceiveBlock, getTxHash, send } from "../../src/utilities/block.js";
+import { isSendBlock, isReceiveBlock, getTxHash, send, prepareBlock } from "../../src/utilities/block.js";
+import { Zenon } from "../../src/zenon.js";
 import { BlockTypeEnum, AccountBlockTemplate } from "../../src/model/nom/accountBlock.js";
 import {
     Address,
@@ -426,6 +427,128 @@ describe("Block Utilities", () => {
 
             expect(error).to.exist;
             expect(error!.message).to.equal("Nonce is required when difficulty is set");
+        });
+    });
+
+    describe("PoW provider hook", () => {
+        afterEach(() => {
+            Zenon.clearPowProvider();
+        });
+
+        it("should use a registered provider when PoW is required", async () => {
+            const keyPair = KeyPair.fromPrivateKey(Buffer.alloc(32, 7));
+            const calls: Array<{ hashHex: string; difficulty: number }> = [];
+
+            Zenon.setPowProvider(async (hashHex, difficulty) => {
+                calls.push({ hashHex, difficulty });
+                return "feedfacefeedface";
+            });
+
+            const zenon = makeZenon({
+                ledger: {
+                    getFrontierAccountBlock: async () => ({ height: 5, hash: Hash.parse(HASH_A) })
+                },
+                embedded: {
+                    plasma: {
+                        getRequiredPoWForAccountBlock: async () => ({
+                            requiredDifficulty: 12345,
+                            basePlasma: 7,
+                            availablePlasma: 3
+                        })
+                    }
+                }
+            });
+
+            const transaction = new AccountBlockTemplate({
+                blockType: BlockTypeEnum.UserSend,
+                toAddress: Address.parse(ADDRESS_B),
+                amount: BigNumber.from(100),
+                tokenStandard: ZNN_ZTS,
+                data: Buffer.from([])
+            });
+
+            const result = await send(zenon as any, transaction, keyPair);
+
+            expect(calls).to.have.length(1);
+            expect(calls[0].hashHex).to.have.length(64);
+            expect(calls[0].difficulty).to.equal(12345);
+            expect(result.difficulty).to.equal(12345);
+            expect(result.fusedPlasma).to.equal(3);
+            expect(result.nonce).to.equal("feedfacefeedface");
+            expect(result.signature.length).to.be.greaterThan(0);
+        });
+
+        it("should not invoke the provider when no PoW is required", async () => {
+            const keyPair = KeyPair.fromPrivateKey(Buffer.alloc(32, 8));
+            let invoked = false;
+
+            Zenon.setPowProvider(async () => {
+                invoked = true;
+                return "0000000000000000";
+            });
+
+            const zenon = makeZenon({
+                ledger: {
+                    getFrontierAccountBlock: async () => ({ height: 5, hash: Hash.parse(HASH_A) })
+                }
+            });
+
+            const transaction = new AccountBlockTemplate({
+                blockType: BlockTypeEnum.UserSend,
+                toAddress: Address.parse(ADDRESS_B),
+                amount: BigNumber.from(100),
+                tokenStandard: ZNN_ZTS,
+                data: Buffer.from([])
+            });
+
+            const result = await send(zenon as any, transaction, keyPair);
+
+            expect(invoked).to.be.false;
+            expect(result.difficulty).to.equal(0);
+            expect(result.nonce).to.equal("0000000000000000");
+        });
+
+        it("should restore built-in behaviour after clearPowProvider", () => {
+            const provider = async () => "0000000000000000";
+            Zenon.setPowProvider(provider);
+            expect(Zenon.getPowProvider()).to.equal(provider);
+
+            Zenon.clearPowProvider();
+            expect(Zenon.getPowProvider()).to.be.undefined;
+        });
+    });
+
+    describe("prepareBlock", () => {
+        it("should prepare a block without publishing it", async () => {
+            const keyPair = KeyPair.fromPrivateKey(Buffer.alloc(32, 9));
+            let published = false;
+
+            const zenon = makeZenon({
+                ledger: {
+                    getFrontierAccountBlock: async () => ({ height: 5, hash: Hash.parse(HASH_A) }),
+                    publishRawTransaction: async (tx: AccountBlockTemplate) => {
+                        published = true;
+                        return tx;
+                    }
+                }
+            });
+
+            const transaction = new AccountBlockTemplate({
+                blockType: BlockTypeEnum.UserSend,
+                toAddress: Address.parse(ADDRESS_B),
+                amount: BigNumber.from(100),
+                tokenStandard: ZNN_ZTS,
+                data: Buffer.from([])
+            });
+
+            const result = await prepareBlock(zenon as any, transaction, keyPair);
+
+            expect(published).to.be.false;
+            expect(result.height).to.equal(6);
+            expect(result.previousHash.toString()).to.equal(HASH_A);
+            expect(result.hash.toString()).to.have.length(64);
+            expect(result.signature.length).to.be.greaterThan(0);
+            expect(result.address.toString()).to.equal(keyPair.getAddress().toString());
         });
     });
 });
