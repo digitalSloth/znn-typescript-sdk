@@ -177,6 +177,71 @@ Get the current PoW base path.
 const path = Zenon.getPowBasePath();
 ```
 
+##### Running PoW off the main thread
+
+By default, PoW runs **synchronously on the main thread**. In the browser this blocks the event loop for the full duration of generation, which freezes the UI and starves the WebSocket heartbeat/reconnect timers — long PoW can cause the node to drop the connection before the transaction is published. Moving PoW to a **Web Worker** fixes both problems. There are two ways to do this:
+
+- `Zenon.usePowWorker()` — the SDK's built-in, managed worker (simplest).
+- `Zenon.setPowProvider()` — supply your own provider (full control).
+
+##### `Zenon.usePowWorker(): PowWorker`
+
+Register the SDK's built-in Web Worker as the PoW provider. PoW then runs off the main thread automatically — no worker file or app-side code required. Browser-only.
+
+The worker locates `pow.js` / `pow.wasm` using the current [PoW base path](#zenonsetpowbasepathbasepath-string-void), so call `setPowBasePath` first if needed. The worker is created lazily on the first transaction that requires PoW.
+
+```javascript
+import { Zenon } from 'znn-typescript-sdk';
+
+Zenon.setPowBasePath('/');   // where pow.js / pow.wasm are served
+Zenon.usePowWorker();        // PoW now runs in a Web Worker
+
+// send() runs PoW off the main thread; the WebSocket stays connected
+const tx = await zenon.send(blockTemplate, keyPair);
+```
+
+> **CSP note:** the built-in worker is spawned from a `Blob` URL, so a strict Content-Security-Policy must allow `worker-src blob:` (and the dynamic import of `pow.js`). If your CSP forbids this, supply your own provider with `setPowProvider` instead.
+
+Call `Zenon.stopPowWorker()` to terminate the worker and clear the provider. `clearPowProvider()` also stops it.
+
+##### `Zenon.setPowProvider(provider: PowProvider): void`
+
+Register a custom Proof of Work provider. When set, it is used instead of the built-in WASM module during `send` and `prepareBlock`. Use this when `usePowWorker` doesn't fit (e.g. strict CSP, a shared worker, a native module, or a remote PoW service).
+
+The provider receives the PoW data as a 64-character hex string and the required difficulty, and resolves to the 8-byte nonce as a hex string:
+
+```typescript
+import { Zenon, type PowProvider } from 'znn-typescript-sdk';
+
+// Example: a provider backed by your own Web Worker
+const worker = new Worker(new URL('./pow.worker.js', import.meta.url), { type: 'module' });
+
+const provider: PowProvider = (hashHex, difficulty) =>
+  new Promise((resolve, reject) => {
+    const id = crypto.randomUUID();
+    const onMessage = (e: MessageEvent) => {
+      if (e.data.id !== id) return;
+      worker.removeEventListener('message', onMessage);
+      e.data.error ? reject(new Error(e.data.error)) : resolve(e.data.nonce);
+    };
+    worker.addEventListener('message', onMessage);
+    worker.postMessage({ id, hashHex, difficulty });
+  });
+
+Zenon.setPowProvider(provider);
+
+// send() now runs PoW in the worker; the WebSocket stays connected
+const tx = await zenon.send(blockTemplate, keyPair);
+```
+
+##### `Zenon.getPowProvider(): PowProvider | undefined`
+
+Get the currently registered PoW provider, or `undefined` if none is set (the built-in WASM module is used).
+
+##### `Zenon.clearPowProvider(): void`
+
+Remove a previously registered PoW provider, restoring the built-in WASM-based generator.
+
 ### Instance Methods
 
 ##### `initialize(url: string, timeout?: number, wsOptions?: WsClientOptions): Promise<void>`
@@ -191,7 +256,7 @@ await zenon.initialize('wss://node.zenonhub.io:35998');
 await zenon.initialize('https://node.zenonhub.io:35997');
 ```
 
-> **Note:** WebSocket connections automatically reconnect if dropped during long-running operations (e.g., PoW generation). The default settings are suitable for most use cases.
+> **Note:** WebSocket connections automatically reconnect if dropped, and the default settings are suitable for most use cases. However, reconnect (like all timers) cannot run while the main thread is blocked. The built-in PoW generator is synchronous, so long PoW can starve the heartbeat/reconnect machinery and the node may close the connection before the transaction publishes. To avoid this, run PoW off the main thread with [`Zenon.usePowWorker`](#zenonusepowworker-powworker) (or a custom [`setPowProvider`](#zenonsetpowproviderprovider-powprovider-void)).
 
 ##### `clearConnection(): void`
 
@@ -209,6 +274,19 @@ Sign and send a transaction. Automatically generates PoW if needed.
 const tx = await zenon.send(blockTemplate, keyPair);
 console.log('Hash:', tx.hash.toString());
 ```
+
+##### `prepareBlock(blockTemplate: AccountBlockTemplate, keyPair: KeyPair): Promise<AccountBlockTemplate>`
+
+Prepare a block for publishing — autofill fields, run PoW (if required), and set the hash and signature — **without** publishing it. This is the publish-free portion of `send`, and lets you control the connection lifecycle around PoW. For example, you can verify or restart the WebSocket connection after PoW completes but before publishing:
+
+```javascript
+const prepared = await zenon.prepareBlock(blockTemplate, keyPair);
+
+// Ensure the connection is healthy after PoW, then publish yourself
+await zenon.ledger.publishRawTransaction(prepared);
+```
+
+> **Tip:** Combine `prepareBlock` with `Zenon.setPowProvider` (a Web Worker provider) to keep the connection alive *during* PoW as well as control publishing afterward.
 
 ---
 

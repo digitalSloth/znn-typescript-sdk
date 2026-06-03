@@ -139,8 +139,13 @@ async function setDifficulty(
             difficulty: transaction.difficulty,
         });
 
-        // Generate PoW nonce using WASM module
-        transaction.nonce = await generatePoW(powData.toString(), transaction.difficulty);
+        // Generate the PoW nonce. If the consumer has registered a custom PoW
+        // provider (e.g. one backed by a Web Worker), use it so the work can run
+        // off the main thread; otherwise fall back to the built-in WASM module.
+        const provider = Zenon.getPowProvider();
+        transaction.nonce = provider
+            ? await provider(powData.toString(), transaction.difficulty)
+            : await generatePoW(powData.toString(), transaction.difficulty);
 
         logger.info(`PoW generated: nonce=${transaction.nonce}`);
     } else {
@@ -161,7 +166,15 @@ function setHashAndSignature(
     return transaction;
 }
 
-export async function send(
+/**
+ * Prepare an account block for publishing without sending it: autofill the
+ * fields, run PoW (if required), and set the hash and signature.
+ *
+ * This is the publish-free portion of {@link send}. It lets consumers control
+ * the connection lifecycle around PoW — for example, verifying or restarting
+ * the WebSocket connection between preparing the block and publishing it.
+ */
+export async function prepareBlock(
     zenonInstance: Zenon,
     transaction: AccountBlockTemplate,
     currentKeyPair: KeyPair
@@ -169,6 +182,15 @@ export async function send(
     transaction = await checkAndSetFields(zenonInstance, transaction, currentKeyPair);
     transaction = await setDifficulty(zenonInstance, transaction);
     transaction = setHashAndSignature(transaction, currentKeyPair);
+    return transaction;
+}
+
+export async function send(
+    zenonInstance: Zenon,
+    transaction: AccountBlockTemplate,
+    currentKeyPair: KeyPair
+): Promise<AccountBlockTemplate> {
+    transaction = await prepareBlock(zenonInstance, transaction, currentKeyPair);
     return zenonInstance.ledger.publishRawTransaction(transaction);
 }
 

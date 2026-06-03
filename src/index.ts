@@ -4,6 +4,12 @@ export {
     Zenon,
     DEFAULT_CHAIN_ID, DEFAULT_NET_ID, DEFAULT_POW_BASE_PATH
 } from "./zenon.js";
+export type { PowProvider } from "./zenon.js";
+
+//
+// PoW exports
+export { PowWorker, isPowWorkerSupported } from "./pow/index.js";
+export type { PowWorkerOptions } from "./pow/index.js";
 
 //
 // Client exports
