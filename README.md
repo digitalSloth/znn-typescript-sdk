@@ -314,7 +314,7 @@ npm test
 
 ## Requirements
 
-- Node.js 18+ (ESM support)
+- Node.js 20+ (ESM support)
 - Modern browser with WebAssembly support
 - Bundler for browser production apps (Vite, Webpack, etc.)
 
