@@ -13,3 +13,6 @@ Thumbs.db
 # Project files:
 .idea/
 *.sublime-*
+
+# Notes
+/docs/notes/

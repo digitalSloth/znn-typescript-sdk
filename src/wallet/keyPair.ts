@@ -42,5 +42,10 @@ export class KeyPair {
     public sign(data: Buffer): Buffer{
         return Crypto.sign(data, this.privateKey);
     }
+
+    public clear(): void {
+        this.privateKey.fill(0);
+        this.publicKey.fill(0);
+    }
 }
 

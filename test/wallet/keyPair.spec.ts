@@ -62,6 +62,28 @@ describe("KeyPair", () => {
         });
     });
 
+    describe("clear", () => {
+        it("zeroes out the private and public key buffers", () => {
+            const privateKey = Buffer.from("f58cb2e1add0382c2004fa8e04895a65a3c755553e60187d697c2e5ab9df67ea", "hex");
+            const keyPair = KeyPair.fromPrivateKey(privateKey);
+
+            keyPair.clear();
+
+            expect(keyPair.privateKey.every(b => b === 0)).to.be.true;
+            expect(keyPair.publicKey.every(b => b === 0)).to.be.true;
+        });
+
+        it("does not affect the original private key buffer passed to the constructor", () => {
+            const privateKey = Buffer.from("f58cb2e1add0382c2004fa8e04895a65a3c755553e60187d697c2e5ab9df67ea", "hex");
+            const original = Buffer.from(privateKey);
+            const keyPair = KeyPair.fromPrivateKey(privateKey);
+
+            keyPair.clear();
+
+            expect(privateKey.equals(original)).to.be.true;
+        });
+    });
+
     describe("sign", () => {
         it("ensures signature length is valid", () => {
             const entropy = "bbefd88e1ff3f673d24da98b51f04ee7";
