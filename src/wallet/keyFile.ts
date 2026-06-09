@@ -4,16 +4,22 @@ import { isBrowser } from "../utilities/global.js";
 import { Encryptor } from "./encryptor.js";
 import { KeyStore } from "./keyStore.js";
 
+export interface KdfConfig {
+    timeCost: number;
+    memoryCost: number;
+    hashLength: number;
+    parallelism: number;
+}
+
 export class KeyFile {
 
     private readonly password: string;
 
-    private static readonly DEFAULT_CONFIG = {
+    public static readonly DEFAULT_CONFIG: KdfConfig = {
         timeCost: 1,
         memoryCost: 64 * 1024,
         hashLength: 32,
         parallelism: 4,
-        type: 2, // Argon2id
     };
 
     constructor(password: string) {
@@ -24,10 +30,31 @@ export class KeyFile {
         return new KeyFile(password);
     }
 
-    public async encrypt(keyStore: KeyStore): Promise<KeyFileEncryptedData> {
+    /**
+     * Returns true if the keyfile was encrypted with weaker KDF params than
+     * the supplied target, meaning it should be re-encrypted on next unlock.
+     * Keyfiles that predate the self-describing format (no params stored) are
+     * always considered to need an upgrade.
+     */
+    public static needsUpgrade(json: KeyFileEncryptedData, target: Partial<KdfConfig> = KeyFile.DEFAULT_CONFIG): boolean {
+        const params = json.crypto.argon2Params;
 
+        // Legacy keyfile — no KDF params stored, always upgrade
+        if (params.timeCost === undefined) return true;
+
+        if (target.timeCost !== undefined && params.timeCost < target.timeCost) return true;
+        if (target.memoryCost !== undefined && (params.memoryCost ?? 0) < target.memoryCost) return true;
+        if (target.hashLength !== undefined && (params.hashLength ?? 0) < target.hashLength) return true;
+        if (target.parallelism !== undefined && (params.parallelism ?? 0) < target.parallelism) return true;
+
+        return false;
+    }
+
+    public async encrypt(keyStore: KeyStore, config: Partial<KdfConfig> = {}): Promise<KeyFileEncryptedData> {
+
+        const resolvedConfig: KdfConfig = { ...KeyFile.DEFAULT_CONFIG, ...config };
         const salt = Buffer.from(Crypto.randomBytes(16)).toString("hex");
-        const key = await this.hashPassword(this.password, salt);
+        const key = await this.hashPassword(this.password, salt, resolvedConfig);
         const keyHash = Buffer.from(key);
         const [encrypted, nonce] = Encryptor.setKey(keyHash).encrypt(keyStore.entropy);
 
@@ -36,6 +63,10 @@ export class KeyFile {
             crypto: {
                 argon2Params: {
                     salt: `0x${salt}`,
+                    timeCost: resolvedConfig.timeCost,
+                    memoryCost: resolvedConfig.memoryCost,
+                    hashLength: resolvedConfig.hashLength,
+                    parallelism: resolvedConfig.parallelism,
                 },
                 cipherData: `0x${encrypted}`,
                 cipherName: "aes-256-gcm",
@@ -49,10 +80,19 @@ export class KeyFile {
 
     public async decrypt(json: KeyFileEncryptedData) {
 
+        // Read KDF params from the keyfile; fall back to DEFAULT_CONFIG for
+        // legacy keyfiles that were created before params were persisted.
+        const config: KdfConfig = {
+            timeCost:   json.crypto.argon2Params.timeCost   ?? KeyFile.DEFAULT_CONFIG.timeCost,
+            memoryCost: json.crypto.argon2Params.memoryCost ?? KeyFile.DEFAULT_CONFIG.memoryCost,
+            hashLength: json.crypto.argon2Params.hashLength ?? KeyFile.DEFAULT_CONFIG.hashLength,
+            parallelism: json.crypto.argon2Params.parallelism ?? KeyFile.DEFAULT_CONFIG.parallelism,
+        };
+
         const salt = json.crypto.argon2Params.salt.substring(2);
         const cipherData = json.crypto.cipherData.substring(2);
         const aesNonce = json.crypto.nonce.substring(2);
-        const key = await this.hashPassword(this.password, salt);
+        const key = await this.hashPassword(this.password, salt, config);
         const keyHash = Buffer.from(key);
 
         const authTagLength = 32; // 16 bytes = 32 hex characters
@@ -75,9 +115,7 @@ export class KeyFile {
         return keyStore;
     }
 
-    private async hashPassword(password: string, salt: string): Promise<Uint8Array> {
-
-        const config = KeyFile.DEFAULT_CONFIG;
+    private async hashPassword(password: string, salt: string, config: KdfConfig): Promise<Uint8Array> {
 
         if (isBrowser()) {
             const hashDriver = await import(/* webpackMode: "eager" */ "argon2-browser");
@@ -99,7 +137,7 @@ export class KeyFile {
                 memoryCost: config.memoryCost,
                 hashLength: config.hashLength,
                 parallelism: config.parallelism,
-                type: 2, // Argon2id,
+                type: 2, // Argon2id
                 raw: true,
             })
         }
@@ -111,6 +149,13 @@ export interface KeyFileEncryptedData {
     crypto: {
         argon2Params: {
             salt: string;
+            // KDF params are stored in the keyfile so decrypt() is always
+            // self-contained. Fields are optional for backwards compatibility
+            // with keyfiles created before this format change.
+            timeCost?: number;
+            memoryCost?: number;
+            hashLength?: number;
+            parallelism?: number;
         };
         cipherData: string;
         cipherName: string;
