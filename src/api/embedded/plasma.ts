@@ -1,5 +1,5 @@
 import { BigNumberish } from "../../utilities/bignumber.js";
-import { MEMORY_POOL_PAGE_SIZE, RPC_MAX_PAGE_SIZE } from "../../zenon.js";
+import { RPC_MAX_PAGE_SIZE } from "../../zenon.js";
 import { Api } from "../base.js";
 import { Plasma } from "../../embedded/plasma.js";
 import { FusionEntryList, GetRequiredPowParam, GetRequiredPowResponse, PlasmaInfo, PlasmaVariables } from "../../model/embedded/plasma.js";
@@ -82,7 +82,7 @@ export class PlasmaApi extends Api {
         return AccountBlockTemplate.callContract(
             PLASMA_ADDRESS,
             QSR_ZTS,
-            BigNumber.from(0),
+            0n,
             Plasma.abi.encodeFunctionData("SetVariables", [
                 maxBasePlasmaInMomentum,
                 fusedPlasmaTarget,
