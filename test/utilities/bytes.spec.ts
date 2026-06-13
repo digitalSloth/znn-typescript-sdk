@@ -20,7 +20,6 @@ import {
     stripZeros,
     zeroPad
 } from "../../src/utilities/bytes.js";
-import { BigNumber } from "../../src/utilities/bignumber.js";
 
 describe("Bytes", () => {
 
@@ -91,8 +90,8 @@ describe("Bytes", () => {
             expect(result.length).to.equal(32);
         });
 
-        it("should handle BigNumber input", () => {
-            const bn = new BigNumber("16909060"); // 0x01020304 in hex
+        it("should handle bigint input", () => {
+            const bn = BigInt("16909060"); // 0x01020304 in hex
             const result = numberOrStringToBytes(bn);
 
             expect(result).to.be.instanceOf(Buffer);

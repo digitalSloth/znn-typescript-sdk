@@ -1,4 +1,4 @@
-import {BigNumber, BigNumberish} from "../../utilities/bignumber.js";
+import { BigNumberish } from "../../utilities/bignumber.js";
 import { MEMORY_POOL_PAGE_SIZE, RPC_MAX_PAGE_SIZE } from "../../zenon.js";
 import { Api } from "../base.js";
 import { Plasma } from "../../embedded/plasma.js";
@@ -35,17 +35,6 @@ export class PlasmaApi extends Api {
         return FusionEntryList.fromJson(response);
     }
 
-    // Method does not exist in go-zenon but is listed in the dart SDK
-    // @see https://github.com/zenon-network/go-zenon/blob/master/rpc/api/embedded/plasma.go
-    // @see https://github.com/zenon-network/znn_sdk_dart/blob/master/lib/src/api/embedded/plasma.dart
-    // async getRequiredFusionAmount(requiredPlasma: BigNumber): Promise<BigNumber> {
-    //     const response = await this.client.sendRequest("embedded.plasma.getRequiredFusionAmount", [
-    //         requiredPlasma
-    //     ]);
-    //
-    //     return BigNumber.from(response.toString());
-    // }
-
     async getRequiredPoWForAccountBlock(powParam: GetRequiredPowParam): Promise<GetRequiredPowResponse> {
         const response = await this.client.sendRequest("embedded.plasma.getRequiredPoWForAccountBlock", [
             powParam.toJson(),
@@ -71,7 +60,7 @@ export class PlasmaApi extends Api {
         return AccountBlockTemplate.callContract(
             PLASMA_ADDRESS,
             QSR_ZTS,
-            BigNumber.from(0),
+            0n,
             Plasma.abi.encodeFunctionData("CancelFuse", [
                 id.getBytes()
             ])

@@ -3,7 +3,6 @@ import { RPC_MAX_PAGE_SIZE } from "../../zenon.js";
 import { Address, SENTINEL_ADDRESS, ZNN_ZTS } from "../../model/primitives/index.js";
 import { SentinelInfo, SentinelInfoList, RewardHistoryList, UncollectedReward } from "../../model/embedded/index.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import { Sentinel as SentinelContract, Common as CommonContract } from "../../embedded/index.js";
 import { SENTINEL_REGISTER_ZNN_AMOUNT } from "./constants.js";
 
@@ -38,11 +37,11 @@ export class SentinelApi extends Api {
     //
     // Common RPC
 
-    async getDepositedQsr(address: Address): Promise<BigNumber> {
+    async getDepositedQsr(address: Address): Promise<bigint> {
         const response = await this.client.sendRequest("embedded.sentinel.getDepositedQsr", [
             address.toString()
         ]);
-        return BigNumber.from(response);
+        return BigInt(response);
     }
 
     async getUncollectedReward(address: Address): Promise<UncollectedReward> {
@@ -85,7 +84,7 @@ export class SentinelApi extends Api {
         return AccountBlockTemplate.callContract(
             SENTINEL_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             SentinelContract.abi.encodeFunctionData("Revoke", [])
         );
     }
@@ -97,12 +96,12 @@ export class SentinelApi extends Api {
         return AccountBlockTemplate.callContract(
             SENTINEL_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             CommonContract.abi.encodeFunctionData("CollectReward", [])
         );
     }
 
-    depositQsr(amount: BigNumber): AccountBlockTemplate {
+    depositQsr(amount: bigint): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             SENTINEL_ADDRESS,
             ZNN_ZTS,
@@ -115,7 +114,7 @@ export class SentinelApi extends Api {
         return AccountBlockTemplate.callContract(
             SENTINEL_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             CommonContract.abi.encodeFunctionData("WithdrawQsr", [])
         );
     }

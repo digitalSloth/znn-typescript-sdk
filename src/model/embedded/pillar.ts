@@ -1,6 +1,5 @@
 import { Address } from "../primitives/index.js";
 import { Model } from "../base.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 
 export class PillarInfo extends Model {
     static unknownType: number = 0;
@@ -20,7 +19,7 @@ export class PillarInfo extends Model {
         public revokeCooldown: number,
         public revokeTimestamp: number,
         public currentStats: PillarEpochStats,
-        public weight: BigNumber
+        public weight: bigint
     ) {
         super()
     }
@@ -39,7 +38,7 @@ export class PillarInfo extends Model {
             json.revokeCooldown,
             json.revokeTimestamp,
             PillarEpochStats.fromJson(json.currentStats),
-            BigNumber.from(json.weight.toString())
+            BigInt(json.weight.toString())
         );
     }
 }
@@ -87,7 +86,7 @@ export class PillarEpochHistory extends Model {
         public giveDelegateRewardPercentage: number,
         public producedBlockNum: number,
         public expectedBlockNum: number,
-        public weight: BigNumber
+        public weight: bigint
     ) {
         super()
     }
@@ -100,7 +99,7 @@ export class PillarEpochHistory extends Model {
             json.giveDelegateRewardPercentage,
             json.producedBlockNum,
             json.expectedBlockNum,
-            BigNumber.from(json.weight.toString())
+            BigInt(json.weight.toString())
         );
     }
 }
@@ -127,7 +126,7 @@ export class DelegationInfo extends Model {
     constructor(
         public name: string,
         public status: number,
-        public weight: BigNumber
+        public weight: bigint
     ) {
         super()
     }
@@ -136,7 +135,7 @@ export class DelegationInfo extends Model {
         return new DelegationInfo(
             json.name,
             json.status,
-            BigNumber.from(json.weight.toString())
+            BigInt(json.weight.toString())
         );
     }
 

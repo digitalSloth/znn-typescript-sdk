@@ -1,7 +1,6 @@
 import { Api } from "../base.js";
 import { RPC_MAX_PAGE_SIZE } from "../../zenon.js";
 import { Address, Hash, TokenStandard, BRIDGE_ADDRESS, ZNN_ZTS } from "../../model/primitives/index.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import {
     BridgeInfo,
     OrchestratorInfo,
@@ -207,7 +206,7 @@ export class BridgeApi extends Api {
         networkClass: number,
         chainId: number,
         toAddress: string,
-        amount: BigNumber,
+        amount: bigint,
         tokenStandard: TokenStandard
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
@@ -226,7 +225,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("UpdateWrapRequest", [
                 id.getBytes(),
                 signature
@@ -238,7 +237,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("Halt", [
                 signature
             ])
@@ -253,7 +252,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("ChangeTssECDSAPubKey", [
                 pubKey,
                 oldPubKeySignature,
@@ -266,7 +265,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("Redeem", [
                 transactionHash.getBytes(),
                 logIndex
@@ -281,13 +280,13 @@ export class BridgeApi extends Api {
         logIndex: number,
         toAddress: Address,
         tokenAddress: string,
-        amount: BigNumber,
+        amount: bigint,
         signature: string
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("UnwrapToken", [
                 networkClass,
                 chainId,
@@ -308,7 +307,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("ProposeAdministrator", [
                 address.toString()
             ])
@@ -328,7 +327,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("SetNetwork", [
                 networkClass,
                 chainId,
@@ -343,7 +342,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("RemoveNetwork", [
                 networkClass,
                 chainId
@@ -359,7 +358,7 @@ export class BridgeApi extends Api {
         bridgeable: boolean,
         redeemable: boolean,
         owned: boolean,
-        minAmount: BigNumber,
+        minAmount: bigint,
         feePercentage: number,
         redeemDelay: number,
         metadata: string
@@ -367,7 +366,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("SetTokenPair", [
                 networkClass,
                 chainId,
@@ -392,7 +391,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("SetNetworkMetadata", [
                 networkClass,
                 chainId,
@@ -410,7 +409,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("RemoveTokenPair", [
                 networkClass,
                 chainId,
@@ -424,7 +423,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("Unhalt", [])
         );
     }
@@ -433,7 +432,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("Emergency", [])
         );
     }
@@ -442,7 +441,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("ChangeAdministrator", [
                 administrator.toString()
             ])
@@ -453,7 +452,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("SetAllowKeyGen", [
                 allowKeyGen
             ])
@@ -464,7 +463,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("SetBridgeMetadata", [
                 metadata
             ])
@@ -475,7 +474,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("RevokeUnwrapRequest", [
                 transactionHash.getBytes(),
                 logIndex
@@ -487,7 +486,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("NominateGuardians", [
                 guardians.map(address => address.toString())
             ])
@@ -503,7 +502,7 @@ export class BridgeApi extends Api {
         return AccountBlockTemplate.callContract(
             BRIDGE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             BridgeContract.abi.encodeFunctionData("SetOrchestratorInfo", [
                 windowSize,
                 keyGenThreshold,

@@ -11,7 +11,6 @@ import {
     ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
-import { BigNumber } from "../../../src/utilities/bignumber.js";
 import { MockClient } from "../mockClient.js";
 
 const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";
@@ -107,8 +106,8 @@ describe("TokenApi", () => {
 
     describe("issueToken", () => {
         it("should build an issue token block", async () => {
-            const totalSupply = BigNumber.from(1000);
-            const maxSupply = BigNumber.from(2000);
+            const totalSupply = BigInt(1000);
+            const maxSupply = BigInt(2000);
 
             const template = await tokenApi.issueToken(
                 "TokenName",
@@ -146,7 +145,7 @@ describe("TokenApi", () => {
     describe("mint", () => {
         it("should build a mint block", () => {
             const tokenStandard = TokenStandard.parse(TOKEN_STANDARD);
-            const amount = BigNumber.from(50);
+            const amount = BigInt(50);
             const receiveAddress = Address.parse(ADDRESS);
 
             const template = tokenApi.mint(tokenStandard, amount, receiveAddress);
@@ -166,7 +165,7 @@ describe("TokenApi", () => {
     describe("burnToken", () => {
         it("should build a burn token block", () => {
             const tokenStandard = TokenStandard.parse(TOKEN_STANDARD);
-            const amount = BigNumber.from(10);
+            const amount = BigInt(10);
 
             const template = tokenApi.burnToken(tokenStandard, amount);
 

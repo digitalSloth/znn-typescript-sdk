@@ -1,8 +1,5 @@
-// @ts-nocheck
-
 import {
-    BigNumber, BigNumberish,
-    toTwos, fromTwos, mask,
+    BigNumberish, toBigInt, toTwos, fromTwos, mask,
     MaxUint256, NegativeOne, One, Zero
 } from "../../utilities/bignumber.js";
 import { Coder, Reader, Writer } from "./abstract-coder.js";
@@ -25,21 +22,21 @@ export class NumberCoder extends Coder {
     }
 
     encode(writer: Writer, value: BigNumberish): number {
-        let v = BigNumber.from(value);
+        let v = toBigInt(value);
 
         // Check bounds are safe for encoding
         const maxUintValue = mask(MaxUint256, writer.wordSize * 8);
         if (this.signed) {
             const bounds = mask(maxUintValue, this.size * 8 - 1);
-            if (v.isGreaterThan(bounds) || v.isLessThan(bounds.plus(One).multipliedBy(NegativeOne))) {
+            if (v > bounds || v < (bounds + One) * NegativeOne) {
                 this._throwError("value out-of-bounds", value);
             }
-        } else if (v.isLessThan(Zero) || v.isGreaterThan(mask(maxUintValue, this.size * 8))) {
+        } else if (v < Zero || v > mask(maxUintValue, this.size * 8)) {
             this._throwError("value out-of-bounds", value);
         }
 
-        v = toTwos(value, this.size * 8)
-        v = mask(v, mask(this.size * 8));
+        v = toTwos(toBigInt(value), this.size * 8);
+        v = mask(v, this.size * 8);
 
         if (this.signed) {
             v = toTwos(fromTwos(v, this.size * 8), 8 * writer.wordSize);
@@ -51,11 +48,7 @@ export class NumberCoder extends Coder {
     decode(reader: Reader): any {
         let value = reader.readValue();
         value = mask(value, this.size * 8);
-
-        if (this.signed) {
-            value = fromTwos(value, this.size * 8);
-        }
-
+        if (this.signed) value = fromTwos(value, this.size * 8);
         return reader.coerce(this.name, value);
     }
 }

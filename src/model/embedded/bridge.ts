@@ -1,6 +1,5 @@
 import { Address, Hash, TokenStandard } from "../primitives/index.js";
 import { Model } from "../base.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import { TimeChallengeInfo } from "./common.js";
 
 export class BridgeInfo extends Model {
@@ -62,7 +61,7 @@ export class TokenPair extends Model {
         public bridgeable: boolean,
         public redeemable: boolean,
         public owned: boolean,
-        public minAmount: BigNumber,
+        public minAmount: bigint,
         public feePercentage: number,
         public redeemDelay: number,
         public metadata: string
@@ -77,7 +76,7 @@ export class TokenPair extends Model {
             json.bridgeable,
             json.redeemable,
             json.owned,
-            BigNumber.from(json.minAmount.toString()),
+            BigInt(json.minAmount.toString()),
             json.feePercentage,
             json.redeemDelay,
             json.metadata
@@ -133,8 +132,8 @@ export class WrapTokenRequest extends Model {
         public toAddress: string,
         public tokenStandard: TokenStandard,
         public tokenAddress: string,
-        public amount: BigNumber,
-        public fee: BigNumber,
+        public amount: bigint,
+        public fee: bigint,
         public signature: string,
         public creationMomentumHeight: number,
         public confirmationsToFinality: number
@@ -150,8 +149,8 @@ export class WrapTokenRequest extends Model {
             json.toAddress,
             TokenStandard.parse(json.tokenStandard),
             json.tokenAddress,
-            BigNumber.from(json.amount.toString()),
-            BigNumber.from(json.fee.toString()),
+            BigInt(json.amount.toString()),
+            BigInt(json.fee.toString()),
             json.signature,
             json.creationMomentumHeight,
             json.confirmationsToFinality,
@@ -185,7 +184,7 @@ export class UnwrapTokenRequest extends Model {
         public toAddress: Address,
         public tokenAddress: string,
         public tokenStandard: TokenStandard,
-        public amount: BigNumber,
+        public amount: bigint,
         public signature: string,
         public redeemed: number,
         public revoked: number,
@@ -204,7 +203,7 @@ export class UnwrapTokenRequest extends Model {
             Address.parse(json.toAddress),
             json.tokenAddress,
             TokenStandard.parse(json.tokenStandard),
-            BigNumber.from(json.amount.toString()),
+            BigInt(json.amount.toString()),
             json.signature,
             json.redeemed,
             json.revoked,
@@ -232,7 +231,7 @@ export class UnwrapTokenRequestList extends Model {
 export class ZtsFeesInfo extends Model {
     constructor(
         public tokenStandard: TokenStandard,
-        public accumulatedFee: BigNumber
+        public accumulatedFee: bigint
     ) {
         super()
     }
@@ -240,7 +239,7 @@ export class ZtsFeesInfo extends Model {
     static fromJson(json: {[key: string]: any}): ZtsFeesInfo {
         return new ZtsFeesInfo(
             TokenStandard.parse(json.tokenStandard),
-            BigNumber.from(json.accumulatedFee.toString())
+            BigInt(json.accumulatedFee.toString())
         );
     }
 }

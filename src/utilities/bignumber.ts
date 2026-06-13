@@ -1,240 +1,157 @@
-import BigNumberJs from "bignumber.js";
 import { Logger } from "./logger.js";
 import { hexlify, isBytes, isHexString } from "./bytes.js";
 
-export type BigNumberish = bigint | string | number | BigNumberJs.Value;
+export type BigNumberish = bigint | string | number;
+
+export interface Hexable {
+    toHexString(): string;
+}
 
 const logger = Logger.globalLogger();
 const MAX_SAFE = 0x1fffffffffffff;
 
-// Attach an ethers-like BigNumber.from to the bignumber.js constructor
-// We expose it by monkey-patching the imported constructor function and exporting it.
-const BigNumberOverride: any = (BigNumberJs as any);
+/**
+ * Convert any BigNumberish (or bytes/Hexable/legacy JSON) value to a native bigint.
+ * Replaces `BigNumber.from(...)`.
+ */
+export function toBigInt(value: BigNumberish | Uint8Array | Hexable | any): bigint {
+    if (typeof value === "bigint") {
+        return value;
+    }
 
-BigNumberOverride.from = function(value: any): BigNumber {
-    if (value instanceof BigNumberJs) { return value; }
-
-    if (typeof(value) === "string") {
-        if (value.match(/^-?0x[0-9a-f]+$/i)) {
-            return new BigNumberJs(toHex(value));
+    if (typeof value === "number") {
+        if (value % 1) {
+            logger.throwArgumentError("underflow", "toBigInt", value);
         }
+        if (value >= MAX_SAFE || value <= -MAX_SAFE) {
+            logger.throwArgumentError("overflow", "toBigInt", value);
+        }
+        return BigInt(value);
+    }
 
+    if (typeof value === "string") {
+        if (value.match(/^-0x[0-9a-f]+$/i)) {
+            return -BigInt("0x" + value.slice(3));
+        }
+        if (value.match(/^0x[0-9a-f]+$/i)) {
+            return BigInt(value);
+        }
         if (value.match(/^-?[0-9]+$/)) {
-            return new BigNumberJs(toHex(new BigNumberJs(value)));
+            return BigInt(value);
         }
-
         return logger.throwArgumentError("invalid BigNumber string", "value", value);
     }
 
-    if (typeof(value) === "number") {
-        if (value % 1) {
-            logger.throwArgumentError("underflow", "BigNumber.from", value);
-        }
-
-        if (value >= MAX_SAFE || value <= -MAX_SAFE) {
-            logger.throwArgumentError("overflow", "BigNumber.from", value);
-        }
-
-        return BigNumberOverride.from(String(value));
-    }
-
-    const anyValue = <any>value;
-
-    if (typeof(anyValue) === "bigint") {
-        return BigNumberOverride.from(anyValue.toString());
-    }
+    const anyValue = value as any;
 
     if (isBytes(anyValue)) {
-        return BigNumberOverride.from(hexlify(anyValue));
+        const hex = hexlify(anyValue);
+        if (hex === "0x") return 0n;
+        return BigInt(hex);
+    }
+
+    if (anyValue && typeof anyValue.toHexString === "function") {
+        return toBigInt(anyValue.toHexString() as string);
     }
 
     if (anyValue) {
-
-        // Hexable interface (takes priority)
-        if (anyValue.toHexString) {
-            const hex = anyValue.toHexString();
-            if (typeof(hex) === "string") {
-                return BigNumberOverride.from(hex);
-            }
-
-        } else {
-            // For now, handle legacy JSON-ified values (goes away in v6)
-            let hex = anyValue._hex;
-
-            // New-form JSON
-            if (hex == null && anyValue.type === "BigNumber") {
-                hex = anyValue.hex;
-            }
-
-            if (typeof(hex) === "string") {
-                if (isHexString(hex) || (hex[0] === "-" && isHexString(hex.substring(1)))) {
-                    return BigNumberOverride.from(hex);
-                }
+        // Legacy JSON-ified {_hex} or {type:"BigNumber",hex}
+        let hex = anyValue._hex;
+        if (hex == null && anyValue.type === "BigNumber") {
+            hex = anyValue.hex;
+        }
+        if (typeof hex === "string") {
+            if (isHexString(hex) || (hex[0] === "-" && isHexString(hex.substring(1)))) {
+                return toBigInt(hex);
             }
         }
     }
 
     return logger.throwArgumentError("invalid BigNumber value", "value", value);
-};
-
-BigNumberOverride.prototype.toHexString = function(): string {
-    return toHex(this);
-};
-
-// Export the patched BigNumber constructor as the module's BigNumber value
-export const BigNumber = BigNumberOverride as any;
-
-function toHex(value: BigNumberish): string {
-
-    // For BN, call on the hex string
-    if (typeof(value) !== "string") {
-        return toHex(value.toString(16));
-    }
-
-    // If negative, prepend the negative sign to the normalized positive value
-    if (value[0] === "-") {
-        // Strip off the negative sign
-        value = value.substring(1);
-
-        // Cannot have multiple negative signs (e.g. "--0x04")
-        if (value[0] === "-") { logger.throwArgumentError("invalid hex", "value", value); }
-
-        // Call toHex on the positive component
-        value = toHex(value);
-
-        // Do not allow "-0x00"
-        if (value === "0x00") { return value; }
-
-        // Negate the value
-        return "-" + value;
-    }
-
-    // Add a "0x" prefix if missing
-    if (value.substring(0, 2) !== "0x") { value = "0x" + value; }
-
-    // Normalize zero
-    if (value === "0x") { return "0x00"; }
-
-    // Make the string even length
-    if (value.length % 2) { value = "0x0" + value.substring(2); }
-
-    // Trim to smallest even-length string
-    while (value.length > 4 && value.substring(0, 4) === "0x00") {
-        value = "0x" + value.substring(4);
-    }
-
-    return value;
 }
 
-function toBigNumber(value: BigNumberish): BigNumber {
-    return BigNumberOverride.from(toHex(value));
+/**
+ * Produce a normalized hex string from a bigint.
+ * Output: `0x`-prefixed, lowercase, even-length, smallest even-length form.
+ * `0n` → "0x00", negative values → "-0x.." (never "-0x00").
+ * Replaces `.toHexString()` / the old `toHex` helper.
+ */
+export function toHexString(value: bigint): string {
+    if (value < 0n) {
+        const pos = toHexString(-value);
+        return pos === "0x00" ? "0x00" : "-" + pos;
+    }
+    let hex = value.toString(16);
+    if (hex.length % 2) hex = "0" + hex;
+    return "0x" + hex;
 }
 
-function toBN(value: BigNumberish): BigNumber {
-    // Normalize the input to a hex string using our toHex helper
-    const normalized = BigNumberOverride.from(value);
-    const hex = toHex(normalized as any);
-    if (hex[0] === "-") {
-        return new BigNumberJs("-" + hex.substring(3), 16);
-    }
-    return new BigNumberJs(hex.substring(2), 16);
-}
-
-export function fromTwos(bn: BigNumberish, width: number): BigNumber {
-    // Replicates bn.js BN.prototype.fromTwos(width)
-    // Interpret the input as a signed two's complement integer with the given bit width
-    if (!Number.isFinite(width) || width % 1 !== 0) {
-        logger.throwError("invalid-width", Logger.errors.NUMERIC_FAULT, {
-            operation: "fromTwos",
-            fault: "invalid-width",
-            width
-        });
-    }
-    if (width < 0) {
-        logger.throwError("negative-width", Logger.errors.NUMERIC_FAULT, {
-            operation: "fromTwos",
-            fault: "negative-width"
-        });
-    }
-
-    let value = toBN(bn);
-
-    // Mask to the lowest `width` bits first (bn.js behavior effectively ignores higher bits)
-    const twoPow = new BigNumberJs(2).exponentiatedBy(width);
-    value = value.mod(twoPow);
-
-    // If the sign bit (bit width-1) is set, interpret as negative by subtracting 2^width
-    if (width > 0) {
-        const signBit = new BigNumberJs(2).exponentiatedBy(width - 1);
-        if (value.gte(signBit)) {
-            value = value.minus(twoPow);
-        }
-    }
-
-    return toBigNumber(value);
-}
-
-export function toTwos(bn: BigNumberish, width: number): BigNumber {
-    // Replicates bn.js BN.prototype.toTwos(width)
-    // Convert a possibly negative signed number into its unsigned two's complement representation
-    if (!Number.isFinite(width) || width % 1 !== 0) {
-        logger.throwError("invalid-width", Logger.errors.NUMERIC_FAULT, {
-            operation: "toTwos",
-            fault: "invalid-width",
-            width
-        });
-    }
-    if (width < 0) {
-        logger.throwError("negative-width", Logger.errors.NUMERIC_FAULT, {
-            operation: "toTwos",
-            fault: "negative-width"
-        });
-    }
-
-    let value = toBN(bn);
-    const twoPow = new BigNumberJs(2).exponentiatedBy(width);
-
-    if (value.isNegative()) {
-        value = value.plus(twoPow);
-    }
-
-    // Keep only the lowest `width` bits
-    value = value.mod(twoPow);
-
-    return toBigNumber(value);
-}
-
-export function mask(bn: BigNumber, value?: BigNumberish): BigNumber {
-    // Support accidental call pattern mask(width) by returning the width as a BigNumber, so callers
-    // that then pass it into mask(x, mask(width)) still work.
-    if (arguments.length === 1) {
-        return BigNumberOverride.from(bn as any);
-    }
-
-    const bignumber = BigNumberJs(bn as any);
-    const width = BigNumberJs(value as any);
-
-    // Match eth-abi semantics: throw a numeric fault for negative widths or negative values
-    if (bignumber.isNegative() || width.isNegative()) {
+/**
+ * Keep the lowest `width` bits of `value`.
+ * Throws NUMERIC_FAULT for negative value or negative width.
+ */
+export function mask(value: bigint, width: number): bigint {
+    if (value < 0n || width < 0) {
         logger.throwError("negative-width", Logger.errors.NUMERIC_FAULT, {
             operation: "mask",
             fault: "negative-width"
         });
     }
-
-    // bn.js maskn keeps only the lowest `value` bits, which is equivalent to modulo 2^value
-    const twoPow = BigNumberJs(2).exponentiatedBy(width);
-
-    // Normalize via toBigNumber (ethers-like hex normalization) to match original behavior
-    return toBigNumber(bignumber.mod(twoPow));
+    return value & ((1n << BigInt(width)) - 1n);
 }
 
-export const NegativeOne: BigNumber = BigNumberOverride.from(-1);
-export const Zero: BigNumber = BigNumberOverride.from(0);
-export const One: BigNumber = BigNumberOverride.from(1);
-export const Two: BigNumber = BigNumberOverride.from(2);
+/**
+ * Interpret `value` as a two's-complement signed integer of bit-width `width`.
+ */
+export function fromTwos(value: bigint, width: number): bigint {
+    if (!Number.isFinite(width) || width % 1 !== 0) {
+        logger.throwError("invalid-width", Logger.errors.NUMERIC_FAULT, {
+            operation: "fromTwos",
+            fault: "invalid-width",
+            width
+        });
+    }
+    if (width < 0) {
+        logger.throwError("negative-width", Logger.errors.NUMERIC_FAULT, {
+            operation: "fromTwos",
+            fault: "negative-width"
+        });
+    }
+    const w = BigInt(width);
+    const twoPow = 1n << w;
+    let v = ((value % twoPow) + twoPow) % twoPow;
+    if (w > 0n && v >= (1n << (w - 1n))) v -= twoPow;
+    return v;
+}
 
-export const MaxUint256: BigNumber = BigNumberOverride.from("0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
-export const MinInt256: BigNumber = BigNumberOverride.from("-0x8000000000000000000000000000000000000000000000000000000000000000");
-export const MaxInt256: BigNumber = BigNumberOverride.from("0x7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+/**
+ * Convert a possibly-negative signed integer to its two's-complement unsigned
+ * representation in `width` bits.
+ */
+export function toTwos(value: bigint, width: number): bigint {
+    if (!Number.isFinite(width) || width % 1 !== 0) {
+        logger.throwError("invalid-width", Logger.errors.NUMERIC_FAULT, {
+            operation: "toTwos",
+            fault: "invalid-width",
+            width
+        });
+    }
+    if (width < 0) {
+        logger.throwError("negative-width", Logger.errors.NUMERIC_FAULT, {
+            operation: "toTwos",
+            fault: "negative-width"
+        });
+    }
+    const twoPow = 1n << BigInt(width);
+    const v = value < 0n ? value + twoPow : value;
+    return ((v % twoPow) + twoPow) % twoPow;
+}
 
+// Constants
+export const NegativeOne: bigint = -1n;
+export const Zero: bigint = 0n;
+export const One: bigint = 1n;
+export const Two: bigint = 2n;
+export const MaxUint256: bigint = (1n << 256n) - 1n;
+export const MinInt256: bigint = -(1n << 255n);
+export const MaxInt256: bigint = (1n << 255n) - 1n;

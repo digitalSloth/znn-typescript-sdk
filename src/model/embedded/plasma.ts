@@ -1,5 +1,4 @@
 import { Buffer } from "buffer";
-import { BigNumber } from "../../utilities/bignumber.js";
 import { BlockTypeEnum } from "../nom/accountBlock.js";
 import { Address, Hash } from "../primitives/index.js";
 import { Model } from "../base.js";
@@ -8,7 +7,7 @@ export class PlasmaInfo extends Model {
     constructor(
         public currentPlasma: number,
         public maxPlasma: number,
-        public qsrAmount: BigNumber
+        public qsrAmount: bigint
     ) {
         super()
     }
@@ -17,7 +16,7 @@ export class PlasmaInfo extends Model {
         return new PlasmaInfo(
             json.currentPlasma,
             json.maxPlasma,
-            BigNumber.from(json.qsrAmount.toString())
+            BigInt(json.qsrAmount.toString())
         );
     }
 }
@@ -25,7 +24,7 @@ export class PlasmaInfo extends Model {
 export class FusionEntryList extends Model {
 
     constructor(
-        public qsrAmount: BigNumber = BigNumber.from(0),
+        public qsrAmount: bigint = 0n,
         public count: number = 0,
         public list: Array<FusionEntry> = []
     ) {
@@ -34,7 +33,7 @@ export class FusionEntryList extends Model {
 
     static fromJson(json: {[key: string]: any}): FusionEntryList {
         return new FusionEntryList(
-            BigNumber.from(json.qsrAmount.toString()),
+            BigInt(json.qsrAmount.toString()),
             json.count,
             json.list.map(FusionEntry.fromJson)
         );
@@ -43,7 +42,7 @@ export class FusionEntryList extends Model {
 
 export class FusionEntry extends Model {
     constructor(
-        public qsrAmount: BigNumber,
+        public qsrAmount: bigint,
         public beneficiary: Address,
         public expirationHeight: number,
         public id: Hash,
@@ -54,7 +53,7 @@ export class FusionEntry extends Model {
 
     static fromJson(json: {[key: string]: any}): FusionEntry {
         return new FusionEntry(
-            BigNumber.from(json.qsrAmount.toString()),
+            BigInt(json.qsrAmount.toString()),
             Address.parse(json.beneficiary),
             json.expirationHeight,
             Hash.parse(json.id),
@@ -108,4 +107,3 @@ export class GetRequiredPowResponse extends Model {
         );
     }
 }
-

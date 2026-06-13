@@ -4,7 +4,6 @@ import { Address, TOKEN_ADDRESS, TokenStandard, ZNN_ZTS } from "../../model/prim
 import { AccountBlockTemplate, Token, TokenList } from "../../model/nom/index.js";
 import { Token as TokenContract } from "../../embedded/token.js"
 import { ONE_ZNN } from "./constants.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 
 export class TokenApi extends Api {
 
@@ -55,8 +54,8 @@ export class TokenApi extends Api {
         tokenName: string,
         tokenSymbol: string,
         tokenDomain: string,
-        totalSupply: BigNumber,
-        maxSupply: BigNumber,
+        totalSupply: bigint,
+        maxSupply: bigint,
         decimals: number,
         mintable: boolean,
         burnable: boolean,
@@ -82,13 +81,13 @@ export class TokenApi extends Api {
 
     mint(
         tokenStandard: TokenStandard,
-        amount: BigNumber,
+        amount: bigint,
         receiveAddress: Address
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             TOKEN_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             TokenContract.abi.encodeFunctionData("Mint", [
                 tokenStandard.toString(),
                 amount.toString(),
@@ -99,7 +98,7 @@ export class TokenApi extends Api {
 
     burnToken(
         tokenStandard: TokenStandard,
-        amount: BigNumber
+        amount: bigint
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             TOKEN_ADDRESS,
@@ -118,7 +117,7 @@ export class TokenApi extends Api {
         return AccountBlockTemplate.callContract(
             TOKEN_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             TokenContract.abi.encodeFunctionData("UpdateToken", [
                 tokenStandard.toString(),
                 owner.toString(),

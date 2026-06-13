@@ -2,7 +2,6 @@ import { Api } from "../base.js";
 import { SwapAssetEntry, SwapAssetList, SwapLegacyPillarList } from "../../model/embedded/swap.js";
 import { SWAP_ADDRESS, ZNN_ZTS, Hash } from "../../model/primitives/index.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import { Swap as SwapContract } from "../../embedded/swap.js";
 
 
@@ -40,7 +39,7 @@ export class SwapApi extends Api {
         return AccountBlockTemplate.callContract(
             SWAP_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             SwapContract.abi.encodeFunctionData("RetrieveAssets", [
                 pubKey,
                 signature,

@@ -1,4 +1,3 @@
-import { BigNumber } from "../../utilities/bignumber.js";
 import { Address, Hash } from "../primitives/index.js";
 import { Model } from "../base.js";
 
@@ -6,8 +5,8 @@ export class UncollectedReward extends Model {
 
     constructor(
         public address: Address,
-        public znnAmount: BigNumber,
-        public qsrAmount: BigNumber
+        public znnAmount: bigint,
+        public qsrAmount: bigint
     ) {
         super()
     }
@@ -15,8 +14,8 @@ export class UncollectedReward extends Model {
     static fromJson(json: {[key: string]: any}): UncollectedReward {
         return new UncollectedReward(
             Address.parse(json.address),
-            BigNumber.from(json.znnAmount.toString()),
-            BigNumber.from(json.qsrAmount.toString()));
+            BigInt(json.znnAmount.toString()),
+            BigInt(json.qsrAmount.toString()));
     }
 }
 
@@ -24,8 +23,8 @@ export class RewardHistoryEntry extends Model {
 
     constructor(
         public epoch: number,
-        public znnAmount: BigNumber,
-        public qsrAmount: BigNumber
+        public znnAmount: bigint,
+        public qsrAmount: bigint
     ) {
         super()
     }
@@ -33,8 +32,8 @@ export class RewardHistoryEntry extends Model {
     static fromJson(json: {[key: string]: any}): RewardHistoryEntry {
         return new RewardHistoryEntry(
             json.epoch,
-            BigNumber.from(json.znnAmount.toString()),
-            BigNumber.from(json.qsrAmount.toString())
+            BigInt(json.znnAmount.toString()),
+            BigInt(json.qsrAmount.toString())
         );
     }
 }
@@ -121,8 +120,8 @@ export class RewardDeposit extends Model {
 
     constructor(
         public address: Address,
-        public znnAmount: BigNumber,
-        public qsrAmount: BigNumber,
+        public znnAmount: bigint,
+        public qsrAmount: bigint,
     ) {
         super()
     }
@@ -130,8 +129,8 @@ export class RewardDeposit extends Model {
     static fromJson(json: {[key: string]: any}): RewardDeposit {
         return new RewardDeposit(
             Address.parse(json.address),
-            BigNumber.from(json.znnAmount),
-            BigNumber.from(json.qsrAmount),
+            BigInt(json.znnAmount.toString()),
+            BigInt(json.qsrAmount.toString()),
         );
     }
 }

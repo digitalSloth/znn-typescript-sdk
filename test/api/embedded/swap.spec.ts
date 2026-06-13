@@ -9,7 +9,6 @@ import {
 import { AccountBlockTemplate } from "../../../src/model/nom/index.js";
 import { Hash, SWAP_ADDRESS, ZNN_ZTS } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
-import { BigNumber } from "../../../src/utilities/bignumber.js";
 import { MockClient } from "../mockClient.js";
 
 const HASH_A = "a".repeat(64);
@@ -99,7 +98,7 @@ describe("SwapApi", () => {
             expect(template).to.be.instanceOf(AccountBlockTemplate);
             expect(template.toAddress.toString()).to.equal(SWAP_ADDRESS.toString());
             expect(template.tokenStandard.toString()).to.equal(ZNN_ZTS.toString());
-            expect(template.amount.toString()).to.equal(BigNumber.from(0).toString());
+            expect(template.amount.toString()).to.equal("0");
             expect(template.data.toString("hex"))
                 .to.equal(Buffer.from(arrayify(expectedData)).toString("hex"));
         });
