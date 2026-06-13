@@ -4,7 +4,6 @@ import { HttpClient } from "../src/client/http.js";
 import { WsClient } from "../src/client/websocket.js";
 import { AccountBlockTemplate, BlockTypeEnum } from "../src/model/nom/accountBlock.js";
 import { Address, Hash, EMPTY_HASH, ZNN_ZTS } from "../src/model/primitives/index.js";
-import { BigNumber } from "../src/utilities/bignumber.js";
 import { KeyPair } from "../src/wallet/keyPair.js";
 
 const ADDRESS_B = "z1qxemdeddedxplasmaxxxxxxxxxxxxxxxxsctrp";
@@ -130,7 +129,7 @@ describe("Zenon", () => {
         const tx = new AccountBlockTemplate({
             blockType: BlockTypeEnum.UserSend,
             toAddress: Address.parse(ADDRESS_B),
-            amount: BigNumber.from(1),
+            amount: BigInt(1),
             tokenStandard: ZNN_ZTS,
             data: Buffer.from([])
         });

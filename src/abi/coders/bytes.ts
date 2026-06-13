@@ -20,7 +20,7 @@ export class DynamicBytesCoder extends Coder {
     }
 
     decode(reader: Reader): any {
-        return reader.readBytes(reader.readValue().toNumber(), true);
+        return reader.readBytes(Number(reader.readValue()), true);
     }
 }
 

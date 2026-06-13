@@ -1,7 +1,6 @@
 import { expect } from "chai";
 import { Model } from "../../src/model/base.js";
 import { Address } from "../../src/model/primitives/address.js";
-import { BigNumber } from "../../src/utilities/bignumber.js";
 
 // Test model classes for testing base Model functionality
 class SimpleModel extends Model {
@@ -26,7 +25,7 @@ class ComplexModel extends Model {
     constructor(
         public id: number,
         public address: Address,
-        public amount: BigNumber,
+        public amount: bigint,
         public items: SimpleModel[],
         public tags: string[],
         public nullValue: null,
@@ -66,12 +65,12 @@ describe("Model Base Class", () => {
 
         it("should call toString on objects with toString method", () => {
             const address = Address.parse("z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f");
-            const bigNum = BigNumber.from("1000000000");
+            const bigNum = BigInt("1000000000");
 
             class ModelWithToString extends Model {
                 constructor(
                     public address: Address,
-                    public amount: BigNumber
+                    public amount: bigint
                 ) {
                     super()
                 }
@@ -190,7 +189,7 @@ describe("Model Base Class", () => {
 
         it("should serialize complex nested structures", () => {
             const address = Address.parse("z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f");
-            const amount = BigNumber.from("5000000000");
+            const amount = BigInt("5000000000");
             const items = [
                 new SimpleModel("item1", 10),
                 new SimpleModel("item2", 20)

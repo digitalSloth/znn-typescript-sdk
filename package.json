@@ -111,7 +111,6 @@
     "argon2": "^0.43.0",
     "argon2-browser": "^1.18.0",
     "bech32": "^2.0.0",
-    "bignumber.js": "^9.3.0",
     "buffer": "^6.0.3",
     "commander": "^13.1.0",
     "crypto-browserify": "^3.5.1",

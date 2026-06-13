@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-import { BigNumber, BigNumberish } from "../utilities/bignumber.js";
+import { BigNumberish } from "../utilities/bignumber.js";
 import { arrayify, BytesLike, concat, hexDataSlice, hexlify, hexZeroPad, isHexString } from "../utilities/bytes.js";
 import { Logger } from "../utilities/logger.js";
 import { defineReadOnly, Description, getStatic } from "../utilities/properties.js";
@@ -39,7 +39,7 @@ export class TransactionDescription extends Description<TransactionDescription> 
     readonly args: Result;
     readonly signature: string;
     readonly sighash: string;
-    readonly value: BigNumber;
+    readonly value: bigint;
 }
 
 export class Indexed extends Description<Indexed> {
@@ -622,7 +622,7 @@ export class Interface {
             name: fragment.name,
             signature: fragment.format(),
             sighash: this.getSighash(fragment),
-            value: BigNumber.from(tx.value || "0")
+            value: BigInt(tx.value || "0")
         });
     }
 

@@ -15,7 +15,6 @@ import {
     ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
-import { BigNumber } from "../../../src/utilities/bignumber.js";
 import { MockClient } from "../mockClient.js";
 
 const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";
@@ -110,7 +109,7 @@ describe("StakeApi", () => {
 
     describe("stake", () => {
         it("should build a stake block", () => {
-            const amount = BigNumber.from(100);
+            const amount = BigInt(100);
             const template = stakeApi.stake(3600, amount);
 
             const expectedData = StakeContract.abi.encodeFunctionData("Stake", [3600]);

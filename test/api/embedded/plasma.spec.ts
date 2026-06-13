@@ -17,7 +17,6 @@ import {
     QSR_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
-import { BigNumber } from "../../../src/utilities/bignumber.js";
 import { MockClient } from "../mockClient.js";
 
 const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";

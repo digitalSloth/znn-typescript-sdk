@@ -16,6 +16,6 @@ export class BooleanCoder extends Coder {
     }
 
     decode(reader: Reader): any {
-        return reader.coerce(this.type, !reader.readValue().isZero());
+        return reader.coerce(this.type, reader.readValue() !== 0n);
     }
 }

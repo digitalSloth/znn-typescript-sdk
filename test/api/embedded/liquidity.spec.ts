@@ -19,7 +19,6 @@ import {
     ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
-import { BigNumber } from "../../../src/utilities/bignumber.js";
 import { MockClient } from "../mockClient.js";
 
 const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";
@@ -203,7 +202,7 @@ describe("LiquidityApi", () => {
     describe("liquidityStake", () => {
         it("should build a liquidity stake block", () => {
             const tokenStandard = TokenStandard.parse(TOKEN_STANDARD);
-            const amount = BigNumber.from(100);
+            const amount = BigInt(100);
             const template = liquidityApi.liquidityStake(3600, amount, tokenStandard);
 
             const expectedData = LiquidityContract.abi.encodeFunctionData("LiquidityStake", [3600]);
@@ -249,7 +248,7 @@ describe("LiquidityApi", () => {
 
     describe("setTokenTuple", () => {
         it("should throw when token tuple arguments are not arrays", () => {
-            expect(() => liquidityApi.setTokenTuple("zts", 10, 20, BigNumber.from(1)))
+            expect(() => liquidityApi.setTokenTuple("zts", 10, 20, BigInt(1)))
                 .to.throw("expected array value");
         });
     });

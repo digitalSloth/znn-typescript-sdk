@@ -1,6 +1,5 @@
 import { Model } from "../base.js";
 import { Address } from "../primitives/index.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import { Token } from "./token.js";
 
 export class AccountInfo extends Model {
@@ -45,7 +44,7 @@ export class AccountInfo extends Model {
 export class BalanceInfoListItem extends Model {
     constructor(
         public token: Token,
-        public balance: BigNumber
+        public balance: bigint
     ) {
         super()
     }
@@ -53,7 +52,7 @@ export class BalanceInfoListItem extends Model {
     static fromJson(json: {[key: string]: any}): BalanceInfoListItem {
         return new BalanceInfoListItem(
             Token.fromJson(json.token),
-            BigNumber.from(json.balance)
+            BigInt(json.balance.toString())
         );
     }
 }

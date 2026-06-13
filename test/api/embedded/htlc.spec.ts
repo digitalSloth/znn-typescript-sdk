@@ -11,7 +11,7 @@ import {
     ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
-import { BigNumber } from "../../../src/utilities/bignumber.js";
+
 import { MockClient } from "../mockClient.js";
 
 const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";
@@ -79,7 +79,7 @@ describe("HtlcApi", () => {
     describe("create", () => {
         it("should build a create block", () => {
             const tokenStandard = TokenStandard.parse(TOKEN_STANDARD);
-            const amount = BigNumber.from(500);
+            const amount = BigInt(500);
             const hashLocked = Address.parse(OTHER_ADDRESS);
             const hashLock = Buffer.from("cafe", "hex");
 

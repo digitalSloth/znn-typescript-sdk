@@ -1,6 +1,5 @@
 // @ts-nocheck
 
-import { BigNumber } from "../utilities/bignumber.js";
 import { Logger } from "../utilities/logger.js";
 import { defineReadOnly } from "../utilities/properties.js";
 
@@ -634,7 +633,7 @@ function parseGas(value: string, params: any): string {
         if (!comps[1].match(/^[0-9]+$/)) {
             logger.throwArgumentError("invalid human-readable ABI signature gas", "value", value);
         }
-        params.gas = BigNumber.from(comps[1]);
+        params.gas = BigInt(comps[1]);
         return comps[0];
     }
 
@@ -748,13 +747,13 @@ function verifyState(value: StateInputValue): StateOutputValue {
 interface _ConstructorFragment extends _Fragment {
     stateMutability: string;
     payable: boolean;
-    gas?: BigNumber;
+    gas?: bigint;
 }
 
 export class ConstructorFragment extends Fragment {
     stateMutability: string;
     payable: boolean;
-    gas?: BigNumber;
+    gas?: bigint;
 
     format(format?: string): string {
         if (!format) {
@@ -769,7 +768,7 @@ export class ConstructorFragment extends Fragment {
                 type: "constructor",
                 stateMutability: this.stateMutability !== "nonpayable" ? this.stateMutability : undefined,
                 payable: this.payable,
-                gas: this.gas ? this.gas.toNumber() : undefined,
+                gas: this.gas ? Number(this.gas) : undefined,
                 inputs: this.inputs.map(input => JSON.parse(input.format(format)))
             });
         }
@@ -816,7 +815,7 @@ export class ConstructorFragment extends Fragment {
             inputs: value.inputs ? value.inputs.map(ParamType.fromObject) : [],
             payable: state.payable,
             stateMutability: state.stateMutability,
-            gas: value.gas ? BigNumber.from(value.gas) : null
+            gas: value.gas ? BigInt(value.gas) : null
         };
 
         return new ConstructorFragment(_constructorGuard, params);
@@ -868,7 +867,7 @@ export class FunctionFragment extends ConstructorFragment {
                 constant: this.constant,
                 stateMutability: this.stateMutability !== "nonpayable" ? this.stateMutability : undefined,
                 payable: this.payable,
-                gas: this.gas ? this.gas.toNumber() : undefined,
+                gas: this.gas ? Number(this.gas) : undefined,
                 inputs: this.inputs.map(input => JSON.parse(input.format(format))),
                 outputs: this.outputs.map(output => JSON.parse(output.format(format)))
             });
@@ -929,7 +928,7 @@ export class FunctionFragment extends ConstructorFragment {
             outputs: value.outputs ? value.outputs.map(ParamType.fromObject) : [],
             payable: state.payable,
             stateMutability: state.stateMutability,
-            gas: value.gas ? BigNumber.from(value.gas) : null
+            gas: value.gas ? BigInt(value.gas) : null
         };
 
         return new FunctionFragment(_constructorGuard, params);

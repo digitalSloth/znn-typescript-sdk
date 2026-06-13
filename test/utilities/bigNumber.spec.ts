@@ -1,5 +1,4 @@
 import { expect } from "chai";
-import { BigNumber } from "bignumber.js";
 import {
     MaxInt256,
     MaxUint256,
@@ -9,128 +8,116 @@ import {
     Two,
     Zero,
     fromTwos,
+    mask,
+    toBigInt,
+    toHexString,
     toTwos,
 } from "../../src/utilities/bignumber.js";
 
-// Import the monkey-patched static from and prototype methods by importing the module
-import * as BigNumberModule from "../../src/utilities/bignumber.js";
-
-// Helper to access the patched BigNumber.from
-const BNfrom = (BigNumber as any).from as (v: any) => BigNumber;
-
 describe("utilities/bignumber", () => {
-    describe("BigNumber.from patch", () => {
+    describe("toBigInt", () => {
         it("accepts decimal strings", () => {
-            const bn = BNfrom("255");
-            expect(bn.toString(10)).to.equal("255");
-            expect((bn as any).toHexString()).to.equal("0xff");
+            expect(toBigInt("255")).to.equal(255n);
         });
 
-        it("accepts hex strings (with sign)", () => {
-            const bn = BNfrom("0xff");
-            expect((bn as any).toHexString()).to.equal("0xff");
-
-            const neg = BNfrom("-0x2a");
-            expect((neg as any).toHexString()).to.equal("-0x2a");
+        it("accepts hex strings", () => {
+            expect(toBigInt("0xff")).to.equal(255n);
         });
 
-        it("accepts number (safe integer only)", () => {
-            const bn = BNfrom(42);
-            expect((bn as any).toHexString()).to.equal("0x2a");
-            expect(() => BNfrom(1.5)).to.throw();
+        it("accepts negative hex strings", () => {
+            expect(toBigInt("-0x2a")).to.equal(-42n);
         });
 
-        it("accepts bigint", () => {
-            const bn = BNfrom(9007199254740991n); // MAX_SAFE_INTEGER
-            expect((bn as any).toHexString()).to.equal("0x1fffffffffffff");
+        it("accepts numbers (safe integers only)", () => {
+            expect(toBigInt(42)).to.equal(42n);
+            expect(() => toBigInt(1.5)).to.throw();
+        });
+
+        it("accepts bigint passthrough", () => {
+            expect(toBigInt(9007199254740991n)).to.equal(9007199254740991n);
         });
 
         it("accepts BytesLike (Uint8Array)", () => {
-            const arr = new Uint8Array([0x01, 0x02]);
-            const bn = BNfrom(arr);
-            expect((bn as any).toHexString()).to.equal("0x0102");
+            expect(toBigInt(new Uint8Array([0x01, 0x02]))).to.equal(0x0102n);
         });
 
         it("accepts Hexable objects", () => {
             const obj = { toHexString: () => "0x1234" };
-            const bn = BNfrom(obj);
-            expect((bn as any).toHexString()).to.equal("0x1234");
+            expect(toBigInt(obj)).to.equal(0x1234n);
         });
 
         it("accepts legacy JSON-like {_hex}", () => {
-            const bn = BNfrom({ _hex: "0x0a" } as any);
-            expect((bn as any).toHexString()).to.equal("0x0a");
+            expect(toBigInt({ _hex: "0x0a" } as any)).to.equal(10n);
         });
 
         it("rejects invalid strings", () => {
-            expect(() => BNfrom("not-a-number")).to.throw();
-            expect(() => BNfrom("--0x04")).to.throw();
+            expect(() => toBigInt("not-a-number")).to.throw();
+            expect(() => toBigInt("--0x04")).to.throw();
         });
     });
 
-    describe("toHexString prototype", () => {
-        it("returns normalized hex with 0x prefix and even length", () => {
-            const bn = BNfrom("15");
-            expect((bn as any).toHexString()).to.equal("0x0f");
+    describe("toHexString", () => {
+        it("returns 0x00 for zero", () => {
+            expect(toHexString(0n)).to.equal("0x00");
+        });
+
+        it("returns normalized hex with even length", () => {
+            expect(toHexString(15n)).to.equal("0x0f");
+            expect(toHexString(255n)).to.equal("0xff");
+        });
+
+        it("returns -0x.. for negatives (never -0x00)", () => {
+            expect(toHexString(-42n)).to.equal("-0x2a");
+        });
+
+        it("roundtrips with toBigInt", () => {
+            expect(toHexString(toBigInt("-0x2a"))).to.equal("-0x2a");
+            expect(toHexString(9007199254740991n)).to.equal("0x1fffffffffffff");
+            expect(toHexString(toBigInt(new Uint8Array([0x01, 0x02])))).to.equal("0x0102");
         });
     });
 
-    describe("two's complement conversions", () => {
+    describe("toTwos / fromTwos", () => {
         it("toTwos and fromTwos roundtrip for -1 at width 8", () => {
-            const asUnsigned = toTwos(NegativeOne, 8);
-            expect((asUnsigned as any).toHexString()).to.equal("0xff");
-            const back = fromTwos(asUnsigned, 8);
-            expect(back.toString(10)).to.equal(NegativeOne.toString(10));
+            const asUnsigned = toTwos(-1n, 8);
+            expect(asUnsigned).to.equal(0xffn);
+            expect(fromTwos(asUnsigned, 8)).to.equal(-1n);
         });
 
         it("toTwos and fromTwos roundtrip for -2 at width 16", () => {
-            const negTwo = BNfrom(-2);
-            const asUnsigned = toTwos(negTwo, 16);
-            expect((asUnsigned as any).toHexString()).to.equal("0xfffe");
-            const back = fromTwos(asUnsigned, 16);
-            expect(back.toString(10)).to.equal(negTwo.toString(10));
+            const asUnsigned = toTwos(-2n, 16);
+            expect(asUnsigned).to.equal(0xfffen);
+            expect(fromTwos(asUnsigned, 16)).to.equal(-2n);
         });
 
         it("fromTwos interprets sign bit correctly", () => {
-            const unsigned = BNfrom("0x80"); // 128 with width 8 => -128
-            const signed = fromTwos(unsigned, 8);
-            expect(signed.toString(10)).to.equal("-128");
+            expect(fromTwos(0x80n, 8)).to.equal(-128n);
         });
     });
 
     describe("mask", () => {
-        const { mask } = BigNumberModule as any;
-
         it("keeps only the lowest N bits", () => {
-            // bignumber.js cannot parse 0b, construct via hex 0x2d (45)
-            const fortyFive = BNfrom("0x2d"); // 0b101101
-            const masked = mask(fortyFive, 3);
-            expect(masked.toString(10)).to.equal("5"); // 0b101
+            expect(mask(0x2dn, 3)).to.equal(5n); // 0b101101 & 0b111 = 0b101 = 5
         });
 
-        it("supports single-arg accidental call pattern", () => {
-            const value = BNfrom(12);
-            const out = mask(value as any);
-            expect(out.toString(10)).to.equal("12");
+        it("throws on negative width", () => {
+            expect(() => mask(5n, -1)).to.throw();
         });
 
-        it("throws on negative width or value", () => {
-            const value = BNfrom(5);
-            expect(() => mask(value, BNfrom(-1))).to.throw();
-            // negative value
-            expect(() => mask(BNfrom(-5), 3)).to.throw();
+        it("throws on negative value", () => {
+            expect(() => mask(-5n, 3)).to.throw();
         });
     });
 
     describe("constants", () => {
         it("exports well-known constants", () => {
-            expect(NegativeOne.toString(10)).to.equal("-1");
-            expect(Zero.toString(10)).to.equal("0");
-            expect(One.toString(10)).to.equal("1");
-            expect(Two.toString(10)).to.equal("2");
-            expect((MaxUint256 as any).toHexString()).to.match(/^0x[0-9a-f]+$/);
-            expect((MinInt256 as any).toHexString()).to.match(/^-[0-9a-fx]+$/);
-            expect((MaxInt256 as any).toHexString()).to.match(/^0x[0-9a-f]+$/);
+            expect(NegativeOne).to.equal(-1n);
+            expect(Zero).to.equal(0n);
+            expect(One).to.equal(1n);
+            expect(Two).to.equal(2n);
+            expect(toHexString(MaxUint256)).to.match(/^0x[0-9a-f]+$/);
+            expect(toHexString(MinInt256)).to.match(/^-0x[0-9a-f]+$/);
+            expect(toHexString(MaxInt256)).to.match(/^0x[0-9a-f]+$/);
         });
     });
 });

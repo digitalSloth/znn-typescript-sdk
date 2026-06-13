@@ -1,6 +1,5 @@
 import { Api } from "../base.js";
 import { Address, Hash, TokenStandard, HTLC_ADDRESS, ZNN_ZTS } from "../../model/primitives/index.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import { HtlcInfo } from "../../model/embedded/htlc.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
 import { Htlc as HtlcContract } from "../../embedded/index.js";
@@ -28,7 +27,7 @@ export class HtlcApi extends Api {
 
     create(
         token: TokenStandard,
-        amount: BigNumber,
+        amount: bigint,
         hashLocked: Address,
         expirationTime: number,
         hashType: number,
@@ -53,7 +52,7 @@ export class HtlcApi extends Api {
         return AccountBlockTemplate.callContract(
             HTLC_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             HtlcContract.abi.encodeFunctionData("Reclaim", [
                 id.getBytes()
             ])
@@ -64,7 +63,7 @@ export class HtlcApi extends Api {
         return AccountBlockTemplate.callContract(
             HTLC_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             HtlcContract.abi.encodeFunctionData("Unlock", [
                 id.getBytes(),
                 preimage
@@ -76,7 +75,7 @@ export class HtlcApi extends Api {
         return AccountBlockTemplate.callContract(
             HTLC_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             HtlcContract.abi.encodeFunctionData("DenyProxyUnlock", [])
         );
     }
@@ -85,7 +84,7 @@ export class HtlcApi extends Api {
         return AccountBlockTemplate.callContract(
             HTLC_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             HtlcContract.abi.encodeFunctionData("AllowProxyUnlock", [])
         );
     }

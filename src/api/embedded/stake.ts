@@ -4,7 +4,6 @@ import { Address, Hash, STAKE_ADDRESS, ZNN_ZTS } from "../../model/primitives/in
 import { StakeList, RewardHistoryList, UncollectedReward } from "../../model/embedded/index.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
 import { Stake as StakeContract, Common as CommonContract } from "../../embedded/index.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 
 export class StakeApi extends Api {
 
@@ -58,7 +57,7 @@ export class StakeApi extends Api {
     //
     // Contract methods
 
-    stake(durationInSec: number, amount: BigNumber): AccountBlockTemplate {
+    stake(durationInSec: number, amount: bigint): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             STAKE_ADDRESS,
             ZNN_ZTS,
@@ -73,7 +72,7 @@ export class StakeApi extends Api {
         return AccountBlockTemplate.callContract(
             STAKE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from("0"),
+            0n,
             StakeContract.abi.encodeFunctionData("Cancel", [
                 id.getBytes()
             ])
@@ -87,7 +86,7 @@ export class StakeApi extends Api {
         return AccountBlockTemplate.callContract(
             STAKE_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from("0"),
+            0n,
             CommonContract.abi.encodeFunctionData("CollectReward", [])
         );
     }

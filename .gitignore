@@ -16,3 +16,9 @@ Thumbs.db
 
 # Notes
 /docs/notes/
+
+# Pipeline scratch
+.pipeline/
+
+# Investigate scratch
+.investigate/

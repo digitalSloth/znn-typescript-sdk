@@ -1,12 +1,11 @@
-import { BigNumber } from "../../utilities/bignumber.js";
 import { Hash } from "../primitives/index.js";
 import { Model } from "../base.js";
 
 export class SwapAssetEntry extends Model {
     constructor(
         public keyIdHash: Hash,
-        public qsr: BigNumber,
-        public znn: BigNumber
+        public qsr: bigint,
+        public znn: bigint
     ) {
         super()
     }
@@ -14,8 +13,8 @@ export class SwapAssetEntry extends Model {
     static fromJson(keyIdHash: Hash, json: {[key: string]: any}): SwapAssetEntry {
         return new SwapAssetEntry(
             keyIdHash,
-            BigNumber.from(json.qsr.toString()),
-            BigNumber.from(json.znn.toString())
+            BigInt(json.qsr.toString()),
+            BigInt(json.znn.toString())
         );
     }
 }

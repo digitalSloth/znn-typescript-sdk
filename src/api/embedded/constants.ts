@@ -1,5 +1,3 @@
-import { BigNumber } from "../../utilities/bignumber.js";
-
 export const ZNN_DECIMALS = 8;
 export const QSR_DECIMALS = 8;
 
@@ -13,25 +11,25 @@ export const FUSE_MIN_QSR_AMOUNT: number = 10 * ONE_QSR;
 export const MIN_PLASMA_AMOUNT: number = 21000;
 
 // Pillar
-export const PILLAR_REGISTER_ZNN_AMOUNT: BigNumber = BigNumber.from(15000).multipliedBy(BigNumber.from(ONE_ZNN));
-export const PILLAR_REGISTER_QSR_AMOUNT: BigNumber = BigNumber.from(150000).multipliedBy(BigNumber.from(ONE_QSR));
+export const PILLAR_REGISTER_ZNN_AMOUNT: bigint = 15000n * BigInt(ONE_ZNN);
+export const PILLAR_REGISTER_QSR_AMOUNT: bigint = 150000n * BigInt(ONE_QSR);
 export const PILLAR_NAME_MAX_LENGTH: number = 40;
 export const PILLAR_NAME_REG_EXP: RegExp = RegExp(
     "^([a-zA-Z0-9]+[-._]?)*[a-zA-Z0-9]$"
 );
 
 // Sentinel
-export const SENTINEL_REGISTER_ZNN_AMOUNT: BigNumber = BigNumber.from(5000).multipliedBy(BigNumber.from(ONE_ZNN));
-export const SENTINEL_REGISTER_QSR_AMOUNT: BigNumber = BigNumber.from(50000).multipliedBy(BigNumber.from(ONE_QSR));
+export const SENTINEL_REGISTER_ZNN_AMOUNT: bigint = 5000n * BigInt(ONE_ZNN);
+export const SENTINEL_REGISTER_QSR_AMOUNT: bigint = 50000n * BigInt(ONE_QSR);
 
 // Staking
 export const STAKE_TIME_UNIT_SEC: number = 30 * 24 * 60 * 60;
 export const STAKE_TIME_MAX_SEC: number = 12 * STAKE_TIME_UNIT_SEC;
-export const STAKE_MIN_ZNN_AMOUNT: BigNumber = BigNumber.from(ONE_ZNN);
+export const STAKE_MIN_ZNN_AMOUNT: bigint = BigInt(ONE_ZNN);
 export const STAKE_UNIT_DURATION_NAME: string = "month";
 
 // Token
-export const TOKEN_ZTS_ISSUE_FEE_IN_ZNN: BigNumber = BigNumber.from(ONE_ZNN);
+export const TOKEN_ZTS_ISSUE_FEE_IN_ZNN: bigint = BigInt(ONE_ZNN);
 export const TOKEN_NAME_MAX_LENGTH: number = 40;
 export const TOKEN_NAME_REG_EXP: RegExp = RegExp(
     "^([a-zA-Z0-9]+[-._]?)*[a-zA-Z0-9]$"

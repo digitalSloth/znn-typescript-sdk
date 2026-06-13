@@ -1,13 +1,12 @@
 import { Address, Hash, TokenStandard } from "../primitives/index.js";
 import { Model } from "../base.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 
 export class LiquidityInfo extends Model {
     constructor(
         public administrator: Address,
         public isHalted: boolean,
-        public znnReward: BigNumber,
-        public qsrReward: BigNumber,
+        public znnReward: bigint,
+        public qsrReward: bigint,
         public tokenTuples: Array<TokenTuple>
     ) {
         super()
@@ -17,8 +16,8 @@ export class LiquidityInfo extends Model {
         return new LiquidityInfo(
             Address.parse(json.administrator),
             json.isHalted,
-            BigNumber.from(json.znnReward.toString()),
-            BigNumber.from(json.qsrReward.toString()),
+            BigInt(json.znnReward.toString()),
+            BigInt(json.qsrReward.toString()),
             json.tokenTuples.map(TokenTuple.fromJson)
         );
     }
@@ -29,7 +28,7 @@ export class TokenTuple extends Model {
         public tokenStandard: TokenStandard,
         public znnPercentage: number,
         public qsrPercentage: number,
-        public minAmount: BigNumber
+        public minAmount: bigint
     ) {
         super()
     }
@@ -39,16 +38,16 @@ export class TokenTuple extends Model {
             TokenStandard.parse(json.tokenStandard),
             json.znnPercentage,
             json.qsrPercentage,
-            BigNumber.from(json.minAmount.toString())
+            BigInt(json.minAmount.toString())
         );
     }
 }
 
 export class LiquidityStakeEntry extends Model {
     constructor(
-        public amount: BigNumber,
+        public amount: bigint,
         public tokenStandard: TokenStandard,
-        public weightedAmount: BigNumber,
+        public weightedAmount: bigint,
         public startTime: number,
         public revokeTime: number,
         public expirationTime: number,
@@ -60,9 +59,9 @@ export class LiquidityStakeEntry extends Model {
 
     static fromJson(json: {[key: string]: any}): LiquidityStakeEntry {
         return new LiquidityStakeEntry(
-            BigNumber.from(json.amount.toString()),
+            BigInt(json.amount.toString()),
             TokenStandard.parse(json.tokenStandard),
-            BigNumber.from(json.weightedAmount.toString()),
+            BigInt(json.weightedAmount.toString()),
             json.startTime,
             json.revokeTime,
             json.expirationTime,
@@ -74,8 +73,8 @@ export class LiquidityStakeEntry extends Model {
 
 export class LiquidityStakeList extends Model {
     constructor(
-        public totalAmount: BigNumber,
-        public totalWeightedAmount: BigNumber,
+        public totalAmount: bigint,
+        public totalWeightedAmount: bigint,
         public count: number,
         public list: Array<LiquidityStakeEntry>
     ) {
@@ -84,8 +83,8 @@ export class LiquidityStakeList extends Model {
 
     static fromJson(json: {[key: string]: any}): LiquidityStakeList {
         return new LiquidityStakeList(
-            BigNumber.from(json.totalAmount.toString()),
-            BigNumber.from(json.totalWeightedAmount.toString()),
+            BigInt(json.totalAmount.toString()),
+            BigInt(json.totalWeightedAmount.toString()),
             json.count,
             json.list.map(LiquidityStakeEntry.fromJson)
         );
