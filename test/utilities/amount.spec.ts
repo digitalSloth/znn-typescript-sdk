@@ -29,6 +29,20 @@ describe("Amount", () => {
             const result = extractNumberDecimals(1000000, 6);
             expect(result.toString()).to.equal("1000000000000");
         });
+
+        it("should truncate excess precision toward zero", () => {
+            expect(extractNumberDecimals(123.456, 2).toString()).to.equal("12345");
+            expect(extractNumberDecimals(-123.456, 2).toString()).to.equal("-12345");
+        });
+
+        it("should handle negative numbers", () => {
+            expect(extractNumberDecimals(-1.5, 8).toString()).to.equal("-150000000");
+        });
+
+        it("should handle string and bigint inputs", () => {
+            expect(extractNumberDecimals("1.5", 8).toString()).to.equal("150000000");
+            expect(extractNumberDecimals(150000000n, 0).toString()).to.equal("150000000");
+        });
     });
 
     describe("addNumberDecimals", () => {
@@ -57,6 +71,10 @@ describe("Amount", () => {
         it("should handle large numbers", () => {
             const result = addNumberDecimals(1000000000, 6);
             expect(result).to.equal("1000");
+        });
+
+        it("should handle negative numbers", () => {
+            expect(addNumberDecimals(-150000000, 8)).to.equal("-1.5");
         });
     });
 });
