@@ -15,7 +15,6 @@ import {
     ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
-import { BigNumber } from "../../../src/utilities/bignumber.js";
 import { MockClient } from "../mockClient.js";
 
 const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";
@@ -184,7 +183,7 @@ describe("SentinelApi", () => {
 
     describe("depositQsr", () => {
         it("should build a deposit QSR block", () => {
-            const amount = BigNumber.from(100);
+            const amount = BigInt(100);
             const template = sentinelApi.depositQsr(amount);
             const expectedData = CommonContract.abi.encodeFunctionData("DepositQsr", []);
 

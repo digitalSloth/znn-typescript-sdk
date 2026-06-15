@@ -1,7 +1,6 @@
 import { Buffer } from "buffer";
 import { Address, Hash, TokenStandard } from "../primitives/index.js";
 import { Model } from "../base.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 
 export class HtlcInfo extends Model {
     constructor(
@@ -9,7 +8,7 @@ export class HtlcInfo extends Model {
         public timeLocked: Address,
         public hashLocked: Address,
         public tokenStandard: TokenStandard,
-        public amount: BigNumber,
+        public amount: bigint,
         public expirationTime: number,
         public hashType: number,
         public keyMaxSize: number,
@@ -24,7 +23,7 @@ export class HtlcInfo extends Model {
             Address.parse(json.timeLocked),
             Address.parse(json.hashLocked),
             TokenStandard.parse(json.tokenStandard),
-            BigNumber.from(json.amount.toString()),
+            BigInt(json.amount.toString()),
             json.expirationTime,
             json.hashType,
             json.keyMaxSize,
@@ -32,4 +31,3 @@ export class HtlcInfo extends Model {
         );
     }
 }
-

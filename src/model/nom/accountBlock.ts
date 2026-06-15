@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import {BigNumber, BigNumberish} from "../../utilities/bignumber.js";
+import { BigNumberish } from "../../utilities/bignumber.js";
 import {
     Address,
     Hash, EMPTY_HASH,
@@ -93,7 +93,7 @@ export class AccountBlockTemplate extends Model {
         this.momentumAcknowledged = options.momentumAcknowledged ?? EMPTY_HASH_HEIGHT;
         this.address = options.address ?? EMPTY_ADDRESS;
         this.toAddress = options.toAddress ?? EMPTY_ADDRESS;
-        this.amount = options.amount ?? BigNumber.from(0);
+        this.amount = options.amount ?? 0n;
         this.tokenStandard = options.tokenStandard ?? EMPTY_ZTS;
         this.fromBlockHash = options.fromBlockHash ?? EMPTY_HASH;
         this.data = options.data ?? Buffer.from([]);
@@ -115,7 +115,7 @@ export class AccountBlockTemplate extends Model {
             momentumAcknowledged: HashHeight.fromJson(json.momentumAcknowledged),
             address: Address.parse(json.address),
             toAddress: Address.parse(json.toAddress),
-            amount: BigNumber.from(json.amount.toString()),
+            amount: BigInt(json.amount.toString()),
             tokenStandard: TokenStandard.parse(json.tokenStandard),
             fromBlockHash: Hash.parse(json.fromBlockHash),
             data: json.data === null || json.data === ""
@@ -240,7 +240,7 @@ export class AccountBlock extends AccountBlockTemplate {
             momentumAcknowledged: HashHeight.fromJson(json.momentumAcknowledged),
             address: Address.parse(json.address),
             toAddress: Address.parse(json.toAddress),
-            amount: BigNumber.from(json.amount.toString()),
+            amount: BigInt(json.amount.toString()),
             tokenStandard: TokenStandard.parse(json.tokenStandard),
             fromBlockHash: Hash.parse(json.fromBlockHash),
             data: json.data === null || json.data === ""

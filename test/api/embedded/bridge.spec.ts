@@ -23,7 +23,6 @@ import {
     ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
-import { BigNumber } from "../../../src/utilities/bignumber.js";
 import { MockClient } from "../mockClient.js";
 
 const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";
@@ -403,7 +402,7 @@ describe("BridgeApi", () => {
     describe("wrapToken", () => {
         it("should build a wrap token block", () => {
             const tokenStandard = TokenStandard.parse(TOKEN_STANDARD);
-            const amount = BigNumber.from(100);
+            const amount = BigInt(100);
 
             const template = bridgeApi.wrapToken(1, 2, "0xrecipient", amount, tokenStandard);
 
@@ -484,7 +483,7 @@ describe("BridgeApi", () => {
         it("should build an unwrap token block", () => {
             const hash = Hash.parse(HASH_B);
             const toAddress = Address.parse(ADDRESS);
-            const amount = BigNumber.from(300);
+            const amount = BigInt(300);
 
             const template = bridgeApi.unwrapToken(
                 1,
@@ -559,7 +558,7 @@ describe("BridgeApi", () => {
     describe("setTokenPair", () => {
         it("should build a set token pair block", () => {
             const tokenStandard = TokenStandard.parse(TOKEN_STANDARD);
-            const minAmount = BigNumber.from(1000);
+            const minAmount = BigInt(1000);
 
             const template = bridgeApi.setTokenPair(
                 1,

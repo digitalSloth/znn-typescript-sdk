@@ -1,7 +1,6 @@
 import { Api } from "../base.js";
 import { RPC_MAX_PAGE_SIZE } from "../../zenon.js";
 import {Address, PILLAR_ADDRESS, ZNN_ZTS} from "../../model/primitives/index.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import {
     PillarInfo,
     PillarInfoList,
@@ -20,9 +19,9 @@ export class PillarApi extends Api {
     //
     // RPC
 
-    async getQsrRegistrationCost(): Promise<BigNumber> {
+    async getQsrRegistrationCost(): Promise<bigint> {
         const response = await this.client.sendRequest("embedded.pillar.getQsrRegistrationCost", []);
-        return BigNumber.from(response);
+        return BigInt(response);
     }
 
     async getAll(
@@ -106,11 +105,11 @@ export class PillarApi extends Api {
     //
     // Common RPC
 
-    async getDepositedQsr(address: Address): Promise<BigNumber> {
+    async getDepositedQsr(address: Address): Promise<bigint> {
         const response = await this.client.sendRequest("embedded.pillar.getDepositedQsr", [
             address.toString()
         ]);
-        return BigNumber.from(response);
+        return BigInt(response);
     }
 
     async getUncollectedReward(address: Address): Promise<UncollectedReward> {
@@ -196,7 +195,7 @@ export class PillarApi extends Api {
         return AccountBlockTemplate.callContract(
             PILLAR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             PillarContract.abi.encodeFunctionData("UpdatePillar", [
                 name,
                 producerAddress.toString(),
@@ -213,7 +212,7 @@ export class PillarApi extends Api {
         return AccountBlockTemplate.callContract(
             PILLAR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             PillarContract.abi.encodeFunctionData("Revoke", [
                 name,
             ])
@@ -226,7 +225,7 @@ export class PillarApi extends Api {
         return AccountBlockTemplate.callContract(
             PILLAR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             PillarContract.abi.encodeFunctionData("Delegate", [
                 name,
             ])
@@ -237,7 +236,7 @@ export class PillarApi extends Api {
         return AccountBlockTemplate.callContract(
             PILLAR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             PillarContract.abi.encodeFunctionData("Undelegate", [])
         );
     }
@@ -250,12 +249,12 @@ export class PillarApi extends Api {
         return AccountBlockTemplate.callContract(
             PILLAR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             CommonContract.abi.encodeFunctionData("CollectReward", [])
         );
     }
 
-    depositQsr(amount: BigNumber): AccountBlockTemplate {
+    depositQsr(amount: bigint): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             PILLAR_ADDRESS,
             ZNN_ZTS,
@@ -268,7 +267,7 @@ export class PillarApi extends Api {
         return AccountBlockTemplate.callContract(
             PILLAR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             CommonContract.abi.encodeFunctionData("WithdrawQsr", [])
         );
     }

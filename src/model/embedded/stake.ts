@@ -1,12 +1,11 @@
-import { BigNumber } from "../../utilities/bignumber.js";
 import { Address, Hash } from "../primitives/index.js";
 import { Model } from "../base.js";
 
 export class StakeEntry extends Model {
 
     constructor(
-        public amount: BigNumber,
-        public weightedAmount: BigNumber,
+        public amount: bigint,
+        public weightedAmount: bigint,
         public startTimestamp: number,
         public expirationTimestamp: number,
         public address: Address,
@@ -17,8 +16,8 @@ export class StakeEntry extends Model {
 
     static fromJson(json: {[key: string]: any}): StakeEntry {
         return new StakeEntry(
-            BigNumber.from(json.amount.toString()),
-            BigNumber.from(json.weightedAmount.toString()),
+            BigInt(json.amount.toString()),
+            BigInt(json.weightedAmount.toString()),
             json.startTimestamp,
             json.expirationTimestamp,
             Address.parse(json.address),

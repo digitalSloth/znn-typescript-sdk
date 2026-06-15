@@ -1,6 +1,5 @@
 import { Address, Hash } from "../primitives/index.js";
 import { Model } from "../base.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import { VoteBreakdown } from "./common.js";
 
 export enum AcceleratorProjectStatus {
@@ -23,8 +22,8 @@ export abstract class AcceleratorProject extends Model {
         public name: string,
         public description: string,
         public url: string,
-        public znnFundsNeeded: BigNumber,
-        public qsrFundsNeeded: BigNumber,
+        public znnFundsNeeded: bigint,
+        public qsrFundsNeeded: bigint,
         public creationTimestamp: number,
         public statusInt: number,
         public voteBreakdown: VoteBreakdown
@@ -44,8 +43,8 @@ export class Phase extends AcceleratorProject {
         name: string,
         description: string,
         url: string,
-        znnFundsNeeded: BigNumber,
-        qsrFundsNeeded: BigNumber,
+        znnFundsNeeded: bigint,
+        qsrFundsNeeded: bigint,
         creationTimestamp: number,
         public acceptedTimestamp: number,
         statusInt: number,
@@ -61,8 +60,8 @@ export class Phase extends AcceleratorProject {
             json.phase.name,
             json.phase.description,
             json.phase.url,
-            BigNumber.from(json.phase.znnFundsNeeded.toString()),
-            BigNumber.from(json.phase.qsrFundsNeeded.toString()),
+            BigInt(json.phase.znnFundsNeeded.toString()),
+            BigInt(json.phase.qsrFundsNeeded.toString()),
             json.phase.creationTimestamp,
             json.phase.acceptedTimestamp,
             json.phase.status,
@@ -78,8 +77,8 @@ export class Project extends AcceleratorProject {
         public owner: Address,
         description: string,
         url: string,
-        znnFundsNeeded: BigNumber,
-        qsrFundsNeeded: BigNumber,
+        znnFundsNeeded: bigint,
+        qsrFundsNeeded: bigint,
         creationTimestamp: number,
         public lastUpdateTimestamp: number,
         statusInt: number,
@@ -97,8 +96,8 @@ export class Project extends AcceleratorProject {
             Address.parse(json.owner),
             json.description,
             json.url,
-            BigNumber.from(json.znnFundsNeeded.toString()),
-            BigNumber.from(json.qsrFundsNeeded.toString()),
+            BigInt(json.znnFundsNeeded.toString()),
+            BigInt(json.qsrFundsNeeded.toString()),
             json.creationTimestamp,
             json.lastUpdateTimestamp,
             json.status,
@@ -108,59 +107,59 @@ export class Project extends AcceleratorProject {
         );
     }
 
-    getPaidZnnFunds(): BigNumber {
-        let amount = BigNumber.from(0);
+    getPaidZnnFunds(): bigint {
+        let amount = 0n;
         this.phases.forEach(phase => {
             if (phase.status === AcceleratorProjectStatus.paid) {
-                amount = amount.add(phase.znnFundsNeeded);
+                amount = amount + phase.znnFundsNeeded;
             }
         });
         return amount;
     }
 
-    getPendingZnnFunds(): BigNumber {
-        if (this.phases.length === 0) return BigNumber.from(0);
+    getPendingZnnFunds(): bigint {
+        if (this.phases.length === 0) return 0n;
         const lastPhase = this.getLastPhase();
         if (lastPhase && lastPhase.status === AcceleratorProjectStatus.active) {
             return lastPhase.znnFundsNeeded;
         }
-        return BigNumber.from(0);
+        return 0n;
     }
 
-    getRemainingZnnFunds(): BigNumber {
+    getRemainingZnnFunds(): bigint {
         if (this.phases.length === 0) return this.znnFundsNeeded;
-        return this.znnFundsNeeded.minus(this.getPaidZnnFunds());
+        return this.znnFundsNeeded - this.getPaidZnnFunds();
     }
 
-    getTotalZnnFunds(): BigNumber {
+    getTotalZnnFunds(): bigint {
         return this.znnFundsNeeded;
     }
 
-    getPaidQsrFunds(): BigNumber {
-        let amount = BigNumber.from(0);
+    getPaidQsrFunds(): bigint {
+        let amount = 0n;
         this.phases.forEach(phase => {
             if (phase.status === AcceleratorProjectStatus.paid) {
-                amount = amount.add(phase.qsrFundsNeeded);
+                amount = amount + phase.qsrFundsNeeded;
             }
         });
         return amount;
     }
 
-    getPendingQsrFunds(): BigNumber {
-        if (this.phases.length === 0) return BigNumber.from(0);
+    getPendingQsrFunds(): bigint {
+        if (this.phases.length === 0) return 0n;
         const lastPhase = this.getLastPhase();
         if (lastPhase && lastPhase.status === AcceleratorProjectStatus.active) {
             return lastPhase.qsrFundsNeeded;
         }
-        return BigNumber.from(0);
+        return 0n;
     }
 
-    getRemainingQsrFunds(): BigNumber {
+    getRemainingQsrFunds(): bigint {
         if (this.phases.length === 0) return this.qsrFundsNeeded;
-        return this.qsrFundsNeeded.minus(this.getPaidQsrFunds());
+        return this.qsrFundsNeeded - this.getPaidQsrFunds();
     }
 
-    getTotalQsrFunds(): BigNumber {
+    getTotalQsrFunds(): bigint {
         return this.qsrFundsNeeded;
     }
 

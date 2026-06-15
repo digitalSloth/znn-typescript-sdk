@@ -8,7 +8,6 @@ import {
     HashHeight,
     ZNN_ZTS
 } from "../../src/model/primitives/index.js";
-import { BigNumber } from "../../src/utilities/bignumber.js";
 import { KeyPair } from "../../src/wallet/keyPair.js";
 
 const HASH_A = "a".repeat(64);
@@ -100,7 +99,7 @@ describe("Block Utilities", () => {
                 momentumAcknowledged: new HashHeight(EMPTY_HASH, 0),
                 address: address,
                 toAddress: toAddress,
-                amount: BigNumber.from(100000000),
+                amount: BigInt(100000000),
                 tokenStandard: ZNN_ZTS,
                 fromBlockHash: EMPTY_HASH,
                 data: Buffer.from([]),
@@ -129,7 +128,7 @@ describe("Block Utilities", () => {
                 momentumAcknowledged: new HashHeight(EMPTY_HASH, 0),
                 address: address,
                 toAddress: toAddress1,
-                amount: BigNumber.from(100000000),
+                amount: BigInt(100000000),
                 tokenStandard: ZNN_ZTS,
                 fromBlockHash: EMPTY_HASH,
                 data: Buffer.from([]),
@@ -147,7 +146,7 @@ describe("Block Utilities", () => {
                 momentumAcknowledged: new HashHeight(EMPTY_HASH, 0),
                 address: address,
                 toAddress: toAddress2, // Different recipient
-                amount: BigNumber.from(100000000),
+                amount: BigInt(100000000),
                 tokenStandard: ZNN_ZTS,
                 fromBlockHash: EMPTY_HASH,
                 data: Buffer.from([]),
@@ -175,7 +174,7 @@ describe("Block Utilities", () => {
                 momentumAcknowledged: new HashHeight(EMPTY_HASH, 0),
                 address: address,
                 toAddress: toAddress,
-                amount: BigNumber.from(100000000),
+                amount: BigInt(100000000),
                 tokenStandard: ZNN_ZTS,
                 fromBlockHash: EMPTY_HASH,
                 data: Buffer.from([]),
@@ -204,7 +203,7 @@ describe("Block Utilities", () => {
                 momentumAcknowledged: new HashHeight(EMPTY_HASH, 0),
                 address: address,
                 toAddress: toAddress,
-                amount: BigNumber.from(100000000),
+                amount: BigInt(100000000),
                 tokenStandard: ZNN_ZTS,
                 fromBlockHash: EMPTY_HASH,
                 data: data,
@@ -232,7 +231,7 @@ describe("Block Utilities", () => {
                 momentumAcknowledged: new HashHeight(EMPTY_HASH, 0),
                 address: address,
                 toAddress: toAddress,
-                amount: BigNumber.from(100000000),
+                amount: BigInt(100000000),
                 tokenStandard: ZNN_ZTS,
                 fromBlockHash: EMPTY_HASH,
                 data: Buffer.from([]),
@@ -250,7 +249,7 @@ describe("Block Utilities", () => {
                 momentumAcknowledged: new HashHeight(EMPTY_HASH, 0),
                 address: address,
                 toAddress: toAddress,
-                amount: BigNumber.from(200000000), // Different amount
+                amount: BigInt(200000000), // Different amount
                 tokenStandard: ZNN_ZTS,
                 fromBlockHash: EMPTY_HASH,
                 data: Buffer.from([]),
@@ -285,7 +284,7 @@ describe("Block Utilities", () => {
             const transaction = new AccountBlockTemplate({
                 blockType: BlockTypeEnum.UserSend,
                 toAddress: Address.parse(ADDRESS_B),
-                amount: BigNumber.from(100),
+                amount: BigInt(100),
                 tokenStandard: ZNN_ZTS,
                 data: Buffer.from([])
             });
@@ -411,7 +410,7 @@ describe("Block Utilities", () => {
             const transaction = new AccountBlockTemplate({
                 blockType: BlockTypeEnum.UserSend,
                 toAddress: Address.parse(ADDRESS_A),
-                amount: BigNumber.from(1),
+                amount: BigInt(1),
                 tokenStandard: ZNN_ZTS,
                 data: Buffer.from([]),
                 difficulty: 1,
@@ -462,7 +461,7 @@ describe("Block Utilities", () => {
             const transaction = new AccountBlockTemplate({
                 blockType: BlockTypeEnum.UserSend,
                 toAddress: Address.parse(ADDRESS_B),
-                amount: BigNumber.from(100),
+                amount: BigInt(100),
                 tokenStandard: ZNN_ZTS,
                 data: Buffer.from([])
             });
@@ -496,7 +495,7 @@ describe("Block Utilities", () => {
             const transaction = new AccountBlockTemplate({
                 blockType: BlockTypeEnum.UserSend,
                 toAddress: Address.parse(ADDRESS_B),
-                amount: BigNumber.from(100),
+                amount: BigInt(100),
                 tokenStandard: ZNN_ZTS,
                 data: Buffer.from([])
             });
@@ -518,6 +517,64 @@ describe("Block Utilities", () => {
         });
     });
 
+    describe("wire-format / serialization (bigint amount)", () => {
+        it("AccountBlockTemplate.toJson() serializes bigint amount to decimal string", () => {
+            const tx = new AccountBlockTemplate({
+                blockType: BlockTypeEnum.UserSend,
+                toAddress: Address.parse(ADDRESS_B),
+                amount: BigInt("5000000000"),
+                tokenStandard: ZNN_ZTS,
+                data: Buffer.from([])
+            });
+            const json = tx.toJson();
+            expect(json.amount).to.equal("5000000000");
+            expect(typeof json.amount).to.equal("string");
+        });
+
+        it("AccountBlockTemplate.toString() does not throw with bigint amount", () => {
+            const tx = new AccountBlockTemplate({
+                blockType: BlockTypeEnum.UserSend,
+                toAddress: Address.parse(ADDRESS_B),
+                amount: 15000n * 100000000n,
+                tokenStandard: ZNN_ZTS,
+                data: Buffer.from([])
+            });
+            expect(() => tx.toString()).to.not.throw();
+            const str = tx.toString();
+            expect(str).to.include('"amount":"1500000000000"');
+        });
+
+        it("getTxHash produces identical hash before and after bigint amount round-trip", () => {
+            const address = Address.parse("z1qqjnwjjpnue8xmmpanz6csze6tcmtzzdtfsww7");
+            const toAddress = Address.parse("z1qzal6c5s9rjnnxd2z7dvdhjxpmmj4fmw56a0mz");
+            const amount = BigInt("100000000");
+
+            const tx1 = new AccountBlockTemplate({
+                version: 1,
+                chainIdentifier: 1,
+                blockType: BlockTypeEnum.UserSend,
+                previousHash: EMPTY_HASH,
+                height: 1,
+                momentumAcknowledged: new HashHeight(EMPTY_HASH, 0),
+                address,
+                toAddress,
+                amount,
+                tokenStandard: ZNN_ZTS,
+                fromBlockHash: EMPTY_HASH,
+                data: Buffer.from([]),
+                fusedPlasma: 0,
+                difficulty: 0,
+                nonce: "0000000000000000"
+            });
+
+            // Round-trip through JSON — simulates what a node would do on receive
+            const json = tx1.toJson();
+            const tx2 = AccountBlockTemplate.fromJson(json);
+
+            expect(getTxHash(tx2).toString()).to.equal(getTxHash(tx1).toString());
+        });
+    });
+
     describe("prepareBlock", () => {
         it("should prepare a block without publishing it", async () => {
             const keyPair = KeyPair.fromPrivateKey(Buffer.alloc(32, 9));
@@ -536,7 +593,7 @@ describe("Block Utilities", () => {
             const transaction = new AccountBlockTemplate({
                 blockType: BlockTypeEnum.UserSend,
                 toAddress: Address.parse(ADDRESS_B),
-                amount: BigNumber.from(100),
+                amount: BigInt(100),
                 tokenStandard: ZNN_ZTS,
                 data: Buffer.from([])
             });

@@ -1,5 +1,5 @@
 import { Buffer } from "buffer";
-import { BigNumber, BigNumberish } from "./bignumber.js";
+import { BigNumberish, toBigInt } from "./bignumber.js";
 import { Logger } from "./logger.js";
 
 const logger = Logger.globalLogger();
@@ -82,8 +82,12 @@ export function concat(items: ReadonlyArray<BytesLike>): Uint8Array {
     return addSlice(result);
 }
 
-export function arrayify(value: BytesLike | Hexable | number, options?: DataOptions): Uint8Array {
+export function arrayify(value: BytesLike | Hexable | number | bigint, options?: DataOptions): Uint8Array {
     if (!options) { options = { }; }
+
+    if (typeof value === "bigint") {
+        return arrayify(hexlify(value));
+    }
 
     if (typeof(value) === "number") {
         logger.checkSafeUint53(value, "invalid arrayify value");
@@ -317,12 +321,11 @@ export function numberToBytes(num: number, numBytes: number): Buffer {
  * Simplified to use existing utility functions
  */
 export function stringToBytes(str: string, numBytes: number): Buffer {
-    const bigN = BigNumber.from(str);
-    let hex = bigN.toString(16);
-    // Ensure even length for hex string
+    const value = toBigInt(str);
+    let hex = value.toString(16);
     if (hex.length % 2) hex = "0" + hex;
     const bytes = arrayify("0x" + hex);
-    return Buffer.from(zeroPad(bytes, numBytes))
+    return Buffer.from(zeroPad(bytes, numBytes));
 }
 
 export function numberOrStringToBytes(input: number | string | BigNumberish): Buffer {

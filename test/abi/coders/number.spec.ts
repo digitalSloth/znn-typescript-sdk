@@ -1,5 +1,6 @@
 import { expect } from "chai";
 import * as abi from "../../../src/abi/index.js";
+import { toHexString } from "../../../src/utilities/bignumber.js";
 
 // Test vectors are adapted from test/abi.js; our encoder/decoder returns 0x-prefixed hex.
 
@@ -153,16 +154,43 @@ describe("Number", () => {
         });
     })
 
+    describe("encode bounds", () => {
+        it("uint8 accepts max (255)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["uint8"], [255])).to.not.throw();
+        });
+
+        it("uint8 rejects overflow (256)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["uint8"], [256])).to.throw("value out-of-bounds");
+        });
+
+        it("uint8 rejects negative", function () {
+            expect(() => abi.defaultAbiCoder.encode(["uint8"], [-1])).to.throw("value out-of-bounds");
+        });
+
+        it("int8 accepts bounds (127 and -128)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["int8"], [127])).to.not.throw();
+            expect(() => abi.defaultAbiCoder.encode(["int8"], [-128])).to.not.throw();
+        });
+
+        it("int8 rejects overflow (128)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["int8"], [128])).to.throw("value out-of-bounds");
+        });
+
+        it("int8 rejects underflow (-129)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["int8"], [-129])).to.throw("value out-of-bounds");
+        });
+    })
+
     describe("decode", () => {
         it("uint (alias uint256)", function () {
             const decoded = abi.defaultAbiCoder.decode(["uint"], "0x0000000000000000000000000000000000000000000000000000000000000002");
-            // Values > 48 bits remain as BigNumber-like wrappers; compare via hex
-            expect(decoded[0].toHexString()).to.equal("0x02");
+            // Values > 48 bits are returned as bigint
+            expect(toHexString(decoded[0])).to.equal("0x02");
         });
 
         it("uint256[]", function () {
             const decoded = abi.defaultAbiCoder.decode(["uint256[]"], "0x0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000010000000000000000000000000000000000000000000000000000000000000002");
-            expect(decoded[0].map((x: any) => x.toHexString())).to.deep.equal(["0x01", "0x02"]);
+            expect(decoded[0].map((x: any) => toHexString(x))).to.deep.equal(["0x01", "0x02"]);
         });
 
         it("uint8", function () {
@@ -196,7 +224,43 @@ describe("Number", () => {
         it("int256 negative", function () {
             const decoded = abi.defaultAbiCoder.decode(["int256"], "0xfffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffe");
             // For 256-bit, compare using two's complement hex
-            expect(decoded[0].toHexString()).to.equal("-0x02");
+            expect(toHexString(decoded[0])).to.equal("-0x02");
+        });
+
+        // Reader.coerce hard constraint: bit-width <= 48 → JS number; > 48 → bigint
+        it("uint48 decodes to JS number (threshold boundary)", function () {
+            const encoded = abi.defaultAbiCoder.encode(["uint48"], [12345]);
+            const decoded = abi.defaultAbiCoder.decode(["uint48"], encoded);
+            expect(typeof decoded[0]).to.equal("number");
+            expect(decoded[0]).to.equal(12345);
+        });
+
+        it("uint56 decodes to bigint (just above threshold)", function () {
+            const encoded = abi.defaultAbiCoder.encode(["uint56"], [99999]);
+            const decoded = abi.defaultAbiCoder.decode(["uint56"], encoded);
+            expect(typeof decoded[0]).to.equal("bigint");
+            expect(decoded[0]).to.equal(99999n);
+        });
+
+        it("uint256 decodes to bigint", function () {
+            const encoded = abi.defaultAbiCoder.encode(["uint256"], [42]);
+            const decoded = abi.defaultAbiCoder.decode(["uint256"], encoded);
+            expect(typeof decoded[0]).to.equal("bigint");
+            expect(decoded[0]).to.equal(42n);
+        });
+
+        it("int48 decodes to JS number (signed threshold boundary)", function () {
+            const encoded = abi.defaultAbiCoder.encode(["int48"], [-1]);
+            const decoded = abi.defaultAbiCoder.decode(["int48"], encoded);
+            expect(typeof decoded[0]).to.equal("number");
+            expect(decoded[0]).to.equal(-1);
+        });
+
+        it("int56 decodes to bigint (signed just above threshold)", function () {
+            const encoded = abi.defaultAbiCoder.encode(["int56"], [-2]);
+            const decoded = abi.defaultAbiCoder.decode(["int56"], encoded);
+            expect(typeof decoded[0]).to.equal("bigint");
+            expect(decoded[0]).to.equal(-2n);
         });
     })
 });

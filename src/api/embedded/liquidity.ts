@@ -1,7 +1,6 @@
 import { Api } from "../base.js";
 import { RPC_MAX_PAGE_SIZE, MEMORY_POOL_PAGE_SIZE } from "../../zenon.js";
 import { Address, Hash, TokenStandard, LIQUIDITY_ADDRESS, ZNN_ZTS } from "../../model/primitives/index.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import {
     LiquidityInfo,
     LiquidityStakeList,
@@ -82,7 +81,7 @@ export class LiquidityApi extends Api {
 
     liquidityStake(
         durationInSec: number,
-        amount: BigNumber,
+        amount: bigint,
         zts: TokenStandard
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
@@ -99,7 +98,7 @@ export class LiquidityApi extends Api {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             LiquidityContract.abi.encodeFunctionData("CancelLiquidityStake", [
                 id.getBytes()
             ])
@@ -110,7 +109,7 @@ export class LiquidityApi extends Api {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             zts,
-            BigNumber.from(0),
+            0n,
             LiquidityContract.abi.encodeFunctionData("UnlockLiquidityStakeEntries", [])
         );
     }
@@ -122,12 +121,12 @@ export class LiquidityApi extends Api {
         tokenStandards: string,
         znnPercentages: number,
         qsrPercentages: number,
-        minAmounts: BigNumber
+        minAmounts: bigint
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             LiquidityContract.abi.encodeFunctionData("SetTokenTuple", [
                 tokenStandards,
                 znnPercentages,
@@ -141,7 +140,7 @@ export class LiquidityApi extends Api {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             LiquidityContract.abi.encodeFunctionData("NominateGuardians", [
                 guardians.map(address => address.toString())
             ])
@@ -152,7 +151,7 @@ export class LiquidityApi extends Api {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             LiquidityContract.abi.encodeFunctionData("ProposeAdministrator", [
                 address.toString()
             ])
@@ -163,7 +162,7 @@ export class LiquidityApi extends Api {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             LiquidityContract.abi.encodeFunctionData("SetIsHalted", [
                 isHalted
             ])
@@ -174,7 +173,7 @@ export class LiquidityApi extends Api {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             LiquidityContract.abi.encodeFunctionData("SetAdditionalReward", [
                 znnReward,
                 qsrReward
@@ -186,7 +185,7 @@ export class LiquidityApi extends Api {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             LiquidityContract.abi.encodeFunctionData("ChangeAdministrator", [
                 administrator.toString()
             ])
@@ -200,7 +199,7 @@ export class LiquidityApi extends Api {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             CommonContract.abi.encodeFunctionData("CollectReward", [])
         );
     }
@@ -209,7 +208,7 @@ export class LiquidityApi extends Api {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             LiquidityContract.abi.encodeFunctionData("Emergency", [])
         );
     }

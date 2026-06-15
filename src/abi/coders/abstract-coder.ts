@@ -1,6 +1,4 @@
-// @ts-nocheck
-
-import { BigNumber, BigNumberish } from "../../utilities/bignumber.js";
+import { BigNumberish, toBigInt } from "../../utilities/bignumber.js";
 import { arrayify, BytesLike, concat, hexConcat, hexlify } from "../../utilities/bytes.js";
 import { Logger } from "../../utilities/logger.js";
 import { defineReadOnly } from "../../utilities/properties.js";
@@ -26,7 +24,7 @@ export function checkResultErrors(result: Result): Array<{ path: Array<string | 
             try {
                 checkErrors(childPath, object[key]);
             } catch (error) {
-                errors.push({path: childPath, error: error});
+                errors.push({path: childPath, error: error as Error});
             }
         }
     };
@@ -75,17 +73,17 @@ export abstract class Coder {
 }
 
 export class Writer {
-    readonly wordSize: number;
+    readonly wordSize: number = 32;
 
-    _data: Array<Uint8Array>;
-    _dataLength: number;
-    _padding: Uint8Array;
+    _data: Array<Uint8Array> = [];
+    _dataLength: number = 0;
+    _padding: Uint8Array = new Uint8Array(32);
 
     constructor(wordSize?: number) {
         defineReadOnly(this, "wordSize", wordSize || 32);
         this._data = [];
         this._dataLength = 0;
-        this._padding = new Uint8Array(wordSize);
+        this._padding = new Uint8Array(wordSize || 32);
     }
 
     get data(): string {
@@ -146,19 +144,19 @@ export class Writer {
 }
 
 export class Reader {
-    readonly wordSize: number;
-    readonly allowLoose: boolean;
+    readonly wordSize: number = 32;
+    readonly allowLoose: boolean = false;
 
-    readonly _data: Uint8Array;
-    readonly _coerceFunc: CoerceFunc;
+    readonly _data: Uint8Array = new Uint8Array(0);
+    readonly _coerceFunc: CoerceFunc = null as unknown as CoerceFunc;
 
-    _offset: number;
+    _offset: number = 0;
 
     constructor(data: BytesLike, wordSize?: number, coerceFunc?: CoerceFunc, allowLoose?: boolean) {
         defineReadOnly(this, "_data", arrayify(data));
         defineReadOnly(this, "wordSize", wordSize || 32);
-        defineReadOnly(this, "_coerceFunc", coerceFunc);
-        defineReadOnly(this, "allowLoose", allowLoose);
+        (this as any)._coerceFunc = coerceFunc ?? null;
+        defineReadOnly(this, "allowLoose", allowLoose ?? false);
 
         this._offset = 0;
     }
@@ -172,10 +170,11 @@ export class Reader {
     }
 
     // The default Coerce function
+    // HARD CONSTRAINT: returns JS number for ^u?int([0-9]+)$ with width <= 48, bigint otherwise.
     static coerce(name: string, value: any): any {
         const match = name.match("^u?int([0-9]+)$");
         if (match && parseInt(match[1]) <= 48) {
-            value = value.toNumber();
+            value = Number(value);
         }
         return value;
     }
@@ -213,7 +212,7 @@ export class Reader {
         return bytes.slice(0, length);
     }
 
-    readValue(): any {
-        return BigNumber.from(this.readBytes(this.wordSize));
+    readValue(): bigint {
+        return toBigInt(this.readBytes(this.wordSize));
     }
 }

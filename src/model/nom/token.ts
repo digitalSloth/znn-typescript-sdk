@@ -1,4 +1,3 @@
-import { BigNumber } from "../../utilities/bignumber.js";
 import { Address, TokenStandard } from "../primitives/index.js";
 import { Model } from "../base.js";
 
@@ -7,11 +6,11 @@ export class Token extends Model {
         public name: string,
         public symbol: string,
         public domain: string,
-        public totalSupply: BigNumber,
+        public totalSupply: bigint,
         public decimals: number,
         public owner: Address,
         public tokenStandard: TokenStandard,
-        public maxSupply: BigNumber,
+        public maxSupply: bigint,
         public isBurnable: boolean,
         public isMintable: boolean,
         public isUtility: boolean
@@ -24,11 +23,11 @@ export class Token extends Model {
             json.name,
             json.symbol,
             json.domain,
-            BigNumber.from(json.totalSupply),
+            BigInt(json.totalSupply.toString()),
             json.decimals,
             Address.parse(json.owner),
             TokenStandard.parse(json.tokenStandard),
-            BigNumber.from(json.maxSupply),
+            BigInt(json.maxSupply.toString()),
             json.isBurnable,
             json.isMintable,
             json.isUtility

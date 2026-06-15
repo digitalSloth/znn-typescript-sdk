@@ -3,7 +3,6 @@ import { Hash, SPORK_ADDRESS, ZNN_ZTS } from "../../model/primitives/index.js";
 import { RPC_MAX_PAGE_SIZE } from "../../zenon.js";
 import { SporkList } from "../../model/embedded/spork.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import { Spork as SporkContract } from "../../embedded/index.js";
 
 export class SporkApi extends Api {
@@ -36,7 +35,7 @@ export class SporkApi extends Api {
         return AccountBlockTemplate.callContract(
             SPORK_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             SporkContract.abi.encodeFunctionData("CreateSpork", [
                 name,
                 description,
@@ -50,7 +49,7 @@ export class SporkApi extends Api {
         return AccountBlockTemplate.callContract(
             SPORK_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             SporkContract.abi.encodeFunctionData("ActivateSpork", [
                 id.getBytes(),
             ])

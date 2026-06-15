@@ -1,7 +1,6 @@
 import { Api } from "../base.js";
 import { RPC_MAX_PAGE_SIZE } from "../../zenon.js";
 import { Hash, TokenStandard, ACCELERATOR_ADDRESS, ZNN_ZTS } from "../../model/primitives/index.js";
-import { BigNumber } from "../../utilities/bignumber.js";
 import { Project, Phase, ProjectList, PillarVote, VoteBreakdown } from "../../model/embedded/index.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
 import { Accelerator as AcceleratorContract } from "../../embedded/index.js";
@@ -66,8 +65,8 @@ export class AcceleratorApi extends Api {
         name: string,
         description: string,
         url: string,
-        znnFundsNeeded: BigNumber,
-        qsrFundsNeeded: BigNumber
+        znnFundsNeeded: bigint,
+        qsrFundsNeeded: bigint
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             ACCELERATOR_ADDRESS,
@@ -88,13 +87,13 @@ export class AcceleratorApi extends Api {
         name: string,
         description: string,
         url: string,
-        znnFundsNeeded: BigNumber,
-        qsrFundsNeeded: BigNumber
+        znnFundsNeeded: bigint,
+        qsrFundsNeeded: bigint
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             ACCELERATOR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             AcceleratorContract.abi.encodeFunctionData("AddPhase", [
                 id.getBytes(),
                 name,
@@ -111,13 +110,13 @@ export class AcceleratorApi extends Api {
         name: string,
         description: string,
         url: string,
-        znnFundsNeeded: BigNumber,
-        qsrFundsNeeded: BigNumber
+        znnFundsNeeded: bigint,
+        qsrFundsNeeded: bigint
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             ACCELERATOR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             AcceleratorContract.abi.encodeFunctionData("UpdatePhase", [
                 id.getBytes(),
                 name,
@@ -129,7 +128,7 @@ export class AcceleratorApi extends Api {
         );
     }
 
-    donate(amount: BigNumber, zts: TokenStandard): AccountBlockTemplate {
+    donate(amount: bigint, zts: TokenStandard): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             ACCELERATOR_ADDRESS,
             zts,
@@ -142,7 +141,7 @@ export class AcceleratorApi extends Api {
         return AccountBlockTemplate.callContract(
             ACCELERATOR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             AcceleratorContract.abi.encodeFunctionData("VoteByName", [
                 id.getBytes(),
                 pillarName,
@@ -155,7 +154,7 @@ export class AcceleratorApi extends Api {
         return AccountBlockTemplate.callContract(
             ACCELERATOR_ADDRESS,
             ZNN_ZTS,
-            BigNumber.from(0),
+            0n,
             AcceleratorContract.abi.encodeFunctionData("VoteByProdAddress", [
                 id.getBytes(),
                 vote

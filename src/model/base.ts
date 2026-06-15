@@ -25,6 +25,8 @@ export abstract class Model {
                 // are converted to base64 strings before being sent
                 // we can use the logic below
                 result[key] = value.toString("base64");
+            } else if (typeof value === "bigint") {
+                result[key] = value.toString();
             } else if (Array.isArray(value)) {
                 // Handle arrays
                 result[key] = value.map((item) => {
@@ -35,6 +37,8 @@ export abstract class Model {
                         // are converted to base64 strings before being sent
                         // we can use the logic below
                         return item.toString("base64");
+                    } else if (typeof item === "bigint") {
+                        return item.toString();
                     } else if (typeof item === "object" && typeof item.toString === "function") {
                         return item.toString();
                     } else {
@@ -42,7 +46,7 @@ export abstract class Model {
                     }
                 });
             } else if (typeof value === "object" && typeof value.toString === "function") {
-                // Objects with toString method (like Address, Hash, BigNumber)
+                // Objects with toString method (like Address, Hash)
                 result[key] = value.toString();
             } else {
                 // Primitive types

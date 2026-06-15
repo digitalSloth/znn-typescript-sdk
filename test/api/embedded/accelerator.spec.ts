@@ -17,7 +17,6 @@ import {
     ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
-import { BigNumber } from "../../../src/utilities/bignumber.js";
 import { MockClient } from "../mockClient.js";
 
 const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";
@@ -179,8 +178,8 @@ describe("AcceleratorApi", () => {
 
     describe("createProject", () => {
         it("should build a create project block", () => {
-            const znnFunds = BigNumber.from(1000);
-            const qsrFunds = BigNumber.from(2000);
+            const znnFunds = BigInt(1000);
+            const qsrFunds = BigInt(2000);
 
             const template = acceleratorApi.createProject(
                 "Project Alpha",
@@ -210,8 +209,8 @@ describe("AcceleratorApi", () => {
     describe("addPhase", () => {
         it("should build an add phase block", () => {
             const id = Hash.parse(PHASE_ID);
-            const znnFunds = BigNumber.from(100);
-            const qsrFunds = BigNumber.from(200);
+            const znnFunds = BigInt(100);
+            const qsrFunds = BigInt(200);
 
             const template = acceleratorApi.addPhase(
                 id,
@@ -241,8 +240,8 @@ describe("AcceleratorApi", () => {
     describe("updatePhase", () => {
         it("should build an update phase block", () => {
             const id = Hash.parse(PHASE_ID);
-            const znnFunds = BigNumber.from(110);
-            const qsrFunds = BigNumber.from(220);
+            const znnFunds = BigInt(110);
+            const qsrFunds = BigInt(220);
 
             const template = acceleratorApi.updatePhase(
                 id,
@@ -270,7 +269,7 @@ describe("AcceleratorApi", () => {
 
     describe("donate", () => {
         it("should build a donate block", () => {
-            const amount = BigNumber.from(123);
+            const amount = BigInt(123);
             const tokenStandard = TokenStandard.parse("zts1znnxxxxxxxxxxxxx9z4ulx");
 
             const template = acceleratorApi.donate(amount, tokenStandard);

@@ -88,25 +88,7 @@ export function unpack(reader: Reader, coders: Array<Coder>): Result {
         let value: any = null;
 
         if (coder.dynamic) {
-            const offset = reader.readValue();
-            // Our BigNumber implementation is bignumber.js based and BigNumber.from returns a hexable wrapper
-            // which may not implement toNumber(). Normalize the offset to a JS number safely.
-            let offsetNumber: number;
-            try {
-                if (offset && typeof offset.toNumber === "function") {
-                    offsetNumber = offset.toNumber();
-                } else if (offset && typeof offset.toHexString === "function") {
-                    const hex = offset.toHexString();
-                    // parseInt handles both positive and zero values (offsets are non-negative)
-                    offsetNumber = parseInt(hex.startsWith("0x") ? hex : String(hex), 16);
-                } else {
-                    offsetNumber = Number(offset);
-                }
-            } catch (e) {
-                // Fallback to attempting hex-string path if anything goes wrong
-                const hex = (offset && typeof offset.toHexString === "function") ? offset.toHexString() : String(offset ?? 0);
-                offsetNumber = parseInt(hex.startsWith("0x") ? hex : String(hex), 16);
-            }
+            const offsetNumber = Number(reader.readValue());
             const offsetReader = baseReader.subReader(offsetNumber);
             try {
                 value = coder.decode(offsetReader);
@@ -243,7 +225,7 @@ export class ArrayCoder extends Coder {
     decode(reader: Reader): any {
         let count = this.length;
         if (count === -1) {
-            count = reader.readValue().toNumber();
+            count = Number(reader.readValue());
 
             // Check that there is *roughly* enough data to ensure
             // stray random data is not being read as a length. Each
