@@ -35,7 +35,7 @@ export class NumberCoder extends Coder {
             this._throwError("value out-of-bounds", value);
         }
 
-        v = toTwos(toBigInt(value), this.size * 8);
+        v = toTwos(v, this.size * 8);
         v = mask(v, this.size * 8);
 
         if (this.signed) {

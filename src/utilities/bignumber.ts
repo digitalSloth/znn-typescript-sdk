@@ -1,11 +1,7 @@
 import { Logger } from "./logger.js";
-import { hexlify, isBytes, isHexString } from "./bytes.js";
+import { hexlify, isBytes, isHexString, Hexable } from "./bytes.js";
 
 export type BigNumberish = bigint | string | number;
-
-export interface Hexable {
-    toHexString(): string;
-}
 
 const logger = Logger.globalLogger();
 const MAX_SAFE = 0x1fffffffffffff;

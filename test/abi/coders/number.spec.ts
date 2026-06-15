@@ -154,6 +154,33 @@ describe("Number", () => {
         });
     })
 
+    describe("encode bounds", () => {
+        it("uint8 accepts max (255)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["uint8"], [255])).to.not.throw();
+        });
+
+        it("uint8 rejects overflow (256)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["uint8"], [256])).to.throw("value out-of-bounds");
+        });
+
+        it("uint8 rejects negative", function () {
+            expect(() => abi.defaultAbiCoder.encode(["uint8"], [-1])).to.throw("value out-of-bounds");
+        });
+
+        it("int8 accepts bounds (127 and -128)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["int8"], [127])).to.not.throw();
+            expect(() => abi.defaultAbiCoder.encode(["int8"], [-128])).to.not.throw();
+        });
+
+        it("int8 rejects overflow (128)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["int8"], [128])).to.throw("value out-of-bounds");
+        });
+
+        it("int8 rejects underflow (-129)", function () {
+            expect(() => abi.defaultAbiCoder.encode(["int8"], [-129])).to.throw("value out-of-bounds");
+        });
+    })
+
     describe("decode", () => {
         it("uint (alias uint256)", function () {
             const decoded = abi.defaultAbiCoder.decode(["uint"], "0x0000000000000000000000000000000000000000000000000000000000000002");
