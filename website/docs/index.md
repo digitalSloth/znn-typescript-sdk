@@ -313,6 +313,7 @@ Combine `prepareBlock` with `Zenon.setPowProvider` (a Web Worker provider) to ke
 
 - [Zenon Network](https://zenon.network)
 - [Zenon GitHub](https://github.com/zenon-network)
-- [Zenon Info](https://zenon.info)
-- [Development Forum](https://forum.hypercore.one)
+- [Zenon Org](https://zenon.org)
 - [Zenon Hub Explorer](https://zenonhub.io)
+- [Development Forum](https://forum.hypercore.one)
+- [Zenon Info](https://zenon.info)
