@@ -1,0 +1,101 @@
+/**
+ * Zenon Network of Momentum theme for Docusaurus/Infima.
+ * Tokens mirror the zenon-design-system:
+ * https://github.com/digitalSloth/zenon-design-system
+ * Green-led tri-color on near-black, Space Grotesk for UI,
+ * JetBrains Mono for data/code, tight 6px radius.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700&display=swap");
+
+:root {
+  /* Brand tri-color (raw) */
+  --zenon-green: #00d557;
+  --zenon-blue: #0061eb;
+  --zenon-pink: #f91690;
+  --zenon-black: #151515;
+
+  /* Primary ramp derived from --primary: hsl(145 100% 42%) */
+  --ifm-color-primary: hsl(145 100% 34%);
+  --ifm-color-primary-dark: hsl(145 100% 30%);
+  --ifm-color-primary-darker: hsl(145 100% 28%);
+  --ifm-color-primary-darkest: hsl(145 100% 23%);
+  --ifm-color-primary-light: hsl(145 100% 38%);
+  --ifm-color-primary-lighter: hsl(145 100% 40%);
+  --ifm-color-primary-lightest: hsl(145 100% 46%);
+
+  /* Status semantics */
+  --ifm-color-success: hsl(145 63% 38%);
+  --ifm-color-warning: hsl(38 92% 50%);
+  --ifm-color-danger: hsl(352 84% 53%);
+  --ifm-color-info: hsl(214 100% 46%);
+
+  /* Typography: Space Grotesk for UI, JetBrains Mono for data/code */
+  --ifm-font-family-base: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --ifm-font-family-monospace: "JetBrains Mono", ui-monospace, "SF Mono",
+    "Menlo", monospace;
+  --ifm-code-font-size: 95%;
+  --ifm-heading-font-weight: 600;
+
+  /* Radius is tight - 6px base, echoing the angular Z mark */
+  --ifm-global-radius: 0.375rem;
+  --ifm-code-border-radius: calc(0.375rem - 2px);
+
+  /* Surfaces and lines (light) */
+  --ifm-toc-border-color: hsl(0 0% 90%);
+  --ifm-table-border-color: hsl(0 0% 90%);
+  --ifm-color-emphasis-300: hsl(0 0% 88%);
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 213, 87, 0.08);
+}
+
+[data-theme='dark'] {
+  /* Near-black surfaces from the zenon palette */
+  --ifm-background-color: hsl(0 0% 8%);
+  --ifm-background-surface-color: hsl(0 0% 10%);
+  --ifm-footer-background-color: hsl(0 0% 7%);
+
+  /* Primary stays vivid zenon green on dark */
+  --ifm-color-primary: hsl(145 100% 42%);
+  --ifm-color-primary-dark: hsl(145 100% 38%);
+  --ifm-color-primary-darker: hsl(145 100% 35%);
+  --ifm-color-primary-darkest: hsl(145 100% 29%);
+  --ifm-color-primary-light: hsl(145 100% 46%);
+  --ifm-color-primary-lighter: hsl(145 100% 49%);
+  --ifm-color-primary-lightest: hsl(145 100% 56%);
+
+  --ifm-color-success: hsl(145 63% 45%);
+  --ifm-color-warning: hsl(38 95% 55%);
+  --ifm-color-danger: hsl(352 86% 58%);
+  --ifm-color-info: hsl(214 100% 62%);
+
+  --ifm-toc-border-color: hsl(0 0% 20%);
+  --ifm-table-border-color: hsl(0 0% 20%);
+  --ifm-color-emphasis-300: hsl(0 0% 22%);
+
+  --docusaurus-highlighted-code-line-bg: rgba(0, 213, 87, 0.12);
+}
+
+/* Headings: h1 is extrabold per the zenon type scale */
+h1,
+.markdown h1:first-child {
+  font-weight: 800;
+}
+
+/* Data is the hero: tabular numerals in code and tables */
+code,
+pre,
+table {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Navbar/footer chrome on dark reads one step above the page */
+[data-theme='dark'] .navbar {
+  background-color: hsl(0 0% 7%);
+  border-bottom: 1px solid hsl(0 0% 18%);
+}
+
+[data-theme='dark'] .footer--dark {
+  --ifm-footer-background-color: hsl(0 0% 7%);
+  border-top: 1px solid hsl(0 0% 18%);
+}
