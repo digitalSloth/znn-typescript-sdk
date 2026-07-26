@@ -1,6 +1,7 @@
 import {themes as prismThemes} from 'prism-react-renderer';
 import type {Config} from '@docusaurus/types';
 import type * as Preset from '@docusaurus/preset-classic';
+import llmsTxtPlugin from './plugins/llms-txt';
 
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
@@ -21,6 +22,27 @@ const config: Config = {
   projectName: 'znn-typescript-sdk',
 
   onBrokenLinks: 'throw',
+
+  plugins: [llmsTxtPlugin],
+
+  headTags: [
+    {
+      tagName: 'script',
+      attributes: {type: 'application/ld+json'},
+      innerHTML: JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareSourceCode',
+        name: 'ZNN TypeScript SDK',
+        description:
+          'TypeScript/JavaScript SDK for interacting with the Zenon Network of Momentum (NoM).',
+        url: 'https://digitalsloth.github.io/znn-typescript-sdk/',
+        codeRepository: 'https://github.com/digitalSloth/znn-typescript-sdk',
+        programmingLanguage: 'TypeScript',
+        runtimePlatform: ['Node.js', 'Browser'],
+        license: 'https://opensource.org/license/mit/',
+      }),
+    },
+  ],
 
   i18n: {
     defaultLocale: 'en',
@@ -60,6 +82,18 @@ const config: Config = {
   ],
 
   themeConfig: {
+    image: 'img/znn-social-card.png',
+    metadata: [
+      {
+        name: 'keywords',
+        content:
+          'zenon, network of momentum, nom, znn, sdk, blockchain, web3, typescript, javascript, wallet, feeless',
+      },
+      {name: 'theme-color', content: '#151515'},
+      {property: 'og:type', content: 'website'},
+      {property: 'og:site_name', content: 'ZNN TypeScript SDK'},
+      {name: 'twitter:card', content: 'summary_large_image'},
+    ],
     colorMode: {
       defaultMode: 'dark',
       respectPrefersColorScheme: true,

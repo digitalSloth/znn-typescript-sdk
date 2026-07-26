@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://digitalsloth.github.io/znn-typescript-sdk/sitemap.xml
