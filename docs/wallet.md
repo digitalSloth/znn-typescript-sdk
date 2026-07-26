@@ -400,6 +400,7 @@ console.log(balances);
 
 - **[Examples](./examples.md)** – Complete working examples
 - **[API Overview](./api-overview.md)** – All API methods & Embedded Contract Calls
+- **[Multisig Accounts](./multisig.md)** – Creating and signing with mutable X-of-N multisig accounts
 - **[Utilities](./utilities.md)** – Utilities and constants for common tasks
 - **[CLI Tool](./cli.md)** - Command-line interface
 - **[Building WASM](./build-wasm.md)** – Rebuilding the PoW module from source

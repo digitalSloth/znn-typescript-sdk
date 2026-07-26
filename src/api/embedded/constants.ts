@@ -43,6 +43,9 @@ export const TOKEN_DOMAIN_REG_EXP: RegExp = RegExp(
     "^([A-Za-z0-9][A-Za-z0-9-]{0,61}[A-Za-z0-9].)+[A-Za-z]{2,}$"
 );
 
+// Multisig
+export const MULTISIG_CREATION_FEE_IN_ZNN: bigint = BigInt(ONE_ZNN);
+
 // Accelerator
 export const PROPOSAL_URL_REG_EXP: RegExp = RegExp(
     "^[a-zA-Z0-9]{2,60}.[a-zA-Z]{1,6}([a-zA-Z0-9()@:%_\\+.~#?&/=-]{0,100})$"

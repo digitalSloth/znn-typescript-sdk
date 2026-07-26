@@ -41,6 +41,7 @@ export {
     Common as CommonContract,
     Htlc as HtlcContract,
     Liquidity as LiquidityContract,
+    Multisig as MultisigContract,
     Pillar as PillarContract,
     Plasma as PlasmaContract,
     Sentinel as SentinelContract,
@@ -82,6 +83,7 @@ export {
     ACCELERATOR_ADDRESS,
     BRIDGE_ADDRESS,
     HTLC_ADDRESS,
+    MULTISIG_ADDRESS,
 
     Hash,
     EMPTY_HASH,
@@ -120,3 +122,29 @@ export {
     extractNumberDecimals,
     addNumberDecimals,
 } from "./utilities/amounts.js"
+
+export {
+    freezeBlock,
+    signBlock,
+    assembleMultisigAuth,
+} from "./utilities/block.js"
+
+//
+// Client / error exports
+export {
+    ZnnClientException,
+    ZnnEmbeddedContractException,
+    MultisigPolicyLockedException,
+    MultisigAccountExistsException,
+    MultisigNoPolicyException,
+    MultisigInvalidPolicyException,
+    MultisigSporkNotActivatedException,
+    MultisigThresholdMismatchException,
+    AccountBlockPublicKeyNotZeroException,
+    AccountBlockSignatureNotZeroException,
+    AccountBlockMultisigAuthMissingException,
+    AccountBlockMomentumTooOldException,
+    MultisigStaleAuthorityException,
+    AccountBlockMultisigAuthMustBeZeroException,
+    MultisigCreatorMustBeSingleSigException,
+} from "./client/index.js";

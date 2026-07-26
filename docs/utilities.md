@@ -149,6 +149,7 @@ const dispplayValue = addNumberDecimals(100000000, 8);
 
 - **[Examples](./examples.md)** – Complete working examples
 - **[API Overview](./api-overview.md)** – All API methods & Embedded Contract Calls
+- **[Multisig Accounts](./multisig.md)** – Creating and signing with mutable X-of-N multisig accounts
 - **[CLI Tool](./cli.md)** - Command-line interface
 - **[Wallet Management](./wallet.md)** – Creating and managing wallets
 - **[Building WASM](./build-wasm.md)** – Rebuilding the PoW module from source

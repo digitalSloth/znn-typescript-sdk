@@ -11,7 +11,8 @@ import {
     LIQUIDITY_ADDRESS,
     SPORK_ADDRESS,
     ACCELERATOR_ADDRESS,
-    BRIDGE_ADDRESS
+    BRIDGE_ADDRESS,
+    MULTISIG_ADDRESS
 } from "../../../src/model/primitives/address.js";
 
 describe("Address", () => {
@@ -75,6 +76,49 @@ describe("Address", () => {
             const addr2 = Address.fromPublicKey(pubKey2);
 
             expect(addr1.toString()).to.not.equal(addr2.toString());
+        });
+    });
+
+    describe("fromMultisigCreation", () => {
+        it("should create a multisig address with a 20-byte core and multisig class byte", () => {
+            const pubkey = Buffer.from("3338be694f50c5f338814986cdf0686453a888b84f424d792af4b9202398f392", "hex");
+            const nonce = 1n;
+
+            const address = Address.fromMultisigCreation(pubkey, nonce);
+
+            expect(address.getBytes()).to.have.lengthOf(20);
+            expect(address.core[0]).to.equal(2);
+            expect(Address.isMultisigAddress(address)).to.be.true;
+            expect(address.toString()).to.match(/^z1/);
+        });
+
+        it("should create different addresses for different nonces", () => {
+            const pubkey = Buffer.from("3338be694f50c5f338814986cdf0686453a888b84f424d792af4b9202398f392", "hex");
+
+            const addr1 = Address.fromMultisigCreation(pubkey, 1n);
+            const addr2 = Address.fromMultisigCreation(pubkey, 2n);
+
+            expect(addr1.toString()).to.not.equal(addr2.toString());
+        });
+
+        it("should not be detected as multisig for a regular user address", () => {
+            const address = Address.parse("z1qq9n7fpaqd8lpcljandzmx4xtku9w4ftwyg0mq");
+            expect(Address.isMultisigAddress(address)).to.be.false;
+        });
+
+        // Cross-checked against go-zenon's own MultisigCreationToAddress for the
+        // same (pubkey, nonce) pair - byte-for-byte identical, confirming this
+        // SDK derives the same address the node will actually create.
+        it("should produce the exact core bytes for a fixed (pubkey, nonce) pair", () => {
+            const creatorPubKey = Buffer.from("79a01ae9efde740e4916a911b89cf738cb211a5402df61de18e987801bab4fd3", "hex");
+            const nonce = 1782933252398n;
+            const expectedCore = "021461cc9772a7544dc74f534a3ab1aecaaa3128";
+            const expectedAddress = "z1qg2xrnyhw2n4gnw8faf55w434m925vfgl9qscp";
+
+            const address = Address.fromMultisigCreation(creatorPubKey, nonce);
+
+            expect(address.getBytes().toString("hex")).to.equal(expectedCore);
+            expect(address.toString()).to.equal(expectedAddress);
         });
     });
 
@@ -183,6 +227,10 @@ describe("Address", () => {
 
         it("BRIDGE_ADDRESS has correct value", () => {
             expect(BRIDGE_ADDRESS.toString()).to.equal("z1qxemdeddedxdrydgexxxxxxxxxxxxxxxmqgr0d");
+        });
+
+        it("MULTISIG_ADDRESS has correct value", () => {
+            expect(MULTISIG_ADDRESS.toString()).to.equal("z1qxemdeddedxmultysygxxxxxxxxxxxxx42zwd4");
         });
     });
 });

@@ -1,7 +1,7 @@
 import { Buffer } from "buffer";
 import { GetRequiredPowParam } from "../model/embedded/plasma.js";
 import { AccountBlockTemplate, BlockTypeEnum } from "../model/nom/accountBlock.js";
-import { EMPTY_HASH, Hash, HashHeight } from "../model/primitives/index.js";
+import { Address, EMPTY_HASH, Hash, HashHeight } from "../model/primitives/index.js";
 import { generate as generatePoW } from "../pow/pow.js";
 import { KeyPair } from "../wallet/keyPair.js";
 import { Zenon } from "../zenon.js";
@@ -26,6 +26,7 @@ export function getTxHash(transaction: AccountBlockTemplate): Hash {
     const emptyHash = Hash.digest(Buffer.from([]));
     const dataHash = Hash.digest(transaction.data);
 
+    // Consensus preimage: do NOT add publicKey/signature/multisigAuth — excluded by protocol.
     const source = Buffer.concat([
         numberToBytes(transaction.version, 8),
         numberToBytes(transaction.chainIdentifier, 8),
@@ -80,6 +81,30 @@ async function autofillTxParameters(
     return accountBlockTemplate;
 }
 
+async function validateReceiveBlock(zenonInstance: Zenon, tx: AccountBlockTemplate): Promise<void> {
+    if (isReceiveBlock(tx.blockType)) {
+        if (tx.fromBlockHash === EMPTY_HASH) {
+            throw new ZnnBlockUtilitiesException("fromBlockHash cannot be empty for receive blocks");
+        }
+
+        const sendBlock = await zenonInstance.ledger.getAccountBlockByHash(tx.fromBlockHash);
+
+        if (sendBlock === null) {
+            throw new ZnnBlockUtilitiesException(`Send block not found: ${tx.fromBlockHash}`);
+        }
+
+        if (sendBlock.toAddress.toString() !== tx.address.toString()) {
+            throw new ZnnBlockUtilitiesException(
+                `Send block toAddress (${sendBlock.toAddress}) does not match transaction address (${tx.address})`
+            );
+        }
+
+        if (tx.data.length > 0) {
+            throw new ZnnBlockUtilitiesException("Receive blocks cannot have data");
+        }
+    }
+}
+
 async function checkAndSetFields(
     zenonInstance: Zenon,
     transaction: AccountBlockTemplate,
@@ -90,27 +115,7 @@ async function checkAndSetFields(
 
     await autofillTxParameters(zenonInstance, transaction);
 
-    if (isReceiveBlock(transaction.blockType)) {
-        if (transaction.fromBlockHash === EMPTY_HASH) {
-            throw new ZnnBlockUtilitiesException("fromBlockHash cannot be empty for receive blocks");
-        }
-
-        const sendBlock = await zenonInstance.ledger.getAccountBlockByHash(transaction.fromBlockHash);
-
-        if (sendBlock === null) {
-            throw new ZnnBlockUtilitiesException(`Send block not found: ${transaction.fromBlockHash}`);
-        }
-
-        if (sendBlock.toAddress.toString() !== transaction.address.toString()) {
-            throw new ZnnBlockUtilitiesException(
-                `Send block toAddress (${sendBlock.toAddress}) does not match transaction address (${transaction.address})`
-            );
-        }
-
-        if (transaction.data.length > 0) {
-            throw new ZnnBlockUtilitiesException("Receive blocks cannot have data");
-        }
-    }
+    await validateReceiveBlock(zenonInstance, transaction);
 
     if (transaction.difficulty > 0 && transaction.nonce === "") {
         throw new ZnnBlockUtilitiesException("Nonce is required when difficulty is set");
@@ -192,5 +197,49 @@ export async function send(
 ): Promise<AccountBlockTemplate> {
     transaction = await prepareBlock(zenonInstance, transaction, currentKeyPair);
     return zenonInstance.ledger.publishRawTransaction(transaction);
+}
+
+/**
+ * Autofill + validate + PoW + hash a multisig account block, without signing
+ * it. Leaves `publicKey`/`signature` empty. Serves both send blocks and
+ * multisig receive blocks (`AccountBlockTemplate.receive(...)`).
+ *
+ * The signed-with address is explicit (the multisig account), not derived
+ * from a keypair.
+ */
+export async function freezeBlock(
+    zenonInstance: Zenon,
+    transaction: AccountBlockTemplate,
+    address: Address,
+): Promise<AccountBlockTemplate> {
+    transaction.address = address;
+    await autofillTxParameters(zenonInstance, transaction);
+    await validateReceiveBlock(zenonInstance, transaction);
+    await setDifficulty(zenonInstance, transaction);
+    transaction.hash = getTxHash(transaction);
+    return transaction;
+}
+
+/**
+ * Sign a frozen block's hash with a single signer's keypair. The block must
+ * be frozen first (`freezeBlock`) so every signer signs the identical hash.
+ */
+export function signBlock(transaction: AccountBlockTemplate, keyPair: KeyPair): Buffer {
+    if (transaction.hash.getBytes().equals(EMPTY_HASH.getBytes())) {
+        throw new ZnnBlockUtilitiesException("Block must be frozen before signing");
+    }
+    return keyPair.sign(transaction.hash.getBytes());
+}
+
+/**
+ * Attach collected multisig signatures to a frozen block. Order-independent;
+ * no threshold enforcement (the node validates the policy on publish).
+ */
+export function assembleMultisigAuth(
+    transaction: AccountBlockTemplate,
+    signatures: Buffer[],
+): AccountBlockTemplate {
+    transaction.multisigAuth = { signatures: [...signatures] };
+    return transaction;
 }
 

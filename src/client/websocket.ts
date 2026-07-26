@@ -1,7 +1,7 @@
 import { ErrorCode, Logger } from "../utilities/logger.js";
 import { Zenon } from "../zenon.js";
 import { Client as ClientInterface } from "./interfaces.js";
-import { ZnnClientException } from "./errors.js";
+import { mapNodeError } from "./nodeErrors.js";
 import { Client as WebSocketClient } from "rpc-websockets";
 
 const logger = Logger.globalLogger();
@@ -169,7 +169,7 @@ export class WsClient implements ClientInterface {
             const message = error?.message || error?.toString() || "Unknown error occurred";
             const data = error?.data;
 
-            throw new ZnnClientException(message, code, method, parameters, data);
+            throw mapNodeError(message, code, method, parameters, data);
         }
     }
 }

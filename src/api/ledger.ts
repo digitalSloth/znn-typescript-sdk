@@ -8,6 +8,7 @@ import {
 import { Address, Hash } from "../model/primitives/index.js";
 import { Api } from "./base.js";
 import { Logger } from "../utilities/logger.js";
+import { mapNodeError } from "../client/nodeErrors.js";
 
 const logger = Logger.globalLogger();
 
@@ -20,7 +21,8 @@ export class LedgerApi extends Api {
         ]);
 
         if (response !== null) {
-            logger.throwError(`Error publishing transaction: ${response}`, Logger.errors.NETWORK_ERROR);
+            const message = typeof response === "string" ? response : JSON.stringify(response);
+            throw mapNodeError(message, -1, "ledger.publishRawTransaction", [accountBlockTemplate.toJson()]);
         }
 
         logger.info(`Published account-block: hash=${accountBlockTemplate.hash.toString()}`);

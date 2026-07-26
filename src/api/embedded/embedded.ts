@@ -4,6 +4,7 @@ import { AcceleratorApi } from "./accelerator.js";
 import { BridgeApi } from "./bridge.js";
 import { HtlcApi } from "./htlc.js";
 import { LiquidityApi } from "./liquidity.js";
+import { MultisigApi } from "./multisig.js";
 import { PillarApi } from "./pillar.js";
 import { PlasmaApi } from "./plasma.js";
 import { SentinelApi } from "./sentinel.js";
@@ -19,6 +20,7 @@ export class EmbeddedApi extends Api {
         public bridge = new BridgeApi(),
         public htlc = new HtlcApi(),
         public liquidity = new LiquidityApi(),
+        public multisig = new MultisigApi(),
         public pillar = new PillarApi(),
         public plasma = new PlasmaApi(),
         public sentinel = new SentinelApi(),
@@ -36,6 +38,7 @@ export class EmbeddedApi extends Api {
         this.bridge.setClient(client);
         this.htlc.setClient(client);
         this.liquidity.setClient(client);
+        this.multisig.setClient(client);
         this.pillar.setClient(client);
         this.plasma.setClient(client);
         this.sentinel.setClient(client);

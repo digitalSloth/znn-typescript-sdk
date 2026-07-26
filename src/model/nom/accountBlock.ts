@@ -50,6 +50,7 @@ export interface AccountBlockTemplateOptions {
     nonce?: string;
     publicKey?: Buffer;
     signature?: Buffer;
+    multisigAuth?: { signatures: Buffer[] };
 }
 
 interface AccountBlockOptions extends AccountBlockTemplateOptions {
@@ -81,6 +82,7 @@ export class AccountBlockTemplate extends Model {
     public nonce: string;
     public publicKey: Buffer;
     public signature: Buffer;
+    public multisigAuth?: { signatures: Buffer[] };
 
     constructor(options: AccountBlockTemplateOptions) {
         super();
@@ -102,6 +104,7 @@ export class AccountBlockTemplate extends Model {
         this.nonce = options.nonce ?? "";
         this.publicKey = options.publicKey ?? Buffer.from([]);
         this.signature = options.signature ?? Buffer.from([]);
+        this.multisigAuth = options.multisigAuth;
     }
 
     static fromJson(json: {[key: string]: any}): AccountBlockTemplate {
@@ -125,12 +128,15 @@ export class AccountBlockTemplate extends Model {
             difficulty: json.difficulty,
             nonce: json.nonce,
             publicKey: json.publicKey ? Buffer.from(json.publicKey) : Buffer.from([]),
-            signature: json.signature ? Buffer.from(json.signature) : Buffer.from([])
+            signature: json.signature ? Buffer.from(json.signature) : Buffer.from([]),
+            multisigAuth: json.multisigAuth
+                ? { signatures: json.multisigAuth.signatures.map((s: string) => Buffer.from(s, "base64")) }
+                : undefined,
         });
     }
 
     toJson(): {[key: string]: any} {
-        return {
+        const json: {[key: string]: any} = {
             version: this.version,
             chainIdentifier: this.chainIdentifier,
             blockType: this.blockType,
@@ -150,6 +156,12 @@ export class AccountBlockTemplate extends Model {
             publicKey: this.publicKey.toString("base64"),
             signature: this.signature.toString("base64"),
         };
+        if (this.multisigAuth) {
+            json.multisigAuth = {
+                signatures: this.multisigAuth.signatures.map(s => s.toString("base64")),
+            };
+        }
+        return json;
     }
 
     static receive(fromBlockHash: Hash): AccountBlockTemplate {
@@ -251,6 +263,9 @@ export class AccountBlock extends AccountBlockTemplate {
             nonce: json.nonce,
             publicKey: json.publicKey ? Buffer.from(json.publicKey) : Buffer.from([]),
             signature: json.signature ? Buffer.from(json.signature) : Buffer.from([]),
+            multisigAuth: json.multisigAuth
+                ? { signatures: json.multisigAuth.signatures.map((s: string) => Buffer.from(s, "base64")) }
+                : undefined,
             token: json.token ? Token.fromJson(json.token) : undefined,
             descendantBlocks: json.descendantBlocks
                 ? json.descendantBlocks.map((block: {[key: string]: any}) => AccountBlock.fromJson(block))
