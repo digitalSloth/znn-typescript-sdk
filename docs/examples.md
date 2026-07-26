@@ -334,6 +334,7 @@ try {
 ## Next Steps
 
 - **[API Overview](./api-overview.md)** – All API methods & Embedded Contract Calls
+- **[Multisig Accounts](./multisig.md)** – Creating and signing with mutable X-of-N multisig accounts
 - **[Utilities](./utilities.md)** – Utilities and constants for common tasks
 - **[CLI Tool](./cli.md)** - Command-line interface
 - **[Wallet Management](./wallet.md)** – Creating and managing wallets

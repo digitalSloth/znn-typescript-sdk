@@ -9,7 +9,10 @@ export class Address {
 
     static prefix: string = "z";
     static userByte: number = 0;
+    static embeddedByte: number = 1;
+    static multisigByte: number = 2;
     static coreSize: number = 20;
+
 
     constructor(
         public hrp: string,
@@ -44,6 +47,25 @@ export class Address {
     public static fromPublicKey(publicKey: Buffer): Address {
         const digest = Crypto.digest(publicKey).subarray(0, 19);
         return new Address(this.prefix, Buffer.concat([Buffer.from([this.userByte]), Buffer.from(digest)]));
+    }
+
+    public static isUserAddress(address: Address): boolean {
+        return address.core[0] === this.userByte;
+    }
+
+    public static isEmbeddedAddress(address: Address): boolean {
+        return address.core[0] === this.embeddedByte;
+    }
+
+    public static isMultisigAddress(address: Address): boolean {
+        return address.core[0] === this.multisigByte;
+    }
+
+    public static fromMultisigCreation(creatorPubKey: Buffer, nonce: bigint): Address {
+        const nonceBytes = Buffer.alloc(8);
+        nonceBytes.writeBigUInt64BE(nonce);
+        const digest = Crypto.digest(Buffer.concat([creatorPubKey, nonceBytes])).subarray(0, 19);
+        return new Address(this.prefix, Buffer.concat([Buffer.from([this.multisigByte]), Buffer.from(digest)]));
     }
 
     public static fromCore(address: | Buffer | Uint8Array): Address {
@@ -84,6 +106,7 @@ const SPORK_ADDRESS = Address.parse("z1qxemdeddedxsp0rkxxxxxxxxxxxxxxxx956u48");
 const ACCELERATOR_ADDRESS = Address.parse("z1qxemdeddedxaccelerat0rxxxxxxxxxxp4tk22");
 const BRIDGE_ADDRESS = Address.parse("z1qxemdeddedxdrydgexxxxxxxxxxxxxxxmqgr0d");
 const HTLC_ADDRESS = Address.parse("z1qxemdeddedxhtlcxxxxxxxxxxxxxxxxxygecvw");
+const MULTISIG_ADDRESS = Address.parse("z1qxemdeddedxmultysygxxxxxxxxxxxxx42zwd4");
 
 export {
     EMPTY_ADDRESS,
@@ -98,5 +121,6 @@ export {
     ACCELERATOR_ADDRESS,
     BRIDGE_ADDRESS,
     HTLC_ADDRESS,
+    MULTISIG_ADDRESS,
 }
 

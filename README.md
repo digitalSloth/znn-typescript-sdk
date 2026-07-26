@@ -295,6 +295,7 @@ await zenon.ledger.publishRawTransaction(prepared);
 - **[Examples](./docs/examples.md)** – Complete working examples
 - **[API Overview](./docs/api-overview.md)** – All API methods and embedded contract calls
 - **[Embedded Contracts](./docs/embedded-contracts/index.md)** – Detailed documentation for embedded contracts
+- **[Multisig Accounts](./docs/multisig.md)** – Creating and signing with mutable X-of-N multisig accounts
 - **[Utilities](./docs/utilities.md)** – Utilities and constants for common tasks
 - **[CLI Tool](./docs/cli.md)** – Command-line interface
 - **[Wallet Management](./docs/wallet.md)** – Creating and managing wallets
