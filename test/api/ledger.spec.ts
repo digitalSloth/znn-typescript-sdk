@@ -12,6 +12,7 @@ import {
     MomentumList
 } from "../../src/model/nom/index.js";
 import { Address, Hash } from "../../src/model/primitives/index.js";
+import { ZnnClientException } from "../../src/client/errors.js";
 import { MockClient } from "./mockClient.js";
 
 const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";
@@ -155,7 +156,8 @@ describe("LedgerApi", () => {
             }
 
             expect(error).to.exist;
-            expect(error!.message).to.equal("Error publishing transaction: failure (code=NETWORK_ERROR)");
+            expect(error).to.be.instanceOf(ZnnClientException);
+            expect(error!.message).to.equal("failure");
         });
     });
 
