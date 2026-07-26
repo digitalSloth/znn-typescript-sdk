@@ -206,7 +206,7 @@ Zenon.usePowWorker();        // PoW now runs in a Web Worker
 const tx = await zenon.send(blockTemplate, keyPair);
 ```
 
-:::warning CSP note
+:::warning[CSP note]
 The built-in worker is spawned from a `Blob` URL, so a strict Content-Security-Policy must allow `worker-src blob:` (and the dynamic import of `pow.js`). If your CSP forbids this, supply your own provider with `setPowProvider` instead.
 :::
 
