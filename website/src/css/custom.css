@@ -15,14 +15,15 @@
   --zenon-pink: #f91690;
   --zenon-black: #151515;
 
-  /* Primary ramp derived from --primary: hsl(145 100% 42%) */
-  --ifm-color-primary: hsl(145 100% 34%);
-  --ifm-color-primary-dark: hsl(145 100% 30%);
-  --ifm-color-primary-darker: hsl(145 100% 28%);
-  --ifm-color-primary-darkest: hsl(145 100% 23%);
-  --ifm-color-primary-light: hsl(145 100% 38%);
-  --ifm-color-primary-lighter: hsl(145 100% 40%);
-  --ifm-color-primary-lightest: hsl(145 100% 46%);
+  /* Primary ramp derived from --primary: hsl(145 100% 42%), darkened for
+     light mode so link text on white meets WCAG AA (26% ≈ 4.8:1) */
+  --ifm-color-primary: hsl(145 100% 26%);
+  --ifm-color-primary-dark: hsl(145 100% 23%);
+  --ifm-color-primary-darker: hsl(145 100% 21%);
+  --ifm-color-primary-darkest: hsl(145 100% 17%);
+  --ifm-color-primary-light: hsl(145 100% 30%);
+  --ifm-color-primary-lighter: hsl(145 100% 32%);
+  --ifm-color-primary-lightest: hsl(145 100% 38%);
 
   /* Status semantics */
   --ifm-color-success: hsl(145 63% 38%);
