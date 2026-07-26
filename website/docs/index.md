@@ -194,7 +194,7 @@ By default, PoW runs **synchronously on the main thread**. In the browser this b
 
 Register the SDK's built-in Web Worker as the PoW provider. PoW then runs off the main thread automatically — no worker file or app-side code required. Browser-only.
 
-The worker locates `pow.js` / `pow.wasm` using the current PoW base path, so call `setPowBasePath` first if needed. The worker is created lazily on the first transaction that requires PoW.
+The worker locates `pow.js` / `pow.wasm` using the current [PoW base path](#zenonsetpowbasepathbasepath-string-void), so call `setPowBasePath` first if needed. The worker is created lazily on the first transaction that requires PoW.
 
 ```javascript
 import { Zenon } from 'znn-typescript-sdk';
@@ -265,7 +265,7 @@ await zenon.initialize('https://node.zenonhub.io:35997');
 ```
 
 :::note
-WebSocket connections automatically reconnect if dropped, and the default settings are suitable for most use cases. However, reconnect (like all timers) cannot run while the main thread is blocked. The built-in PoW generator is synchronous, so long PoW can starve the heartbeat/reconnect machinery and the node may close the connection before the transaction publishes. To avoid this, run PoW off the main thread with `Zenon.usePowWorker` (or a custom `setPowProvider`).
+WebSocket connections automatically reconnect if dropped, and the default settings are suitable for most use cases. However, reconnect (like all timers) cannot run while the main thread is blocked. The built-in PoW generator is synchronous, so long PoW can starve the heartbeat/reconnect machinery and the node may close the connection before the transaction publishes. To avoid this, run PoW off the main thread with [`Zenon.usePowWorker`](#zenonusepowworker-powworker) (or a custom [`setPowProvider`](#zenonsetpowproviderprovider-powprovider-void)).
 :::
 
 #### `clearConnection(): void`
