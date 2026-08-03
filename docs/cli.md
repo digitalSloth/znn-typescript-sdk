@@ -1,3 +1,8 @@
+---
+sidebar_label: CLI Tool
+description: Command-line interface for wallet management and transactions.
+---
+
 # CLI Tool
 
 The ZNN TypeScript SDK includes a command-line interface for common operations and scripting.

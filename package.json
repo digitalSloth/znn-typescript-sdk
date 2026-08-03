@@ -58,6 +58,8 @@
     "cli:dev": "npm run build:cli && node dist/cli/cli.cjs",
     "cover": "c8 npm run test",
     "cover:check": "c8 --check-coverage npm run test",
+    "docs:build": "npm --prefix website run build",
+    "docs:start": "npm --prefix website run start",
     "lint": "eslint --ext .ts src/**/*.ts cli/**/*.ts test/**/*.ts --no-warn-ignored",
     "lint:fix": "eslint --ext .ts --fix src/**/*.ts cli/**/*.ts test/**/*.ts --no-warn-ignored",
     "prepare": "npm run build",
