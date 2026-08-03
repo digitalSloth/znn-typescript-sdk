@@ -54,10 +54,13 @@ const config: Config = {
       'classic',
       {
         docs: {
+          // The canonical docs live at the repository root so they stay
+          // readable on GitHub and there is a single source of truth.
+          path: '../docs',
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
-          editUrl:
-            'https://github.com/digitalSloth/znn-typescript-sdk/tree/main/website/',
+          editUrl: ({docPath}) =>
+            `https://github.com/digitalSloth/znn-typescript-sdk/tree/main/docs/${docPath}`,
         },
         blog: false,
         pages: false,
@@ -73,6 +76,7 @@ const config: Config = {
       '@easyops-cn/docusaurus-search-local',
       {
         hashed: true,
+        docsDir: '../docs',
         docsRouteBasePath: '/',
         indexBlog: false,
         indexPages: false,
