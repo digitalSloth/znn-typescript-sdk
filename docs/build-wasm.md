@@ -13,9 +13,9 @@ You need the [Emscripten SDK](https://emscripten.org/) installed:
 git clone https://github.com/emscripten-core/emsdk.git
 cd emsdk
 
-# Install and activate the latest SDK
-./emsdk install latest
-./emsdk activate latest
+# Install and activate the pinned SDK version
+./emsdk install 6.0.8
+./emsdk activate 6.0.8
 
 # Activate PATH and environment variables (you'll need to do this each time in a new terminal)
 source ./emsdk_env.sh
@@ -31,7 +31,7 @@ npm run build:wasm
 ```
 
 This script will:
-1. Clone the [znn-pow-links-cpp](https://github.com/zenon-network/znn-pow-links-cpp) repository
+1. Check out the pinned [znn-pow-links-cpp](https://github.com/zenon-network/znn-pow-links-cpp) source commit
 2. Create an Emscripten wrapper for the C++ PoW functions
 3. Compile to WebAssembly using `emcc`
 4. Output `lib/pow.js` and `lib/pow.wasm`
@@ -55,11 +55,14 @@ The script uses the following Emscripten flags:
 - `-s MODULARIZE=1` - Export as a module factory
 - `-s EXPORT_NAME='createPowModule'` - Custom export name
 - `-s ALLOW_MEMORY_GROWTH=1` - Allow memory to grow as needed
+- `-s DYNAMIC_EXECUTION=0` - Do not emit `eval()` or `new Function()`
+- `-s EMBIND_AOT=1` - Generate Embind invokers ahead of time for CSP-safe performance
 
 ## Source Code
 
 The C++ source code comes from the official Zenon Network repository:
 - **Repository**: https://github.com/zenon-network/znn-pow-links-cpp
+- **Pinned commit**: `9c63abdcd4e6bd642a81476cbff2f5190efabe95`
 - **License**: See the repository for license details
 
 The build script creates a wrapper (`pow_wasm_wrapper.cpp`) that exposes two main functions:
@@ -118,7 +121,7 @@ If you want to automate WASM builds in CI/CD, install Emscripten in your pipelin
 - name: Setup Emscripten
   uses: mymindstorm/setup-emsdk@v12
   with:
-    version: 'latest'
+    version: '6.0.8'
 
 - name: Build WASM
   run: npm run build:wasm
@@ -126,11 +129,17 @@ If you want to automate WASM builds in CI/CD, install Emscripten in your pipelin
 
 ## Security Note
 
-The pre-built WASM module in this repository is built using the official C++ source from the Zenon Network. You can verify this by:
+The pre-built WASM module in this repository is built using the pinned official
+C++ source and Emscripten version above. The JavaScript loader is generated
+with dynamic execution disabled, so browser applications can use
+`script-src 'self' 'wasm-unsafe-eval'` without allowing `'unsafe-eval'`.
+
+You can verify the build by:
 
 1. Checking the source repository: https://github.com/zenon-network/znn-pow-links-cpp
 2. Rebuilding from source using this guide
-3. Comparing the output with the committed version (behavior should be identical)
+3. Confirming `pow.js` contains no `eval()` or `new Function()` call
+4. Running the SDK test suite and comparing behavior with the committed version
 
 For maximum security in production environments, we recommend building from source yourself.
 

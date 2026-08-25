@@ -200,7 +200,12 @@ Zenon.usePowWorker();        // PoW now runs in a Web Worker
 const tx = await zenon.send(blockTemplate, keyPair);
 ```
 
-> **CSP note:** the built-in worker is spawned from a `Blob` URL, so a strict Content-Security-Policy must allow `worker-src blob:` (and the dynamic import of `pow.js`). If your CSP forbids this, supply your own provider with `setPowProvider` instead.
+> **CSP note:** the built-in worker is spawned from a `Blob` URL and imports the
+> same-origin PoW assets. A strict policy must allow `worker-src 'self' blob:`
+> and `script-src 'self' 'wasm-unsafe-eval'`. The shipped PoW loader is built
+> without dynamic JavaScript execution and does not require `'unsafe-eval'`.
+> If your CSP forbids blob workers, supply your own provider with
+> `setPowProvider` instead.
 
 Call `Zenon.stopPowWorker()` to terminate the worker and clear the provider. `clearPowProvider()` also stops it.
 
