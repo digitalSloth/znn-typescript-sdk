@@ -6,6 +6,7 @@
 import { isNode } from "../utilities/global.js";
 import { Logger } from "../utilities/logger.js";
 import { Zenon } from "../zenon.js";
+import { resolvePowUrls } from "./powWorker.js";
 
 let powModule: any = null;
 let initPromise: Promise<void> | null = null;
@@ -35,7 +36,7 @@ export async function init(): Promise<void> {
                 // @ts-ignore
                 const { readFileSync } = await import(/* webpackIgnore: true */ "fs");
                 // @ts-ignore
-                const { fileURLToPath } = await import(/* webpackIgnore: true */ "url");
+                const { fileURLToPath, pathToFileURL } = await import(/* webpackIgnore: true */ "url");
                 // @ts-ignore
                 const { dirname, join } = await import(/* webpackIgnore: true */ "path");
 
@@ -44,12 +45,16 @@ export async function init(): Promise<void> {
                 const wasmPath = join(__dirname, "../../lib/pow.wasm");
                 const wasmBinary = readFileSync(wasmPath);
 
-                // Dynamic import to avoid webpack bundling
-                // @ts-ignore
-                const dynamicImport = new Function("modulePath", "return import(modulePath)");
                 const powJsPath = join(__dirname, "../../lib/pow.js");
-                const powModule_import = await dynamicImport(powJsPath);
-                const createPowModule = powModule_import.default;
+                const powJsUrl = pathToFileURL(powJsPath);
+                // Preserve the generated JavaScript module specifier under TypeScript-aware loaders.
+                powJsUrl.hash = "#znn-pow-module";
+                const powModuleImport = await import(
+                    /* webpackIgnore: true */
+                    /* @vite-ignore */
+                    powJsUrl.href
+                );
+                const createPowModule = powModuleImport.default;
 
                 // Pass WASM binary directly to avoid file system access
                 powModule = await createPowModule({ wasmBinary });
@@ -58,57 +63,16 @@ export async function init(): Promise<void> {
                 logger.info("[PoW Init] Browser environment");
 
                 const basePath = Zenon.getPowBasePath() || "./";
-                const powJsUrl = `${basePath}pow.js`;
-                const powWasmUrl = `${basePath}pow.wasm`;
+                const { powJsUrl, powWasmUrl } = resolvePowUrls(basePath);
 
                 logger.info(`[PoW Init] Loading from: ${powJsUrl}`);
 
-                // Create a unique global variable name to avoid conflicts
-                const globalVarName = `__powModule_${Date.now()}`;
-
-                // Create wrapper code that exposes the module to global scope
-                const wrapperCode = `
-                    import createPowModule from '${powJsUrl}';
-                    window.${globalVarName} = createPowModule;
-                `;
-
-                // Create script tag with type="module" to load ES module
-                const script = document.createElement("script");
-                script.type = "module";
-                script.textContent = wrapperCode;
-
-                // Wait for the script to execute and populate the global
-                await new Promise<void>((resolve, reject) => {
-                    const checkInterval = setInterval(() => {
-                        // @ts-ignore
-                        if (window[globalVarName]) {
-                            clearInterval(checkInterval);
-                            clearTimeout(timeout);
-                            resolve();
-                        }
-                    }, 10);
-
-                    const timeout = setTimeout(() => {
-                        clearInterval(checkInterval);
-                        document.head.removeChild(script);
-                        reject(new Error(`Timeout loading ${powJsUrl}`));
-                    }, 10000);
-
-                    script.onerror = () => {
-                        clearInterval(checkInterval);
-                        clearTimeout(timeout);
-                        document.head.removeChild(script);
-                        reject(new Error(`Failed to load ${powJsUrl}`));
-                    };
-
-                    document.head.appendChild(script);
-                });
-
-                // Get the module from global scope
-                // @ts-ignore
-                const createPowModule = window[globalVarName];
-                // @ts-ignore
-                delete window[globalVarName];
+                const powModuleImport = await import(
+                    /* webpackIgnore: true */
+                    /* @vite-ignore */
+                    powJsUrl
+                );
+                const createPowModule = powModuleImport.default;
 
                 // Create module with custom locateFile for WASM
                 powModule = await createPowModule({
