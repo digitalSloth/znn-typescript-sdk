@@ -131,8 +131,9 @@ If you want to automate WASM builds in CI/CD, install Emscripten in your pipelin
 
 The pre-built WASM module in this repository is built using the pinned official
 C++ source and Emscripten version above. The JavaScript loader is generated
-with dynamic execution disabled, so browser applications can use
-`script-src 'self' 'wasm-unsafe-eval'` without allowing `'unsafe-eval'`.
+with dynamic execution disabled. For same-origin PoW assets, browser
+applications can use `script-src 'self' 'wasm-unsafe-eval'` and
+`connect-src 'self'` without allowing `'unsafe-eval'`.
 
 You can verify the build by:
 
