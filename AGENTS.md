@@ -6,7 +6,7 @@ This file provides guidance for AI agents and automated tools working on this co
 
 ## Project Overview
 
-**znn-typescript-sdk** is a TypeScript/JavaScript SDK for interacting with the Zenon Network of Momentum (NoM). It supports Node.js (ESM) and browsers (ESM + UMD), includes a CLI, and ships a pre-built WebAssembly PoW module.
+**znn-typescript-sdk** is a TypeScript/JavaScript SDK for interacting with the Zenon Network of Momentum (NoM). It supports Node.js and browsers (ESM), includes a CLI, and ships a pre-built WebAssembly PoW module.
 
 - **Package name:** `znn-typescript-sdk`
 - **License:** MIT
@@ -41,10 +41,9 @@ dist/             # Build output (gitignored)
 
 ```bash
 npm install          # Install dependencies
-npm run build        # Full build: lint + ESM + CLI + browser bundles
+npm run build        # Full build: lint + ESM + CLI
 npm run build:esm    # TypeScript → dist/ (ESM)
 npm run build:cli    # Webpack CLI bundle → dist/cli/cli.cjs
-npm run build:browser # Webpack browser bundle → dist/browser/
 npm run build:wasm   # Rebuild PoW WASM (requires Emscripten)
 npm run lint         # ESLint (src, cli, test)
 npm run lint:fix     # ESLint with auto-fix
@@ -54,7 +53,7 @@ npm run cli:dev      # Build CLI and run it locally
 npm run clean        # Remove dist/, coverage/, .nyc_output/
 ```
 
-The full `npm run build` pipeline runs: `clean → lint → build:esm → build:cli → build:browser`.
+The full `npm run build` pipeline runs: `clean → lint → build:esm → build:cli`.
 
 ---
 
@@ -161,17 +160,6 @@ The SDK includes a WebAssembly PoW module (`lib/pow.js` + `lib/pow.wasm`).
 - **Node.js:** loaded automatically — no configuration needed
 - **Browser:** must call `Zenon.setPowBasePath(path)` before sending transactions, pointing to where `pow.js` and `pow.wasm` are served
 - The pre-built WASM is from [znn-pow-links-cpp](https://github.com/zenon-network/znn-pow-links-cpp); rebuild with `npm run build:wasm` (requires Emscripten)
-
----
-
-## Browser Bundles
-
-| Bundle | Path | Usage |
-|---|---|---|
-| ESM | `dist/browser/bundle.browser.mjs` | Vite / Rollup / Webpack |
-| UMD | `dist/browser/bundle.browser.js` | `<script>` tag → `window.ZnnSDK` |
-
-Prefer ESM. UMD is only for script-tag usage without a bundler.
 
 ---
 
