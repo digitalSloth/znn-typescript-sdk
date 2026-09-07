@@ -33,11 +33,11 @@ export async function init(): Promise<void> {
 
                 // Import pow.js module using Node.js path resolution
                 // @ts-ignore
-                const { readFileSync } = await import(/* webpackIgnore: true */ "fs");
+                const { readFileSync } = await import(/* webpackIgnore: true */ /* @vite-ignore */ "node:fs");
                 // @ts-ignore
-                const { fileURLToPath } = await import(/* webpackIgnore: true */ "url");
+                const { fileURLToPath } = await import(/* webpackIgnore: true */ /* @vite-ignore */ "node:url");
                 // @ts-ignore
-                const { dirname, join } = await import(/* webpackIgnore: true */ "path");
+                const { dirname, join } = await import(/* webpackIgnore: true */ /* @vite-ignore */ "node:path");
 
                 const __filename = fileURLToPath(import.meta.url);
                 const __dirname = dirname(__filename);
