@@ -33,7 +33,12 @@ export class Crypto {
 
         const segments = path.split("/").slice(1).map((segment) => parseInt(segment.slice(0, -1), 10));
 
-        let I = hmac(sha512, utf8ToBytes("ed25519 seed"), hexToBytes(seed));
+        const seedBytes = hexToBytes(seed);
+        if (seedBytes.length < 16) {
+            throw new Error("Invalid seed");
+        }
+
+        let I = hmac(sha512, utf8ToBytes("ed25519 seed"), seedBytes);
         let key = I.slice(0, 32);
         let chainCode = I.slice(32, 64);
 
