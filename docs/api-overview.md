@@ -97,6 +97,11 @@ All APIs are available on the `zenon` object.
 - `zenon.embedded.htlc.denyProxyUnlock()` - Deny proxy unlock
 - `zenon.embedded.htlc.allowProxyUnlock()` - Allow proxy unlock
 
+### Multisig
+- `zenon.embedded.multisig.getPolicy(address, height?)` - Get the active/pending policy for a multisig account
+- `zenon.embedded.multisig.createMultisig(creator, nonce, threshold, signers)` - Create a new multisig account (send from the creator's own account)
+- `zenon.embedded.multisig.changePolicy(threshold, signers, lock)` - Stage a new policy for a multisig account (sent BY the multisig account itself - see [Multisig Accounts](./multisig.md))
+
 ### Liquidity
 - `zenon.embedded.liquidity.getLiquidityInfo()` - Get liquidity contract info
 - `zenon.embedded.liquidity.getLiquidityStakeEntriesByAddress(address, pageIndex, pageSize)` - Get liquidity stake entries for address
@@ -475,6 +480,7 @@ console.log('Target height:', syncInfo.targetHeight);
 ## Next Steps
 
 - **[Examples](./examples.md)** – Complete working examples
+- **[Multisig Accounts](./multisig.md)** – Creating and signing with mutable X-of-N multisig accounts
 - **[Utilities](./utilities.md)** – Utilities and constants for common tasks
 - **[CLI Tool](./cli.md)** - Command-line interface
 - **[Wallet Management](./wallet.md)** – Creating and managing wallets

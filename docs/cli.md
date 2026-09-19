@@ -346,6 +346,7 @@ source ~/.bashrc
 
 - **[Examples](./examples.md)** – Complete working examples
 - **[API Overview](./api-overview.md)** – All API methods & Embedded Contract Calls
+- **[Multisig Accounts](./multisig.md)** – Creating and signing with mutable X-of-N multisig accounts
 - **[Utilities](./utilities.md)** – Utilities and constants for common tasks
 - **[Wallet Management](./wallet.md)** – Creating and managing wallets
 - **[Building WASM](./build-wasm.md)** – Rebuilding the PoW module from source

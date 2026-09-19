@@ -1,6 +1,6 @@
 import { HTTPTransport, Client as OpenRpcClient, RequestManager } from "@open-rpc/client-js";
 import { Client as ClientInterface } from "./interfaces.js";
-import { ZnnClientException } from "./errors.js";
+import { mapNodeError } from "./nodeErrors.js";
 
 export class HttpClient implements ClientInterface {
     private _client: OpenRpcClient;
@@ -18,7 +18,7 @@ export class HttpClient implements ClientInterface {
             const message = error?.message || error?.toString() || "Unknown error occurred";
             const data = error?.data;
 
-            throw new ZnnClientException(message, code, method, parameters, data);
+            throw mapNodeError(message, code, method, parameters, data);
         }
     }
 }

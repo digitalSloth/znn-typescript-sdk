@@ -1,6 +1,7 @@
 import { expect } from "chai";
 import { Abi } from "../../src/abi/abi.js";
 import { EmbeddedContract } from "../../src/embedded/embeddedContract.js";
+import { Multisig } from "../../src/embedded/multisig.js";
 
 // Test contract with sample ABI data from the old definitions tests
 class TestContract extends EmbeddedContract {
@@ -190,6 +191,43 @@ describe("EmbeddedContract.decodeCall()", () => {
         expect(result[0]).to.equal("Test Name");
         expect(result[1]).to.equal("z1qp5hmcddaxd8ranhu25n4nycf8q9vsg6ksqjlg");
         expect(Number(result[2])).to.equal(1000000000);
+    });
+});
+
+describe("Multisig ABI — bytes[] as function input", () => {
+    it("should round-trip CreateMultisig (nonce, threshold, bytes[] signers)", () => {
+        const abi = Multisig.abi;
+        const pk1 = Buffer.alloc(32, 1);
+        const pk2 = Buffer.alloc(32, 2);
+        const nonce = 42n;
+        const threshold = 2;
+
+        const encoded = abi.encodeFunctionData("CreateMultisig", [nonce, threshold, [pk1, pk2]]);
+        const decoded = abi.decodeFunctionData("CreateMultisig", encoded, true) as Record<string, any>;
+
+        expect(BigInt(decoded.nonce)).to.equal(nonce);
+        expect(Number(decoded.threshold)).to.equal(threshold);
+        expect(decoded.signers).to.have.length(2);
+        expect(Buffer.from(decoded.signers[0].slice(2), "hex").equals(pk1)).to.be.true;
+        expect(Buffer.from(decoded.signers[1].slice(2), "hex").equals(pk2)).to.be.true;
+    });
+
+    it("should round-trip ChangePolicy (threshold, bytes[] signers, bool lock)", () => {
+        const abi = Multisig.abi;
+        const pk1 = Buffer.alloc(32, 3);
+        const pk2 = Buffer.alloc(32, 4);
+        const pk3 = Buffer.alloc(32, 5);
+        const threshold = 3;
+
+        const encoded = abi.encodeFunctionData("ChangePolicy", [threshold, [pk1, pk2, pk3], true]);
+        const decoded = abi.decodeFunctionData("ChangePolicy", encoded, true) as Record<string, any>;
+
+        expect(Number(decoded.threshold)).to.equal(threshold);
+        expect(decoded.signers).to.have.length(3);
+        expect(Buffer.from(decoded.signers[0].slice(2), "hex").equals(pk1)).to.be.true;
+        expect(Buffer.from(decoded.signers[1].slice(2), "hex").equals(pk2)).to.be.true;
+        expect(Buffer.from(decoded.signers[2].slice(2), "hex").equals(pk3)).to.be.true;
+        expect(decoded.lock).to.equal(true);
     });
 });
 
