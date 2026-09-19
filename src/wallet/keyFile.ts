@@ -118,19 +118,20 @@ export class KeyFile {
     private async hashPassword(password: string, salt: string, config: KdfConfig): Promise<Uint8Array> {
 
         if (isBrowser()) {
-            const hashDriver = await import(/* webpackMode: "eager" */ "argon2-browser");
-            const result = await hashDriver.hash({
+            const argon2 = (await import("argon2-browser/dist/argon2-bundled.min.js")).default;
+            const result = await argon2.hash({
                 pass: password,
                 salt: Buffer.from(salt, "hex"),
                 time: config.timeCost,
                 mem: config.memoryCost,
                 hashLen: config.hashLength,
                 parallelism: config.parallelism,
-                type: hashDriver.ArgonType?.Argon2id ?? 2,
+                type: argon2.ArgonType.Argon2id,
             });
-            return result?.hash ?? result;
+            return result.hash;
         } else {
-            const argon2 = await import(/* webpackIgnore: true */ "argon2");
+            const nativeArgon2 = "argon2";
+            const argon2 = await import(/* webpackIgnore: true */ /* @vite-ignore */ nativeArgon2);
             return await argon2.default.hash(password, {
                 salt: Buffer.from(salt, "hex"),
                 timeCost: config.timeCost,
@@ -139,7 +140,7 @@ export class KeyFile {
                 parallelism: config.parallelism,
                 type: 2, // Argon2id
                 raw: true,
-            })
+            });
         }
     }
 }

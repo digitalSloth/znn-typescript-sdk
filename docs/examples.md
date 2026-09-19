@@ -77,7 +77,7 @@ When using the SDK in a browser, you must configure the PoW module path before s
 import { Zenon } from 'znn-typescript-sdk';
 
 // Set the path where pow.js and pow.wasm are located
-Zenon.setPowBasePath('node_modules/znn-typescript-sdk/dist/browser');
+Zenon.setPowBasePath('node_modules/znn-typescript-sdk/lib');
 
 // Or if you copied the files to your public folder
 Zenon.setPowBasePath('/');

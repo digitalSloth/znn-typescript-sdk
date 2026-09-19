@@ -1,4 +1,5 @@
 import { expect } from "chai";
+import argon2 from "argon2";
 import { KeyFile, KeyFileEncryptedData, KdfConfig } from "../../src/wallet/keyFile.js";
 import { KeyStore } from "../../src/wallet/keyStore.js";
 
@@ -63,6 +64,59 @@ describe("KeyFile regression (known vectors)", () => {
             const store = await KeyFile.setPassword(password).decrypt(json);
             expect(store.entropy).to.equal(initialEntropy);
         });
+    });
+});
+
+// -------------------------------------------------------------------------
+// Browser Argon2 driver parity — the bundled argon2-browser build must
+// produce the same digest as the native binding, since KeyFile switches
+// between them based on isBrowser().
+// -------------------------------------------------------------------------
+
+describe("Browser Argon2 driver", () => {
+    it("produces the same digest as the native driver", async function () {
+        this.timeout(20000);
+
+        const password = "correct-horse-battery-staple";
+        const salt = Buffer.from("0123456789abcdef0123456789abcdef", "hex");
+        const config = { time: 1, mem: 1024, hashLen: 32, parallelism: 4 };
+
+        const globals = globalThis as unknown as Record<string, unknown>;
+        const versions = process.versions as unknown as Record<string, unknown>;
+        const originalNode = Object.getOwnPropertyDescriptor(versions, "node");
+
+        globals.self = globalThis;
+        const argon2Browser = (await import("argon2-browser/dist/argon2-bundled.min.js")).default;
+        Object.defineProperty(versions, "node", { value: undefined, configurable: true, writable: true });
+
+        try {
+            const browserHash = await argon2Browser.hash({
+                pass: password,
+                salt,
+                time: config.time,
+                mem: config.mem,
+                hashLen: config.hashLen,
+                parallelism: config.parallelism,
+                type: argon2Browser.ArgonType.Argon2id,
+            });
+
+            const nativeHash = await argon2.hash(password, {
+                salt,
+                timeCost: config.time,
+                memoryCost: config.mem,
+                hashLength: config.hashLen,
+                parallelism: config.parallelism,
+                type: 2, // Argon2id
+                raw: true,
+            });
+
+            expect(Buffer.from(browserHash.hash).toString("hex")).to.equal(nativeHash.toString("hex"));
+        } finally {
+            if (originalNode) Object.defineProperty(versions, "node", originalNode);
+            else delete versions.node;
+            delete globals.self;
+            delete globals.Module;
+        }
     });
 });
 
