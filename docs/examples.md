@@ -1,3 +1,8 @@
+---
+sidebar_label: Examples
+description: Complete working examples for the ZNN TypeScript SDK.
+---
+
 # Examples
 
 Each snippet is ready to drop into a script and expand.
