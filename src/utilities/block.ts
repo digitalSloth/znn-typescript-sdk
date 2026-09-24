@@ -1,5 +1,6 @@
 import { Buffer } from "buffer";
-import { GetRequiredPowParam } from "../model/embedded/plasma.js";
+import { GetRequiredPowParam, GetRequiredPowResponse } from "../model/embedded/plasma.js";
+import { Momentum } from "../model/nom/momentum.js";
 import { AccountBlockTemplate, BlockTypeEnum } from "../model/nom/accountBlock.js";
 import { EMPTY_HASH, Hash, HashHeight } from "../model/primitives/index.js";
 import { generate as generatePoW } from "../pow/pow.js";
@@ -10,6 +11,9 @@ import { Logger } from "./logger.js";
 import { ZnnBlockUtilitiesException } from "./errors.js";
 
 const logger = Logger.globalLogger();
+
+// Dynamic Plasma prices are fixed-point numbers scaled by this factor (1000 = 1.0x).
+const PRICE_SCALE_FACTOR = 1000n;
 
 export function isSendBlock(blockType?: number): boolean {
     return [BlockTypeEnum.UserSend, BlockTypeEnum.ContractSend].includes(blockType!);
@@ -62,7 +66,7 @@ function getPoWData(transaction: AccountBlockTemplate): Hash {
 async function autofillTxParameters(
     zenonInstance: Zenon,
     accountBlockTemplate: AccountBlockTemplate
-): Promise<AccountBlockTemplate> {
+): Promise<Momentum> {
     const frontierAccountBlock = await zenonInstance.ledger.getFrontierAccountBlock(accountBlockTemplate.address);
     const frontierMomentum = await zenonInstance.ledger.getFrontierMomentum();
     let height = 1;
@@ -77,18 +81,18 @@ async function autofillTxParameters(
     accountBlockTemplate.previousHash = previousHash;
     accountBlockTemplate.momentumAcknowledged = new HashHeight(frontierMomentum.hash, frontierMomentum.height);
 
-    return accountBlockTemplate;
+    return frontierMomentum;
 }
 
 async function checkAndSetFields(
     zenonInstance: Zenon,
     transaction: AccountBlockTemplate,
     currentKeyPair: KeyPair
-): Promise<AccountBlockTemplate> {
+): Promise<Momentum> {
     transaction.address = currentKeyPair.getAddress();
     transaction.publicKey = currentKeyPair.getPublicKey();
 
-    await autofillTxParameters(zenonInstance, transaction);
+    const frontierMomentum = await autofillTxParameters(zenonInstance, transaction);
 
     if (isReceiveBlock(transaction.blockType)) {
         if (transaction.fromBlockHash === EMPTY_HASH) {
@@ -116,12 +120,53 @@ async function checkAndSetFields(
         throw new ZnnBlockUtilitiesException("Nonce is required when difficulty is set");
     }
 
-    return transaction;
+    return frontierMomentum;
+}
+
+/**
+ * The fused plasma a block must carry when no PoW is needed.
+ *
+ * Under Dynamic Plasma the node requires `ceil(basePlasma * nextFusionPrice / 1000)`
+ * (see go-zenon `GetRequiredPoWForAccountBlock`), which exceeds `basePlasma` once the
+ * fusion price rises above 1000. Throws rather than signing an under-funded block
+ * when the price or the quote is malformed or inconsistent.
+ */
+function getRequiredFusedPlasma(
+    response: GetRequiredPowResponse,
+    frontierMomentum: Momentum
+): number {
+    const { nextFusionPrice } = frontierMomentum;
+
+    // The protocol minimum is 1.0x; a lower or missing price means the node isn't running Dynamic Plasma.
+    if (nextFusionPrice === undefined || !Number.isSafeInteger(nextFusionPrice) || nextFusionPrice < PRICE_SCALE_FACTOR) {
+        throw new ZnnBlockUtilitiesException(
+            `Invalid nextFusionPrice on frontier momentum: ${nextFusionPrice}`
+        );
+    }
+
+    const required =
+        (BigInt(response.basePlasma) * BigInt(nextFusionPrice) + PRICE_SCALE_FACTOR - 1n) / PRICE_SCALE_FACTOR;
+
+    if (required > BigInt(Number.MAX_SAFE_INTEGER)) {
+        throw new ZnnBlockUtilitiesException(`Required fused plasma is out of range: ${required}`);
+    }
+
+    // A zero-difficulty quote means the account already holds enough plasma; if it
+    // doesn't cover the price-scaled amount the quote and momentum price disagree.
+    if (BigInt(response.availablePlasma) < required) {
+        throw new ZnnBlockUtilitiesException(
+            `Available plasma (${response.availablePlasma}) is below the required fused plasma ` +
+            `(${required}) at fusion price ${nextFusionPrice}, but the node quoted no PoW`
+        );
+    }
+
+    return Number(required);
 }
 
 async function setDifficulty(
     zenonInstance: Zenon,
     transaction: AccountBlockTemplate,
+    frontierMomentum: Momentum
 ): Promise<AccountBlockTemplate> {
     const powParam = new GetRequiredPowParam(
         transaction.address,
@@ -149,7 +194,7 @@ async function setDifficulty(
 
         logger.info(`PoW generated: nonce=${transaction.nonce}`);
     } else {
-        transaction.fusedPlasma = response.basePlasma;
+        transaction.fusedPlasma = getRequiredFusedPlasma(response, frontierMomentum);
         transaction.difficulty = 0;
         transaction.nonce = "0000000000000000";
     }
@@ -179,8 +224,8 @@ export async function prepareBlock(
     transaction: AccountBlockTemplate,
     currentKeyPair: KeyPair
 ): Promise<AccountBlockTemplate> {
-    transaction = await checkAndSetFields(zenonInstance, transaction, currentKeyPair);
-    transaction = await setDifficulty(zenonInstance, transaction);
+    const frontierMomentum = await checkAndSetFields(zenonInstance, transaction, currentKeyPair);
+    transaction = await setDifficulty(zenonInstance, transaction, frontierMomentum);
     transaction = setHashAndSignature(transaction, currentKeyPair);
     return transaction;
 }
