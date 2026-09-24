@@ -10,7 +10,7 @@ This file provides guidance for AI agents and automated tools working on this co
 
 - **Package name:** `znn-typescript-sdk`
 - **License:** MIT
-- **Node.js requirement:** 18+
+- **Node.js requirement:** 20+
 - **Module system:** ESM-first (`"type": "module"`)
 
 ---
