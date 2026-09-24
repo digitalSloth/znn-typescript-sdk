@@ -607,5 +607,94 @@ describe("Block Utilities", () => {
             expect(result.signature.length).to.be.greaterThan(0);
             expect(result.address.toString()).to.equal(keyPair.getAddress().toString());
         });
+
+        describe("dynamic plasma fused amount (zero difficulty)", () => {
+            const prepare = async (quote: any, momentum: any) => {
+                const zenon = makeZenon({
+                    ledger: {
+                        getFrontierMomentum: async () => ({ hash: Hash.parse(HASH_B), height: 10, ...momentum })
+                    },
+                    embedded: { plasma: { getRequiredPoWForAccountBlock: async () => quote } }
+                });
+                const transaction = new AccountBlockTemplate({
+                    blockType: BlockTypeEnum.UserSend,
+                    toAddress: Address.parse(ADDRESS_B),
+                    amount: BigInt(100),
+                    tokenStandard: ZNN_ZTS,
+                    data: Buffer.from([])
+                });
+                return prepareBlock(zenon as any, transaction, KeyPair.fromPrivateKey(Buffer.alloc(32, 9)));
+            };
+
+            it("should use ceil(basePlasma * nextFusionPrice / 1000) when the price exceeds 1000", async () => {
+                const result = await prepare(
+                    { requiredDifficulty: 0, basePlasma: 21000, availablePlasma: 25200 },
+                    { nextFusionPrice: 1200 }
+                );
+
+                expect(result.fusedPlasma).to.equal(25200);
+                expect(result.difficulty).to.equal(0);
+            });
+
+            it("should round the required amount up", async () => {
+                const result = await prepare(
+                    { requiredDifficulty: 0, basePlasma: 21000, availablePlasma: 30000 },
+                    { nextFusionPrice: 1001 }
+                );
+
+                // 21000 * 1001 / 1000 = 21021
+                expect(result.fusedPlasma).to.equal(21021);
+            });
+
+            it("should scale below basePlasma when the price is under 1000", async () => {
+                const result = await prepare(
+                    { requiredDifficulty: 0, basePlasma: 21000, availablePlasma: 21000 },
+                    { nextFusionPrice: 500 }
+                );
+
+                expect(result.fusedPlasma).to.equal(10500);
+            });
+
+            it("should fall back to basePlasma when the momentum carries no price", async () => {
+                const result = await prepare(
+                    { requiredDifficulty: 0, basePlasma: 21000, availablePlasma: 25200 },
+                    {}
+                );
+
+                expect(result.fusedPlasma).to.equal(21000);
+            });
+
+            it("should fail closed when available plasma is below the price-scaled amount", async () => {
+                let error: unknown;
+                try {
+                    await prepare(
+                        { requiredDifficulty: 0, basePlasma: 21000, availablePlasma: 21000 },
+                        { nextFusionPrice: 1200 }
+                    );
+                } catch (e) {
+                    error = e;
+                }
+
+                expect(error).to.be.instanceOf(Error);
+                expect((error as Error).message).to.contain("below the required fused plasma");
+            });
+
+            for (const badPrice of [0, -5, 1.5, Number.NaN]) {
+                it(`should fail closed on invalid nextFusionPrice ${badPrice}`, async () => {
+                    let error: unknown;
+                    try {
+                        await prepare(
+                            { requiredDifficulty: 0, basePlasma: 21000, availablePlasma: 99999 },
+                            { nextFusionPrice: badPrice }
+                        );
+                    } catch (e) {
+                        error = e;
+                    }
+
+                    expect(error).to.be.instanceOf(Error);
+                    expect((error as Error).message).to.contain("Invalid nextFusionPrice");
+                });
+            }
+        });
     });
 });
