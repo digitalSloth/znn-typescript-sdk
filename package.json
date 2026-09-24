@@ -48,7 +48,7 @@
     "build:cli": "webpack --config webpack.cli.config.cjs",
     "build:wasm": "./scripts/build-wasm.sh",
     "build": "npm run clean && npm run lint && npm run build:esm && npm run build:cli",
-    "clean": "node -e \"var { rmdirSync, existsSync } = require('fs'), path = require('path'); ['./.nyc_output', './coverage', './dist'].forEach(fPath => {if (existsSync(path.join(__dirname, fPath))) rmdirSync(path.join(__dirname, fPath), { recursive: true })}); process.exit(0);\"",
+    "clean": "node -e \"const { rmSync } = require('fs'); ['.nyc_output', 'coverage', 'dist'].forEach(p => rmSync(p, { recursive: true, force: true }))\"",
     "clean:all": "npm run clean && (rm -r ./node_modules || true)",
     "cli:dev": "npm run build:cli && node dist/cli/cli.cjs",
     "cover": "c8 npm run test",
