@@ -18,7 +18,7 @@ const ADDRESS_B = "z1qxemdeddedxplasmaxxxxxxxxxxxxxxxxsctrp";
 const makeZenon = (overrides: any = {}) => ({
     ledger: {
         getFrontierAccountBlock: async () => null,
-        getFrontierMomentum: async () => ({ hash: Hash.parse(HASH_B), height: 10 }),
+        getFrontierMomentum: async () => ({ hash: Hash.parse(HASH_B), height: 10, nextFusionPrice: 1000 }),
         getAccountBlockByHash: async () => null,
         publishRawTransaction: async (tx: AccountBlockTemplate) => tx,
         ...(overrides.ledger ?? {})
@@ -28,7 +28,7 @@ const makeZenon = (overrides: any = {}) => ({
             getRequiredPoWForAccountBlock: async () => ({
                 requiredDifficulty: 0,
                 basePlasma: 7,
-                availablePlasma: 3
+                availablePlasma: 7
             }),
             ...(overrides.embedded?.plasma ?? {})
         },
@@ -646,19 +646,10 @@ describe("Block Utilities", () => {
                 expect(result.fusedPlasma).to.equal(21021);
             });
 
-            it("should scale below basePlasma when the price is under 1000", async () => {
+            it("should use basePlasma at the minimum price of 1000", async () => {
                 const result = await prepare(
                     { requiredDifficulty: 0, basePlasma: 21000, availablePlasma: 21000 },
-                    { nextFusionPrice: 500 }
-                );
-
-                expect(result.fusedPlasma).to.equal(10500);
-            });
-
-            it("should fall back to basePlasma when the momentum carries no price", async () => {
-                const result = await prepare(
-                    { requiredDifficulty: 0, basePlasma: 21000, availablePlasma: 25200 },
-                    {}
+                    { nextFusionPrice: 1000 }
                 );
 
                 expect(result.fusedPlasma).to.equal(21000);
@@ -679,7 +670,7 @@ describe("Block Utilities", () => {
                 expect((error as Error).message).to.contain("below the required fused plasma");
             });
 
-            for (const badPrice of [0, -5, 1.5, Number.NaN]) {
+            for (const badPrice of [undefined, 0, 999, -5, 1.5, Number.NaN]) {
                 it(`should fail closed on invalid nextFusionPrice ${badPrice}`, async () => {
                     let error: unknown;
                     try {

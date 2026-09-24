@@ -128,8 +128,7 @@ async function checkAndSetFields(
  *
  * Under Dynamic Plasma the node requires `ceil(basePlasma * nextFusionPrice / 1000)`
  * (see go-zenon `GetRequiredPoWForAccountBlock`), which exceeds `basePlasma` once the
- * fusion price rises above 1000. Momentums produced before Dynamic Plasma carry no price,
- * so the legacy `basePlasma` applies. Throws rather than signing an under-funded block
+ * fusion price rises above 1000. Throws rather than signing an under-funded block
  * when the price or the quote is malformed or inconsistent.
  */
 function getRequiredFusedPlasma(
@@ -138,12 +137,11 @@ function getRequiredFusedPlasma(
 ): number {
     const { nextFusionPrice } = frontierMomentum;
 
-    if (nextFusionPrice === undefined || nextFusionPrice === null) {
-        return response.basePlasma;
-    }
-
-    if (!Number.isSafeInteger(nextFusionPrice) || nextFusionPrice <= 0) {
-        throw new ZnnBlockUtilitiesException(`Invalid nextFusionPrice on frontier momentum: ${nextFusionPrice}`);
+    // The protocol minimum is 1.0x; a lower or missing price means the node isn't running Dynamic Plasma.
+    if (nextFusionPrice === undefined || !Number.isSafeInteger(nextFusionPrice) || nextFusionPrice < PRICE_SCALE_FACTOR) {
+        throw new ZnnBlockUtilitiesException(
+            `Invalid nextFusionPrice on frontier momentum: ${nextFusionPrice}`
+        );
     }
 
     const required =
