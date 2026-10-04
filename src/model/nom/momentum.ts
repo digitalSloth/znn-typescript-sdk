@@ -16,7 +16,9 @@ export class Momentum extends Model {
         public changesHash: Hash,
         public publicKey: string,
         public signature: string,
-        public producer: Address
+        public producer: Address,
+        public nextFusionPrice?: number,
+        public nextWorkPrice?: number
     ){
         super()
     }
@@ -34,7 +36,9 @@ export class Momentum extends Model {
             Hash.parse(json.changesHash),
             json.publicKey || "",
             json.signature || "",
-            Address.parse(json.producer)
+            Address.parse(json.producer),
+            json.nextFusionPrice,
+            json.nextWorkPrice
         );
     }
 
@@ -51,7 +55,9 @@ export class Momentum extends Model {
             changesHash: this.changesHash?.toString(),
             publicKey: this.publicKey,
             signature: this.signature,
-            producer: this.producer.toString()
+            producer: this.producer.toString(),
+            nextFusionPrice: this.nextFusionPrice,
+            nextWorkPrice: this.nextWorkPrice
         };
     }
 }

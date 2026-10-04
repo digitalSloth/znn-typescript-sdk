@@ -109,7 +109,7 @@ describe("Zenon", () => {
 
         (zenon as any).ledger = {
             getFrontierAccountBlock: async () => null,
-            getFrontierMomentum: async () => ({ hash: Hash.parse(HASH_A), height: 10 }),
+            getFrontierMomentum: async () => ({ hash: Hash.parse(HASH_A), height: 10, nextFusionPrice: 1000 }),
             getAccountBlockByHash: async () => null,
             publishRawTransaction: async (tx: AccountBlockTemplate) => {
                 publishCalls.push(tx);
