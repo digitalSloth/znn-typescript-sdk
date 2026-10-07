@@ -1,4 +1,4 @@
-import { createHash } from "crypto";
+import { createHash, randomBytes } from "crypto";
 import { readFileSync } from "fs";
 import { expect } from "chai";
 import { generate } from "../../src/pow/pow.js";
@@ -14,8 +14,8 @@ describe("PoW CSP compatibility", () => {
     it("generates a nonce accepted by an independent verifier", async function () {
         this.timeout(15000);
 
-        const hash = "00".repeat(32);
-        const difficulty = 1024;
+        const hash = randomBytes(32).toString("hex");
+        const difficulty = 75000;
         const nonce = await generate(hash, difficulty);
 
         expect(nonce).to.match(/^[0-9a-f]{16}$/i);
