@@ -2,18 +2,21 @@
 // Main SDK exports
 export {
     Zenon,
-    DEFAULT_CHAIN_ID, DEFAULT_NET_ID, DEFAULT_POW_BASE_PATH
+    DEFAULT_CHAIN_ID, DEFAULT_NET_ID, DEFAULT_POW_BASE_PATH,
+    RPC_MAX_PAGE_SIZE, MEMORY_POOL_PAGE_SIZE
 } from "./zenon.js";
 export type { PowProvider } from "./zenon.js";
 
 //
 // PoW exports
-export { PowWorker, isPowWorkerSupported } from "./pow/index.js";
+export { PowWorker, isPowWorkerSupported, generate } from "./pow/index.js";
 export type { PowWorkerOptions } from "./pow/index.js";
 
 //
 // Client exports
 export type { WsClientOptions } from "./client/index.js";
+export { WsClient, ZnnClientException } from "./client/index.js";
+export { Client } from "./client/interfaces.js";
 
 //
 // Crypto exports
@@ -22,6 +25,8 @@ export { Crypto } from "./crypto/index.js";
 //
 // ABI exports
 //export * from "./abi/index.js";
+export { FunctionFragment } from "./abi/fragments.js";
+export type { ParamType } from "./abi/fragments.js";
 
 //
 // API exports
@@ -114,9 +119,11 @@ export {
     KeyStore,
     KeyFile
 } from "./wallet/index.js";
+export type { KeyFileEncryptedData } from "./wallet/index.js";
 
 // Utilities
 export {
     extractNumberDecimals,
     addNumberDecimals,
 } from "./utilities/amounts.js"
+export { Logger, LogLevel } from "./utilities/logger.js";

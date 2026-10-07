@@ -14,7 +14,7 @@ A TypeScript/JavaScript SDK for interacting with the Zenon Network of Momentum (
 - 🔐 **Transaction signing** – Sign and send transactions with automatic PoW generation
 - ⌨️ **CLI Included** – CLI for wallet management and sending transactions
 - 📡 **Real-time subscriptions** – Subscribe to momentums and account blocks via WebSocket
-- 🌐 **Universal** – Works in Node.js and browsers (ESM & UMD)
+- 🌐 **Universal** – Works in Node.js and browsers (ESM)
 - 📝 **TypeScript native** – Full type definitions included
 
 ---
@@ -52,14 +52,9 @@ const zenon = Zenon.getInstance();
 await zenon.initialize('wss://node.zenonhub.io:35998');
 ```
 
-#### Browser Builds (ESM vs UMD)
+#### Browser Builds
 
-The SDK ships two browser bundles:
-
-- **ESM** (`dist/browser/bundle.browser.mjs`): Modern module build for Vite/Rollup/Webpack. Import from `znn-typescript-sdk` or the `.mjs` bundle.
-- **UMD** (`dist/browser/bundle.browser.js`): Legacy global build that exposes `window.ZnnSDK` for script-tag usage.
-
-Use ESM when possible. Use UMD only if you must load the SDK via a `<script>` tag without a bundler.
+The SDK ships as modular ESM only and is imported from `znn-typescript-sdk` in any bundler (Vite, Rollup, Webpack). `KeyFile` loads its Argon2 implementation as a dynamic chunk, so set `output.publicPath` (or the Vite equivalent) for wallet unlock to work.
 
 #### Browser PoW Configuration
 
@@ -67,14 +62,14 @@ The Proof of Work (PoW) module requires two external files in browser environmen
 
 **Setup:**
 
-1. The PoW files are located in `node_modules/znn-typescript-sdk/dist/browser`
+1. The PoW files are located in `node_modules/znn-typescript-sdk/lib`
 2. Set the base path before any operations that require PoW:
 
 ```javascript
 import { Zenon } from 'znn-typescript-sdk';
 
 // Point to where pow.js and pow.wasm are located
-Zenon.setPowBasePath('node_modules/znn-typescript-sdk/dist/browser');
+Zenon.setPowBasePath('node_modules/znn-typescript-sdk/lib');
 
 // Now you can send transactions (which use PoW)
 const zenon = Zenon.getInstance();
@@ -82,18 +77,12 @@ await zenon.initialize('wss://node.zenonhub.io:35998');
 const tx = await zenon.send(blockTemplate, keyPair);
 ```
 
-**For UMD:**
-
-```javascript
-window.ZnnSDK.Zenon.setPowBasePath('node_modules/znn-typescript-sdk/dist/browser');
-```
-
 **Alternative – Copy to Public Folder:**
 
 For production apps, copy the PoW files to your public/static folder:
 
 ```bash
-cp node_modules/znn-typescript-sdk/dist/browser/pow.* public/
+cp node_modules/znn-typescript-sdk/lib/pow.* public/
 ```
 
 Then set the path:
@@ -164,7 +153,7 @@ Set the base path for loading PoW files in browser environments. Only needed for
 ```javascript
 // Before initialization in browser
 // These are all valid and will be normalized automatically:
-Zenon.setPowBasePath('node_modules/znn-typescript-sdk/dist/browser');
+Zenon.setPowBasePath('node_modules/znn-typescript-sdk/lib');
 Zenon.setPowBasePath('/assets');
 Zenon.setPowBasePath('./public');
 ```

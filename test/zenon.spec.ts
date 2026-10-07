@@ -68,16 +68,16 @@ describe("Zenon", () => {
         expect(Zenon.getPowBasePath()).to.equal("/public/");
 
         // Relative path - should auto-add ./
-        Zenon.setPowBasePath("node_modules/znn-typescript-sdk/dist/browser");
-        expect(Zenon.getPowBasePath()).to.equal("./node_modules/znn-typescript-sdk/dist/browser/");
+        Zenon.setPowBasePath("node_modules/znn-typescript-sdk/lib");
+        expect(Zenon.getPowBasePath()).to.equal("./node_modules/znn-typescript-sdk/lib/");
 
         // Already has ./
         Zenon.setPowBasePath("./assets");
         expect(Zenon.getPowBasePath()).to.equal("./assets/");
 
         // Already has ../
-        Zenon.setPowBasePath("../dist/browser");
-        expect(Zenon.getPowBasePath()).to.equal("../dist/browser/");
+        Zenon.setPowBasePath("../lib");
+        expect(Zenon.getPowBasePath()).to.equal("../lib/");
 
         // Full URL
         Zenon.setPowBasePath("https://cdn.example.com/pow");
