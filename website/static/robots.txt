@@ -1,0 +1,11 @@
+# NOTE: robots.txt is only honored from the origin root (RFC 9309), so this
+# file has no effect while the site is hosted at
+# digitalsloth.github.io/znn-typescript-sdk/. It is kept so that the site is
+# correctly configured if it is ever served from its own (custom) domain.
+# Until then, submit the sitemap to search engines directly:
+# https://digitalsloth.github.io/znn-typescript-sdk/sitemap.xml
+
+User-agent: *
+Allow: /
+
+Sitemap: https://digitalsloth.github.io/znn-typescript-sdk/sitemap.xml

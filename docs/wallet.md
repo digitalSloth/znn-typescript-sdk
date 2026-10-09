@@ -1,3 +1,8 @@
+---
+sidebar_label: Wallet Management
+description: Creating, importing, and managing wallets with BIP39 mnemonic support.
+---
+
 # Wallet Management
 
 Complete guide to creating, importing, and managing wallets with the ZNN TypeScript SDK.

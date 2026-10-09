@@ -1,3 +1,8 @@
+---
+sidebar_label: Building WASM
+description: Rebuilding the PoW WebAssembly module from source.
+---
+
 # Building the PoW WASM Module
 
 This SDK includes a pre-built WebAssembly module for Proof of Work (PoW) computation. Use this guide to rebuild it from source if you need transparency or customization.
