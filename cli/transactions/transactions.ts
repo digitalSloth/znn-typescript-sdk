@@ -25,11 +25,12 @@ export class Transactions {
         const zenon = Zenon.getInstance();
 
         try {
-            // Parse amount
-            const amountFloat = parseFloat(amount);
-            if (isNaN(amountFloat) || amountFloat <= 0) {
+            // Validate the complete input, but preserve its exact decimal value.
+            const numericAmount = Number(amount);
+            if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
                 throw new Error("Amount must be a positive number");
             }
+            const amountInBaseUnits = extractNumberDecimals(amount, decimals);
 
             if (tokenStandard.toLowerCase() === "znn") {
                 tokenStandard = ZNN_ZTS.toString()
@@ -65,9 +66,6 @@ export class Transactions {
             const keyStore = KeyStore.fromMnemonic(mnemonic);
             const keyPair = keyStore.getKeyPair(accountIndex);
             logger.info("✓ Wallet loaded\n");
-
-            // Convert amount to base units
-            const amountInBaseUnits = extractNumberDecimals(amountFloat, decimals);
 
             // Create block template
             logger.info("Creating transaction...");
