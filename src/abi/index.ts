@@ -24,14 +24,9 @@ export {
     defaultAbiCoder,
     Interface,
     Indexed,
-    /////////////////////////
-    // Types
-
-    CoerceFunc,
-    JsonFragment,
-    JsonFragmentType,
-    Result,
     checkResultErrors,
     LogDescription,
     TransactionDescription
 };
+
+export type { CoerceFunc, JsonFragment, JsonFragmentType, Result };

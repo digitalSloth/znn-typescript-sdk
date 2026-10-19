@@ -15,7 +15,7 @@ export type { PowWorkerOptions } from "./pow/index.js";
 //
 // Client exports
 export type { WsClientOptions } from "./client/index.js";
-export { WsClient, ZnnClientException } from "./client/index.js";
+export { WsClient, HttpClient, newClient, ZnnClientException } from "./client/index.js";
 export { Client } from "./client/interfaces.js";
 
 //
@@ -49,6 +49,7 @@ export {
     Pillar as PillarContract,
     Plasma as PlasmaContract,
     Sentinel as SentinelContract,
+    Settlement as SettlementContract,
     Spork as SporkContract,
     Stake as StakeContract,
     Swap as SwapContract,
@@ -63,7 +64,7 @@ export * from "./model/embedded/index.js"
 
 // NoM
 export {
-    BlockTypeEnum, AccountBlockTemplateOptions, AccountBlockTemplate,
+    BlockTypeEnum, AccountBlockTemplate,
     AccountBlockConfirmationDetail, AccountBlock, AccountBlockList,
     AccountHeader,
     AccountInfo, BalanceInfoListItem,
@@ -72,6 +73,7 @@ export {
     Momentum, MomentumList,
     Token, TokenList
 } from "./model/nom/index.js"
+export type { AccountBlockTemplateOptions } from "./model/nom/index.js"
 
 // Primitives
 export {
@@ -88,6 +90,7 @@ export {
     ACCELERATOR_ADDRESS,
     BRIDGE_ADDRESS,
     HTLC_ADDRESS,
+    SETTLEMENT_ADDRESS,
 
     Hash,
     EMPTY_HASH,
@@ -101,6 +104,11 @@ export {
     ZNN_ZTS
 } from "./model/primitives/index.js";
 
+
+// Settlement
+export * as settlement from "./settlement/index.js";
+export { SettlementApi } from "./api/embedded/settlement.js";
+export type { RegisterDomainParams } from "./api/embedded/settlement.js";
 
 // Stats
 export {

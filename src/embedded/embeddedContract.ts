@@ -33,6 +33,10 @@ export abstract class EmbeddedContract {
         return this.abi.decodeFunctionData(name, data, named);
     }
 
+    static decodeVariable(name: string, data: string | Uint8Array): Record<string, any> {
+        return this.abi.decodeVariable(name, data);
+    }
+
     static decodeCallData(data: string, named = true): { name: string; args: Record<string, any> | any[] } {
         const tx = this.abi.parseTransaction({ data });
         return {

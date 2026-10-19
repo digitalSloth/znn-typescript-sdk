@@ -286,6 +286,7 @@ await zenon.ledger.publishRawTransaction(prepared);
 - **[Embedded Contracts](./docs/embedded-contracts/index.md)** – Detailed documentation for embedded contracts
 - **[Utilities](./docs/utilities.md)** – Utilities and constants for common tasks
 - **[State Root](./docs/state-root.md)** – Merkle state root, state proofs and verification
+- **[Settlement](./docs/settlement.md)** – Settlement contract reads, builders and proof-verified storage
 - **[CLI Tool](./docs/cli.md)** – Command-line interface
 - **[Wallet Management](./docs/wallet.md)** – Creating and managing wallets
 - **[Building WASM](./docs/build-wasm.md)** – Rebuilding the PoW module from source

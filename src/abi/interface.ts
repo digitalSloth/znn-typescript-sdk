@@ -23,7 +23,8 @@ import {
 
 const logger = Logger.globalLogger();
 
-export { checkResultErrors, Result }
+export { checkResultErrors }
+export type { Result }
 
 export class LogDescription extends Description<LogDescription> {
     readonly eventFragment: EventFragment;

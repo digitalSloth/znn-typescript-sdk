@@ -1,13 +1,25 @@
 //ts-nocheck
 
 import { Interface, Result } from "./interface.js";
-import { FunctionFragment } from "./fragments.js";
+import { FunctionFragment, ParamType } from "./fragments.js";
 import { BytesLike } from "../utilities/bytes.js";
 
 // Lightweight extension of Interface that normalizes embedded JSON before constructing
 export class Abi extends Interface {
+    private readonly _variables = new Map<string, ParamType[]>();
+
     constructor(definition: string | any[]) {
         super(Abi.normalizeDefinition(definition));
+
+        const items = typeof definition === "string" ? JSON.parse(definition) : definition;
+        for (const item of items) {
+            if (item && item.type === "variable") {
+                this._variables.set(
+                    item.name,
+                    (item.inputs ?? []).map((input: any) => ParamType.from(input))
+                );
+            }
+        }
     }
 
     static from(definition: string | any[]): Abi {
@@ -38,6 +50,20 @@ export class Abi extends Interface {
             return this._toNamedObject(functionFragment, decoded);
         }
         return decoded;
+    }
+
+    // Decodes a stored variable (an ABI-packed tuple with no selector) into an object keyed by input name
+    decodeVariable(name: string, data: BytesLike): Record<string, any> {
+        const params = this._variables.get(name);
+        if (!params) {
+            throw new Error(`unknown variable: ${name}`);
+        }
+        const decoded = this._decodeParams(params, data);
+        const obj: Record<string, any> = {};
+        params.forEach((param, idx) => {
+            obj[param.name ?? String(idx)] = decoded[idx];
+        });
+        return obj;
     }
 
     // Helper to map a decoded Result to a plain object keyed by input names

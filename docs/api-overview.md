@@ -159,6 +159,9 @@ All APIs are available on the `zenon` object.
 - `zenon.embedded.sentinel.depositQsr(amount)` - Deposit QSR for sentinel
 - `zenon.embedded.sentinel.withdrawQsr()` - Withdraw deposited QSR
 
+### Settlement
+- `zenon.embedded.settlement.*` - Domains, batches, deposits, contract deployment, withdrawals and executors. See [Settlement](./settlement.md) for the full method list
+
 ### Spork
 - `zenon.embedded.spork.getAll(pageIndex, pageSize)` - Get sporks with pagination
 - `zenon.embedded.spork.createSpork(name, description)` - Create a new spork

@@ -103,12 +103,13 @@ await zenon.initialize('wss://node.zenonhub.io:35998');
 | `zenon.stats` | Node stats (network, OS, process, sync) |
 | `zenon.embedded.*` | Embedded contract read methods |
 | `state` (import) | State-root SMT proof verifier and state-tree key builders. Proofs come from `zenon.ledger.getProof` and verify against the momentum `stateRoot` |
+| `settlement` (import) | Settlement constants, asset ids, withdrawal helpers, deploy planner and `SettlementStorage` (L1 state-proof reads verified with `state`) |
 
 ### Embedded Contract Builders
 
 Transaction block templates are built via `zenon.embedded.<contract>.<method>(...)`. These return an `AccountBlockTemplate`, not a sent transaction. To actually send, pass the template to `zenon.send(block, keyPair)`.
 
-Available embedded contracts: `accelerator`, `bridge`, `htlc`, `liquidity`, `pillar`, `plasma`, `sentinel`, `spork`, `stake`, `swap`, `token`.
+Available embedded contracts: `accelerator`, `bridge`, `htlc`, `liquidity`, `pillar`, `plasma`, `sentinel`, `settlement`, `spork`, `stake`, `swap`, `token`.
 
 ### Static Configuration (call before `initialize`)
 

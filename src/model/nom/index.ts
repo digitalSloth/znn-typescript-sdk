@@ -2,12 +2,12 @@ export {
     BlockTypeEnum,
     SendBlockTypeEnum,
     ReceiveBlockTypeEnum,
-    AccountBlockTemplateOptions,
     AccountBlockTemplate,
     AccountBlockConfirmationDetail,
     AccountBlock,
     AccountBlockList
 } from "./accountBlock.js"
+export type { AccountBlockTemplateOptions } from "./accountBlock.js"
 export { AccountHeader } from "./accountHeader.js"
 export { AccountInfo, BalanceInfoListItem } from "./accountInfo.js"
 export { DetailedMomentum, DetailedMomentumList } from "./detailedMomentum.js"

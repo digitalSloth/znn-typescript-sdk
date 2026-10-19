@@ -7,6 +7,7 @@ import { LiquidityApi } from "./liquidity.js";
 import { PillarApi } from "./pillar.js";
 import { PlasmaApi } from "./plasma.js";
 import { SentinelApi } from "./sentinel.js";
+import { SettlementApi } from "./settlement.js";
 import { SporkApi } from "./spork.js";
 import { StakeApi } from "./stake.js";
 import { SwapApi } from "./swap.js";
@@ -22,6 +23,7 @@ export class EmbeddedApi extends Api {
         public pillar = new PillarApi(),
         public plasma = new PlasmaApi(),
         public sentinel = new SentinelApi(),
+        public settlement = new SettlementApi(),
         public spork = new SporkApi(),
         public stake = new StakeApi(),
         public swap = new SwapApi(),
@@ -39,6 +41,7 @@ export class EmbeddedApi extends Api {
         this.pillar.setClient(client);
         this.plasma.setClient(client);
         this.sentinel.setClient(client);
+        this.settlement.setClient(client);
         this.spork.setClient(client);
         this.stake.setClient(client);
         this.swap.setClient(client);

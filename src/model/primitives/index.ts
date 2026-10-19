@@ -12,6 +12,7 @@ export {
     ACCELERATOR_ADDRESS,
     BRIDGE_ADDRESS,
     HTLC_ADDRESS,
+    SETTLEMENT_ADDRESS,
 } from "./address.js"
 
 export {

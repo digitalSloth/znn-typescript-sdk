@@ -1,0 +1,288 @@
+{
+  "allDomains": {
+    "count": 2,
+    "list": [
+      {
+        "domainId": 3,
+        "domainClass": 0,
+        "runtimeKind": 0,
+        "stfSpecHash": "2767f15c8af2f2c7225d5273fdd683edc714110a987d1054697c348aed4e6cc7",
+        "inputSource": 0,
+        "execProfile": 2,
+        "foreignProfile": 0,
+        "profileConfig": "AQID",
+        "chainBinding": "",
+        "minExecutors": 2,
+        "proposerPolicy": 0,
+        "finalityModel": 2,
+        "status": 0,
+        "withdrawalDelay": 100800,
+        "runtimeUpgradeDelay": 201600,
+        "approvedDAModes": [
+          0
+        ],
+        "pauseState": {
+          "submitPaused": false,
+          "relayPaused": true
+        },
+        "inputCursor": {
+          "consumedInputCount": 7,
+          "nextBatchId": 2,
+          "recordsSweptThrough": 1,
+          "sweptInputCount": 3
+        },
+        "receivedInputCount": 11,
+        "escapeHatch": {
+          "triggeredAtHeight": 555
+        }
+      },
+      {
+        "domainId": 4,
+        "domainClass": 0,
+        "runtimeKind": 0,
+        "stfSpecHash": "0a1e2736777f80a62beb2df72b649878481c0ca10194b832b5136befbae54017",
+        "inputSource": 0,
+        "execProfile": 0,
+        "foreignProfile": 0,
+        "profileConfig": "",
+        "chainBinding": "",
+        "minExecutors": 0,
+        "proposerPolicy": 0,
+        "finalityModel": 0,
+        "status": 0,
+        "withdrawalDelay": 0,
+        "runtimeUpgradeDelay": 0,
+        "approvedDAModes": [
+          0
+        ],
+        "pauseState": null,
+        "inputCursor": null,
+        "receivedInputCount": 0,
+        "escapeHatch": null
+      }
+    ]
+  },
+  "assetInfo": {
+    "domainId": 3,
+    "assetId": "9150274889a799f4e795088f93ee134dd9571c6fa7940370d3e05692c6fe217f",
+    "maxBatchWithdrawal": "100000000000000",
+    "cumulativeDeposited": "500",
+    "totalDeposited": "400",
+    "pendingWithdrawalReserve": "30",
+    "totalReleased": "20"
+  },
+  "batch": {
+    "domainId": 3,
+    "batchId": 1,
+    "protocolVersion": 1,
+    "firstInputSeq": 4,
+    "lastInputSeq": 9,
+    "preStateRoot": "e3ed56bd086d8958483a12734fa0ae7f5c8bb160ef9092c67e82ed9b19e4c7b2",
+    "postStateRoot": "989216075a288af2c12f115557518d248f93c434965513f5f739df8c9d6e1932",
+    "inputRoot": "3b0c4d506212cd7e7b88bc93b5b1811ab5de6796d2780e9de7378c87fe9a80a6",
+    "receiptRoot": "5a3442340ee31fa728f182f7dbaef4825025f40378061428bcc9f859aa4c294a",
+    "eventRoot": "5223f7670b3b9ba04f57d477478ae77a58190d89f21da0b0be774735e23f9c96",
+    "outboxRoot": "04058b18052fd86b2a3032bcc55c823c48bf5810a3726f538a1d01ebb42584c5",
+    "daHash": "8bf02b8b238233453488311be9b316e58ab7e1356ce948cb90dfef1af56992eb",
+    "daMode": 0,
+    "executorPillar": "pillar-one",
+    "submittedAtHeight": 1000,
+    "finalizeAtHeight": 2000,
+    "assetFlowSummary": "AAAAAA==",
+    "proofData": "",
+    "state": 0,
+    "isFinalized": true
+  },
+  "batches": {
+    "count": 1,
+    "list": [
+      {
+        "domainId": 3,
+        "batchId": 1,
+        "protocolVersion": 1,
+        "firstInputSeq": 4,
+        "lastInputSeq": 9,
+        "preStateRoot": "e3ed56bd086d8958483a12734fa0ae7f5c8bb160ef9092c67e82ed9b19e4c7b2",
+        "postStateRoot": "989216075a288af2c12f115557518d248f93c434965513f5f739df8c9d6e1932",
+        "inputRoot": "3b0c4d506212cd7e7b88bc93b5b1811ab5de6796d2780e9de7378c87fe9a80a6",
+        "receiptRoot": "5a3442340ee31fa728f182f7dbaef4825025f40378061428bcc9f859aa4c294a",
+        "eventRoot": "5223f7670b3b9ba04f57d477478ae77a58190d89f21da0b0be774735e23f9c96",
+        "outboxRoot": "04058b18052fd86b2a3032bcc55c823c48bf5810a3726f538a1d01ebb42584c5",
+        "daHash": "8bf02b8b238233453488311be9b316e58ab7e1356ce948cb90dfef1af56992eb",
+        "daMode": 0,
+        "executorPillar": "pillar-one",
+        "submittedAtHeight": 1000,
+        "finalizeAtHeight": 2000,
+        "assetFlowSummary": "AAAAAA==",
+        "proofData": "",
+        "state": 0,
+        "isFinalized": true
+      }
+    ]
+  },
+  "deployRecord": {
+    "domainId": 3,
+    "deployer": "z1qxemdeddedxplasmaxxxxxxxxxxxxxxxxsctrp",
+    "codeHash": "a78f2c566b2439463a2e7ca515bbfa3f92948506583cbadaebdd507f277542bd",
+    "metadataHash": "962f8420917d7fa5479f4a767bf9b9a30a4ab377af26d72dbcff167d6ce3f6f5",
+    "totalSize": 40000,
+    "chunkCount": 3,
+    "startHeight": 100,
+    "receivedCount": 2,
+    "expiresAtHeight": 2980,
+    "isExpired": false
+  },
+  "deployRecords": {
+    "count": 1,
+    "list": [
+      {
+        "domainId": 3,
+        "deployer": "z1qxemdeddedxplasmaxxxxxxxxxxxxxxxxsctrp",
+        "codeHash": "a78f2c566b2439463a2e7ca515bbfa3f92948506583cbadaebdd507f277542bd",
+        "metadataHash": "962f8420917d7fa5479f4a767bf9b9a30a4ab377af26d72dbcff167d6ce3f6f5",
+        "totalSize": 40000,
+        "chunkCount": 3,
+        "startHeight": 100,
+        "receivedCount": 2,
+        "expiresAtHeight": 2980,
+        "isExpired": false
+      }
+    ]
+  },
+  "domainInfo": {
+    "domainId": 3,
+    "domainClass": 0,
+    "runtimeKind": 0,
+    "stfSpecHash": "2767f15c8af2f2c7225d5273fdd683edc714110a987d1054697c348aed4e6cc7",
+    "inputSource": 0,
+    "execProfile": 2,
+    "foreignProfile": 0,
+    "profileConfig": "AQID",
+    "chainBinding": "",
+    "minExecutors": 2,
+    "proposerPolicy": 0,
+    "finalityModel": 2,
+    "status": 0,
+    "withdrawalDelay": 100800,
+    "runtimeUpgradeDelay": 201600,
+    "approvedDAModes": [
+      0
+    ],
+    "pauseState": {
+      "submitPaused": false,
+      "relayPaused": true
+    },
+    "inputCursor": {
+      "consumedInputCount": 7,
+      "nextBatchId": 2,
+      "recordsSweptThrough": 1,
+      "sweptInputCount": 3
+    },
+    "receivedInputCount": 11,
+    "escapeHatch": {
+      "triggeredAtHeight": 555
+    }
+  },
+  "domainInfoBare": {
+    "domainId": 4,
+    "domainClass": 0,
+    "runtimeKind": 0,
+    "stfSpecHash": "0a1e2736777f80a62beb2df72b649878481c0ca10194b832b5136befbae54017",
+    "inputSource": 0,
+    "execProfile": 0,
+    "foreignProfile": 0,
+    "profileConfig": "",
+    "chainBinding": "",
+    "minExecutors": 0,
+    "proposerPolicy": 0,
+    "finalityModel": 0,
+    "status": 0,
+    "withdrawalDelay": 0,
+    "runtimeUpgradeDelay": 0,
+    "approvedDAModes": [
+      0
+    ],
+    "pauseState": null,
+    "inputCursor": null,
+    "receivedInputCount": 0,
+    "escapeHatch": null
+  },
+  "emptyChallenges": {
+    "count": 0,
+    "list": []
+  },
+  "emptyDomains": {
+    "count": 0,
+    "list": []
+  },
+  "executorSet": {
+    "count": 1,
+    "list": [
+      {
+        "pillarName": "pillar-one",
+        "executorAddress": "z1qxemdeddedxplasmaxxxxxxxxxxxxxxxxsctrp",
+        "registrationHeight": 50,
+        "status": 0
+      }
+    ]
+  },
+  "feeInfo": {
+    "totalFeesCollected": "1000",
+    "totalFeesBurned": "300",
+    "totalFeesCredited": "700",
+    "totalRewardsCollected": "100",
+    "pendingEpochHead": {
+      "epoch": 4,
+      "finalityHeight": 9000
+    }
+  },
+  "feeInfoNoHead": {
+    "totalFeesCollected": "0",
+    "totalFeesBurned": "0",
+    "totalFeesCredited": "0",
+    "totalRewardsCollected": "0",
+    "pendingEpochHead": null
+  },
+  "pauseState": {
+    "global": {
+      "submitPaused": true,
+      "relayPaused": false
+    },
+    "domains": [
+      {
+        "domainId": 3,
+        "submitPaused": false,
+        "relayPaused": true
+      }
+    ]
+  },
+  "peripheryConfig": {
+    "znnPerByteOfBytecode": "100",
+    "znnPerByteOfState": "200"
+  },
+  "releaseQueue": {
+    "head": 2,
+    "tail": 3,
+    "count": 1,
+    "list": [
+      {
+        "registrationIndex": 2,
+        "recipient": "z1qxemdeddedxplasmaxxxxxxxxxxxxxxxxsctrp",
+        "assetId": "9150274889a799f4e795088f93ee134dd9571c6fa7940370d3e05692c6fe217f",
+        "amount": "77",
+        "outboxId": "cc7fd2d0b9381e25d5f1394227a8a4df0f82d374567632ddae402323ac71427b"
+      }
+    ]
+  },
+  "timeChallenges": {
+    "count": 1,
+    "list": [
+      {
+        "methodName": "SetAssetConfig/3/9150274889a799f4e795088f93ee134dd9571c6fa7940370d3e05692c6fe217f",
+        "paramsHash": "470301436d8bdf0e9ac28f33a05da66135cd405782cb5ccf32280807f44b0988",
+        "challengeStartHeight": 800,
+        "dueHeight": 1801
+      }
+    ]
+  }
+}
