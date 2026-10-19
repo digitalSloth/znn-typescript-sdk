@@ -285,6 +285,7 @@ await zenon.ledger.publishRawTransaction(prepared);
 - **[API Overview](./docs/api-overview.md)** – All API methods and embedded contract calls
 - **[Embedded Contracts](./docs/embedded-contracts/index.md)** – Detailed documentation for embedded contracts
 - **[Utilities](./docs/utilities.md)** – Utilities and constants for common tasks
+- **[State Root](./docs/state-root.md)** – Merkle state root, state proofs and verification
 - **[CLI Tool](./docs/cli.md)** – Command-line interface
 - **[Wallet Management](./docs/wallet.md)** – Creating and managing wallets
 - **[Building WASM](./docs/build-wasm.md)** – Rebuilding the PoW module from source

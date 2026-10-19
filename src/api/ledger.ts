@@ -3,7 +3,8 @@ import {
     AccountBlockTemplate, AccountInfo,
     AccountBlock, AccountBlockList,
     Momentum, MomentumList,
-    DetailedMomentumList
+    DetailedMomentumList,
+    StateProof
 } from "../model/nom/index.js";
 import { Address, Hash } from "../model/primitives/index.js";
 import { Api } from "./base.js";
@@ -124,6 +125,23 @@ export class LedgerApi extends Api {
     async getFrontierMomentum(): Promise<Momentum> {
         const response = await this.client.sendRequest("ledger.getFrontierMomentum", []);
         return Momentum.fromJson(response);
+    }
+
+    // Needs a version-3 momentum (StateRootSpork active) retained by the node
+    async getStateRoot(height: number): Promise<Hash> {
+        this.validateMin(height, 1, "height");
+        const response = await this.client.sendRequest("ledger.getStateRoot", [height]);
+        return Hash.parse(response);
+    }
+
+    // `key` is the raw state-tree key; the node sends it base64-encoded
+    async getProof(height: number, key: Uint8Array): Promise<StateProof> {
+        this.validateMin(height, 1, "height");
+        const response = await this.client.sendRequest("ledger.getProof", [
+            height,
+            Buffer.from(key).toString("base64")
+        ]);
+        return StateProof.fromJson(response);
     }
 
     async getMomentumBeforeTime(time: number): Promise<Momentum|null> {

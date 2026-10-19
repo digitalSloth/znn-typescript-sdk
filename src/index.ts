@@ -67,6 +67,7 @@ export {
     AccountBlockConfirmationDetail, AccountBlock, AccountBlockList,
     AccountHeader,
     AccountInfo, BalanceInfoListItem,
+    StateProof,
     DetailedMomentum, DetailedMomentumList,
     Momentum, MomentumList,
     Token, TokenList
@@ -127,3 +128,6 @@ export {
     addNumberDecimals,
 } from "./utilities/amounts.js"
 export { Logger, LogLevel } from "./utilities/logger.js";
+
+// State root
+export * as state from "./state/index.js";

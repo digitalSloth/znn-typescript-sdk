@@ -50,6 +50,7 @@ npm run lint:fix     # ESLint with auto-fix
 npm test             # Run Mocha test suite (tsx runner)
 npm run cover        # Test with coverage (c8)
 npm run cli:dev      # Build CLI and run it locally
+npm run prove-balance -- --address z1q...   # Verify an account balance against a momentum StateRoot
 npm run clean        # Remove dist/, coverage/, .nyc_output/
 ```
 
@@ -101,6 +102,7 @@ await zenon.initialize('wss://node.zenonhub.io:35998');
 | `zenon.subscribe` | WebSocket real-time subscriptions |
 | `zenon.stats` | Node stats (network, OS, process, sync) |
 | `zenon.embedded.*` | Embedded contract read methods |
+| `state` (import) | State-root SMT proof verifier and state-tree key builders. Proofs come from `zenon.ledger.getProof` and verify against the momentum `stateRoot` |
 
 ### Embedded Contract Builders
 

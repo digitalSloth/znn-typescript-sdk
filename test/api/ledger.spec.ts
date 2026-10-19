@@ -9,7 +9,8 @@ import {
     BlockTypeEnum,
     DetailedMomentumList,
     Momentum,
-    MomentumList
+    MomentumList,
+    StateProof
 } from "../../src/model/nom/index.js";
 import { Address, Hash } from "../../src/model/primitives/index.js";
 import { MockClient } from "./mockClient.js";
@@ -445,6 +446,76 @@ describe("LedgerApi", () => {
             const result = await ledgerApi.getDetailedMomentumsByHeight(1, 1);
 
             expect(result).to.equal(null);
+        });
+    });
+
+    describe("getStateRoot", () => {
+        it("should request the state root at a height", async () => {
+            mockClient.setMockResponse("ledger.getStateRoot", HASH_A);
+
+            const result = await ledgerApi.getStateRoot(7);
+
+            expect(mockClient.getLastCall()!.method).to.equal("ledger.getStateRoot");
+            expect(mockClient.getLastCall()!.parameters).to.deep.equal([7]);
+            expect(result).to.be.instanceOf(Hash);
+            expect(result.toString()).to.equal(HASH_A);
+        });
+
+        it("should reject a height below 1", async () => {
+            let error: unknown;
+            try {
+                await ledgerApi.getStateRoot(0);
+            } catch (e) {
+                error = e;
+            }
+            expect(error).to.be.instanceOf(Error);
+            expect(mockClient.getCallHistory()).to.have.length(0);
+        });
+    });
+
+    describe("getProof", () => {
+        it("should send the key base64-encoded and decode an inclusion proof", async () => {
+            mockClient.setMockResponse("ledger.getProof", {
+                value: Buffer.from([1, 2, 3]).toString("base64"),
+                proof: Buffer.from([4, 5]).toString("base64"),
+                root: HASH_B
+            });
+
+            const result = await ledgerApi.getProof(9, Uint8Array.of(0xde, 0xad));
+
+            expect(mockClient.getLastCall()!.method).to.equal("ledger.getProof");
+            expect(mockClient.getLastCall()!.parameters).to.deep.equal([9, "3q0="]);
+            expect(result).to.be.instanceOf(StateProof);
+            expect([...result.value!]).to.deep.equal([1, 2, 3]);
+            expect([...result.proof]).to.deep.equal([4, 5]);
+            expect(result.root.toString()).to.equal(HASH_B);
+        });
+
+        it("should decode an absence proof with a null value", async () => {
+            mockClient.setMockResponse("ledger.getProof", { value: null, proof: "AA==", root: HASH_B });
+
+            const result = await ledgerApi.getProof(9, Uint8Array.of(1));
+
+            expect(result.value).to.equal(null);
+            expect(result.toJson().value).to.equal(null);
+        });
+    });
+
+    describe("momentum stateRoot", () => {
+        it("should round-trip a momentum that carries a state root", () => {
+            const json = { ...makeMomentumListJson().list[0], stateRoot: HASH_C };
+
+            const momentum = Momentum.fromJson(json);
+
+            expect(momentum.stateRoot!.toString()).to.equal(HASH_C);
+            expect(momentum.toJson().stateRoot).to.equal(HASH_C);
+        });
+
+        it("should leave stateRoot null and omit it for a momentum without one", () => {
+            const momentum = Momentum.fromJson(makeMomentumListJson().list[0]);
+
+            expect(momentum.stateRoot).to.equal(null);
+            expect(momentum.toJson()).to.not.have.property("stateRoot");
         });
     });
 });

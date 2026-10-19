@@ -22,6 +22,8 @@ All APIs are available on the `zenon` object.
 - `zenon.ledger.getMomentumsByHeight(height, count)` - Get momentums by height
 - `zenon.ledger.getMomentumsByPage(pageIndex, pageSize)` - Get momentums by page
 - `zenon.ledger.getDetailedMomentumsByHeight(height, count)` - Get detailed momentums
+- `zenon.ledger.getStateRoot(height)` - Get the Merkle state root at a momentum height ([State Root](./state-root.md))
+- `zenon.ledger.getProof(height, key)` - Get a state proof for a key at a momentum height ([State Root](./state-root.md))
 - `zenon.ledger.publishRawTransaction(block)` - Publish signed transaction
 
 ### Subscriptions

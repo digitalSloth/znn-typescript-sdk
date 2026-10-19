@@ -56,6 +56,7 @@
     "lint": "eslint --ext .ts src/**/*.ts cli/**/*.ts test/**/*.ts --no-warn-ignored",
     "lint:fix": "eslint --ext .ts --fix src/**/*.ts cli/**/*.ts test/**/*.ts --no-warn-ignored",
     "prepare": "npm run build",
+    "prove-balance": "npm run build:esm && node scripts/prove-balance.mjs",
     "test": "mocha -r tsx 'test/**/*.spec.ts'",
     "upgrade": "npx npm-check -u"
   },

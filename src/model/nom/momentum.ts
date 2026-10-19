@@ -16,7 +16,8 @@ export class Momentum extends Model {
         public changesHash: Hash,
         public publicKey: string,
         public signature: string,
-        public producer: Address
+        public producer: Address,
+        public stateRoot: Hash | null = null
     ){
         super()
     }
@@ -34,7 +35,8 @@ export class Momentum extends Model {
             Hash.parse(json.changesHash),
             json.publicKey || "",
             json.signature || "",
-            Address.parse(json.producer)
+            Address.parse(json.producer),
+            json.stateRoot ? Hash.parse(json.stateRoot) : null
         );
     }
 
@@ -51,7 +53,8 @@ export class Momentum extends Model {
             changesHash: this.changesHash?.toString(),
             publicKey: this.publicKey,
             signature: this.signature,
-            producer: this.producer.toString()
+            producer: this.producer.toString(),
+            ...(this.stateRoot ? { stateRoot: this.stateRoot.toString() } : {})
         };
     }
 }
