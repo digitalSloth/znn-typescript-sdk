@@ -31,5 +31,14 @@ describe("Crypto", () => {
             expect(Crypto.sha3_256(new Uint8Array(0)))
                 .to.equal("0xa7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a");
         });
+
+        it("should return the FIPS SHA3-256 digest of abc", () => {
+            expect(Crypto.sha3_256(Buffer.from("abc")))
+                .to.equal("0x3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532");
+        });
+
+        it("should no longer expose keccak256", () => {
+            expect(Crypto).to.not.have.property("keccak256");
+        });
     });
 });
