@@ -13,7 +13,8 @@ import {
     Address,
     Hash,
     PLASMA_ADDRESS,
-    QSR_ZTS
+    QSR_ZTS,
+    ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
 import { MockClient } from "../mockClient.js";
@@ -163,7 +164,8 @@ describe("PlasmaApi", () => {
             ]);
 
             expect(template.amount.toString()).to.equal("0");
-            expect(template.tokenStandard.toString()).to.equal(QSR_ZTS.toString());
+            expect(template.tokenStandard.toString()).to.equal(ZNN_ZTS.toString());
+            expect(template.data.toString("hex")).to.equal("f9ca9dc3" + "a".repeat(64));
             expect(template.data.toString("hex"))
                 .to.equal(Buffer.from(arrayify(expectedData)).toString("hex"));
         });
