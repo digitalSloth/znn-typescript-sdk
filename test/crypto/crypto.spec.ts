@@ -37,7 +37,7 @@ describe("Crypto", () => {
                 .to.equal("0x3a985da74fe225b2045c172d6bd390bd855f086e3e9d525b46bfe24511431532");
         });
 
-        it("should no longer expose keccak256", () => {
+        it("should not expose keccak256", () => {
             expect(Crypto).to.not.have.property("keccak256");
         });
     });
