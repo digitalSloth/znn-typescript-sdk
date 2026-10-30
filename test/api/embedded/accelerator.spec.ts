@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { AcceleratorApi } from "../../../src/api/embedded/accelerator.js";
-import { PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS } from "../../../src/api/embedded/constants.js";
+import { PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS, PROPOSAL_URL_REG_EXP } from "../../../src/api/embedded/constants.js";
 import { Accelerator as AcceleratorContract } from "../../../src/embedded/index.js";
 import {
     Phase,
@@ -316,4 +316,31 @@ describe("AcceleratorApi", () => {
                 .to.equal(Buffer.from(arrayify(expectedData)).toString("hex"));
         });
     });
+});
+
+describe("PROPOSAL_URL_REG_EXP", () => {
+    for (const url of [
+        "zenon.network",
+        "zenon.network/proposal?id=1&tab=votes",
+        "https://zenon.network/proposal",
+        "HTTP://forum.zenon.org",
+        "ab.c",
+    ]) {
+        it(`accepts ${url}`, () => {
+            expect(PROPOSAL_URL_REG_EXP.test(url)).to.equal(true);
+        });
+    }
+
+    for (const url of [
+        "abcdef",
+        "my-site.org",
+        "ftp://zenon.network",
+        "a.network",
+        "zenon.7net",
+        "zenon.network/" + "a".repeat(101),
+    ]) {
+        it(`rejects ${url}`, () => {
+            expect(PROPOSAL_URL_REG_EXP.test(url)).to.equal(false);
+        });
+    }
 });

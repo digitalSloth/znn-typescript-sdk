@@ -44,8 +44,11 @@ export const TOKEN_DOMAIN_REG_EXP: RegExp = RegExp(
 );
 
 // Accelerator
+// Mirrors go-zenon's project and phase URL check: an optional http or
+// https scheme, a 2 to 60 character alphanumeric host label, a literal
+// dot, a 1 to 6 letter suffix and up to 100 path characters.
 export const PROPOSAL_URL_REG_EXP: RegExp = RegExp(
-    "^[a-zA-Z0-9]{2,60}.[a-zA-Z]{1,6}([a-zA-Z0-9()@:%_\\+.~#?&/=-]{0,100})$"
+    "^([Hh][Tt][Tt][Pp][Ss]?://)?[a-zA-Z0-9]{2,60}\\.[a-zA-Z]{1,6}([-a-zA-Z0-9()@:%_+.~#?&/=]{0,100})$"
 );
 export const PROPOSAL_DESCRIPTION_MAX_LENGTH: number = 240;
 export const PROPOSAL_NAME_MAX_LENGTH: number = 30;
