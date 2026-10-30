@@ -4,7 +4,7 @@ import { Hash, TokenStandard, ACCELERATOR_ADDRESS, ZNN_ZTS } from "../../model/p
 import { Project, Phase, ProjectList, PillarVote, VoteBreakdown } from "../../model/embedded/index.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
 import { Accelerator as AcceleratorContract } from "../../embedded/index.js";
-import { PROPOSAL_CREATION_COST_IN_ZNN } from "./constants.js";
+import { PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS } from "./constants.js";
 
 export class AcceleratorApi extends Api {
 
@@ -71,7 +71,7 @@ export class AcceleratorApi extends Api {
         return AccountBlockTemplate.callContract(
             ACCELERATOR_ADDRESS,
             ZNN_ZTS,
-            PROPOSAL_CREATION_COST_IN_ZNN,
+            PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS,
             AcceleratorContract.abi.encodeFunctionData("CreateProject", [
                 name,
                 description,

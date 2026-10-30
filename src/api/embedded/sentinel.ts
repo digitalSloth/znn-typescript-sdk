@@ -1,6 +1,6 @@
 import { Api } from "../base.js";
 import { RPC_MAX_PAGE_SIZE } from "../../zenon.js";
-import { Address, SENTINEL_ADDRESS, ZNN_ZTS } from "../../model/primitives/index.js";
+import { Address, SENTINEL_ADDRESS, QSR_ZTS, ZNN_ZTS } from "../../model/primitives/index.js";
 import { SentinelInfo, SentinelInfoList, RewardHistoryList, UncollectedReward } from "../../model/embedded/index.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
 import { Sentinel as SentinelContract, Common as CommonContract } from "../../embedded/index.js";
@@ -104,7 +104,7 @@ export class SentinelApi extends Api {
     depositQsr(amount: bigint): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             SENTINEL_ADDRESS,
-            ZNN_ZTS,
+            QSR_ZTS,
             amount,
             CommonContract.abi.encodeFunctionData("DepositQsr", [])
         );

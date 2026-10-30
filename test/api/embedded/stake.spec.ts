@@ -21,8 +21,8 @@ const ADDRESS = "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f";
 const HASH_A = "a".repeat(64);
 
 const makeStakeListJson = (overrides: Record<string, any> = {}) => ({
-    totalAmount: 1000,
-    totalWeightedAmount: 2000,
+    totalAmount: "1000",
+    totalWeightedAmount: "2000",
     count: 1,
     list: [{
         amount: "100",
@@ -70,6 +70,21 @@ describe("StakeApi", () => {
             expect(result).to.be.instanceOf(StakeList);
             expect(result.list[0]).to.be.instanceOf(StakeEntry);
             expect(result.list[0].id.toString()).to.equal(HASH_A);
+            expect(result.totalAmount).to.equal(1000n);
+            expect(result.totalWeightedAmount).to.equal(2000n);
+        });
+
+        it("should keep full precision for totals above 2^53", async () => {
+            mockClient.setMockResponse(
+                "embedded.stake.getEntriesByAddress",
+                makeStakeListJson({ totalAmount: "9007199254740993" })
+            );
+
+            const result = await stakeApi.getEntriesByAddress(Address.parse(ADDRESS), 0, 5);
+
+            expect(typeof result.totalAmount).to.equal("bigint");
+            expect(result.totalAmount).to.equal(9007199254740993n);
+            expect(result.toJson().totalAmount).to.equal("9007199254740993");
         });
     });
 

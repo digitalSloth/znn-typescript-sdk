@@ -127,9 +127,9 @@ const makeUnwrapTokenRequestListJson = (overrides: Record<string, any> = {}) => 
 const makeTimeChallengesListJson = (overrides: Record<string, any> = {}) => ({
     count: 1,
     list: [{
-        methodName: "SetNetwork",
-        paramsHash: HASH_C,
-        challengeStartHeight: 99
+        MethodName: "SetNetwork",
+        ParamsHash: HASH_C,
+        ChallengeStartHeight: 99
     }],
     ...overrides
 });
@@ -395,7 +395,14 @@ describe("BridgeApi", () => {
             expect(lastCall!.parameters).to.deep.equal([]);
 
             expect(result).to.be.instanceOf(TimeChallengesList);
+            expect(result.list[0].methodName).to.equal("SetNetwork");
             expect(result.list[0].paramsHash.toString()).to.equal(HASH_C);
+            expect(result.list[0].challengeStartHeight).to.equal(99);
+            expect(result.list[0].toJson()).to.deep.equal({
+                MethodName: "SetNetwork",
+                ParamsHash: HASH_C,
+                ChallengeStartHeight: 99,
+            });
         });
     });
 
