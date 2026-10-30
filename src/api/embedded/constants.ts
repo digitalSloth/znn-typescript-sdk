@@ -49,8 +49,11 @@ export const PROPOSAL_URL_REG_EXP: RegExp = RegExp(
 );
 export const PROPOSAL_DESCRIPTION_MAX_LENGTH: number = 240;
 export const PROPOSAL_NAME_MAX_LENGTH: number = 30;
-export const PROPOSAL_CREATION_COST_IN_ZNN: number = 10;
+export const PROPOSAL_CREATION_COST_IN_ZNN: number = 1;
+export const PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS: bigint =
+    BigInt(PROPOSAL_CREATION_COST_IN_ZNN) * BigInt(ONE_ZNN);
 export const PROPOSAL_MAXIMUM_FUNDS_IN_ZNN: number = 5000;
+export const PROPOSAL_MAXIMUM_FUNDS_IN_QSR: number = 50000;
 export const PROPOSAL_MINIMUM_FUNDS_IN_ZNN: number = 10;
 export const PROPOSAL_VOTING_STATUS: number = 0;
 export const PROPOSAL_ACTIVE_STATUS: number = 1;

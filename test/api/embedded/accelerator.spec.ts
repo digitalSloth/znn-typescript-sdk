@@ -1,6 +1,6 @@
 import { expect } from "chai";
 import { AcceleratorApi } from "../../../src/api/embedded/accelerator.js";
-import { PROPOSAL_CREATION_COST_IN_ZNN } from "../../../src/api/embedded/constants.js";
+import { PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS } from "../../../src/api/embedded/constants.js";
 import { Accelerator as AcceleratorContract } from "../../../src/embedded/index.js";
 import {
     Phase,
@@ -200,7 +200,8 @@ describe("AcceleratorApi", () => {
             expect(template).to.be.instanceOf(AccountBlockTemplate);
             expect(template.toAddress.toString()).to.equal(ACCELERATOR_ADDRESS.toString());
             expect(template.tokenStandard.toString()).to.equal(ZNN_ZTS.toString());
-            expect(template.amount.toString()).to.equal(String(PROPOSAL_CREATION_COST_IN_ZNN));
+            expect(template.amount.toString()).to.equal("100000000");
+            expect(PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS).to.equal(100000000n);
             expect(template.data.toString("hex"))
                 .to.equal(Buffer.from(arrayify(expectedData)).toString("hex"));
         });

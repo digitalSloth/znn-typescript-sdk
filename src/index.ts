@@ -101,6 +101,18 @@ export {
 } from "./model/primitives/index.js";
 
 
+// Accelerator constants
+export {
+    PROPOSAL_URL_REG_EXP,
+    PROPOSAL_NAME_MAX_LENGTH,
+    PROPOSAL_DESCRIPTION_MAX_LENGTH,
+    PROPOSAL_MINIMUM_FUNDS_IN_ZNN,
+    PROPOSAL_MAXIMUM_FUNDS_IN_ZNN,
+    PROPOSAL_MAXIMUM_FUNDS_IN_QSR,
+    PROPOSAL_CREATION_COST_IN_ZNN,
+    PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS
+} from "./api/embedded/constants.js";
+
 // Stats
 export {
     SyncState,
