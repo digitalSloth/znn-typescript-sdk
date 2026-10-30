@@ -247,9 +247,35 @@ describe("LiquidityApi", () => {
     });
 
     describe("setTokenTuple", () => {
-        it("should throw when token tuple arguments are not arrays", () => {
-            expect(() => liquidityApi.setTokenTuple("zts", 10, 20, BigInt(1)))
-                .to.throw("expected array value");
+        it("should encode the token tuple arrays", () => {
+            const template = liquidityApi.setTokenTuple(
+                [TOKEN_STANDARD],
+                [10000],
+                [10000],
+                [100000000n]
+            );
+            const word = (hex: string) => hex.padStart(64, "0");
+            const expectedData = "f0ad68db" + [
+                "80",
+                "100",
+                "140",
+                "180",
+                "1",
+                "20",
+                "1a",
+                "7a7473317a6e6e" + "78".repeat(13) + "397a34756c78" + "0".repeat(12),
+                "1",
+                "2710",
+                "1",
+                "2710",
+                "1",
+                "5f5e100",
+            ].map((hex, index) => (index === 7 ? hex : word(hex))).join("");
+
+            expect(template.toAddress.toString()).to.equal(LIQUIDITY_ADDRESS.toString());
+            expect(template.tokenStandard.toString()).to.equal(ZNN_ZTS.toString());
+            expect(template.amount.toString()).to.equal("0");
+            expect(template.data.toString("hex")).to.equal(expectedData);
         });
     });
 
