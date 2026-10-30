@@ -26,7 +26,7 @@ export class Hash {
     }
 
     public static id(text: string): string {
-        return Crypto.keccak256(toUtf8Bytes(text)).toString();
+        return Crypto.sha3_256(toUtf8Bytes(text)).toString();
     }
 
     public static isHash(value: any): boolean {

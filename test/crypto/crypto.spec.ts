@@ -25,4 +25,11 @@ describe("Crypto", () => {
             expect(() => Crypto.deriveKey("m/0'", "00".repeat(16))).to.not.throw();
         });
     });
+
+    describe("sha3_256", () => {
+        it("should return the FIPS SHA3-256 digest, not Keccak-256", () => {
+            expect(Crypto.sha3_256(new Uint8Array(0)))
+                .to.equal("0xa7ffc6f8bf1ed76651c14756a061d662f580ff4de43b49fa82d80a4b80f8434a");
+        });
+    });
 });

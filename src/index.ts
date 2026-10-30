@@ -119,8 +119,7 @@ export {
     NetworkInfo,
     ProcessInfo,
     OsInfo,
-    SyncInfo,
-    ExtraData
+    SyncInfo
 } from "./model/stats.js";
 
 //
