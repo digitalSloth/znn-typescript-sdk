@@ -147,9 +147,17 @@ export class TimeChallengeInfo extends Model {
 
     static fromJson(json: {[key: string]: any}): TimeChallengeInfo {
         return new TimeChallengeInfo(
-            json.methodName,
-            Hash.parse(json.paramsHash),
-            json.challengeStartHeight,
+            json.MethodName,
+            Hash.parse(json.ParamsHash),
+            json.ChallengeStartHeight,
         );
+    }
+
+    toJson(): {[key: string]: any} {
+        return {
+            MethodName: this.methodName,
+            ParamsHash: this.paramsHash.toString(),
+            ChallengeStartHeight: this.challengeStartHeight,
+        };
     }
 }

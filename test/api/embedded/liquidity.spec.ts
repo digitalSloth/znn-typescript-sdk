@@ -71,9 +71,9 @@ const makeRewardHistoryListJson = (overrides: Record<string, any> = {}) => ({
 const makeTimeChallengesListJson = (overrides: Record<string, any> = {}) => ({
     count: 1,
     list: [{
-        methodName: "SetTokenTuple",
-        paramsHash: HASH_B,
-        challengeStartHeight: 99
+        MethodName: "SetTokenTuple",
+        ParamsHash: HASH_B,
+        ChallengeStartHeight: 99
     }],
     ...overrides
 });
@@ -195,7 +195,14 @@ describe("LiquidityApi", () => {
             expect(lastCall!.parameters).to.deep.equal([]);
 
             expect(result).to.be.instanceOf(TimeChallengesList);
+            expect(result.list[0].methodName).to.equal("SetTokenTuple");
             expect(result.list[0].paramsHash.toString()).to.equal(HASH_B);
+            expect(result.list[0].challengeStartHeight).to.equal(99);
+            expect(result.list[0].toJson()).to.deep.equal({
+                MethodName: "SetTokenTuple",
+                ParamsHash: HASH_B,
+                ChallengeStartHeight: 99,
+            });
         });
     });
 

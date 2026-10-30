@@ -29,8 +29,8 @@ export class StakeEntry extends Model {
 export class StakeList extends Model {
 
     constructor(
-        public totalAmount: number,
-        public totalWeightedAmount: number,
+        public totalAmount: bigint,
+        public totalWeightedAmount: bigint,
         public count: number,
         public list: Array<StakeEntry>
     ) {
@@ -39,8 +39,8 @@ export class StakeList extends Model {
 
     static fromJson(json: {[key: string]: any}): StakeList {
         return new StakeList(
-            json.totalAmount,
-            json.totalWeightedAmount,
+            BigInt(json.totalAmount.toString()),
+            BigInt(json.totalWeightedAmount.toString()),
             json.count,
             json.list.map(StakeEntry.fromJson)
         );
