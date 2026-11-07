@@ -7,7 +7,7 @@ export const MaxChunkCount = 18;
 export const MaxContractMetadataSize = 256;
 // Momentum heights.
 export const DeploymentExpiryWindow = 2880;
-export const MaxInputGas = 1_000_000_000n;
+export const MaxInputGas = 100_000_000n;
 // Steps in one MerkleProof, for any batch root.
 export const MaxMerkleProofDepth = 32;
 // Percent of each settled fee burned.
