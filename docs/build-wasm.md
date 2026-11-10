@@ -133,7 +133,8 @@ The pre-built WASM module in this repository is built using the pinned official
 C++ source and Emscripten version above. The JavaScript loader is generated
 with dynamic execution disabled. For same-origin PoW assets, browser
 applications can use `script-src 'self' 'wasm-unsafe-eval'` and
-`connect-src 'self'` without allowing `'unsafe-eval'`.
+`connect-src 'self'` without allowing `'unsafe-eval'`. The built-in PoW
+worker (`Zenon.usePowWorker()`) also needs `worker-src 'self' blob:`.
 
 You can verify the build by:
 
