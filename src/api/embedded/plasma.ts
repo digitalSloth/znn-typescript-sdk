@@ -4,7 +4,7 @@ import { Api } from "../base.js";
 import { Plasma } from "../../embedded/plasma.js";
 import { FusionEntryList, GetRequiredPowParam, GetRequiredPowResponse, PlasmaInfo } from "../../model/embedded/plasma.js";
 import { AccountBlockTemplate } from "../../model/nom/accountBlock.js";
-import { Address, PLASMA_ADDRESS, Hash, QSR_ZTS } from "../../model/primitives/index.js";
+import { Address, PLASMA_ADDRESS, Hash, QSR_ZTS, ZNN_ZTS } from "../../model/primitives/index.js";
 
 
 export class PlasmaApi extends Api {
@@ -59,7 +59,7 @@ export class PlasmaApi extends Api {
     cancel(id: Hash): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             PLASMA_ADDRESS,
-            QSR_ZTS,
+            ZNN_ZTS,
             0n,
             Plasma.abi.encodeFunctionData("CancelFuse", [
                 id.getBytes()

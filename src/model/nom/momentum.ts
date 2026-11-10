@@ -29,7 +29,9 @@ export class Momentum extends Model {
             Hash.parse(json.previousHash),
             json.height,
             json.timestamp,
-            Buffer.from(json.data, "hex"),
+            json.data === null || json.data === "" || json.data === undefined
+                ? Buffer.from([])
+                : Buffer.from(json.data, "base64"),
             json.content?.map((header: {[key: string]: any}) => AccountHeader.fromJson(header)),
             Hash.parse(json.changesHash),
             json.publicKey || "",
@@ -46,8 +48,8 @@ export class Momentum extends Model {
             previousHash: this.previousHash.toString(),
             height: this.height,
             timestamp: this.timestamp,
-            data: this.data.toString("hex"),
-            content: this.content.map((header: AccountHeader) => header.toString()),
+            data: this.data.toString("base64"),
+            content: this.content.map((header: AccountHeader) => header.toJson()),
             changesHash: this.changesHash?.toString(),
             publicKey: this.publicKey,
             signature: this.signature,

@@ -12,6 +12,7 @@ import { AccountBlockTemplate } from "../../../src/model/nom/index.js";
 import {
     Address,
     SENTINEL_ADDRESS,
+    QSR_ZTS,
     ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
@@ -188,6 +189,8 @@ describe("SentinelApi", () => {
             const expectedData = CommonContract.abi.encodeFunctionData("DepositQsr", []);
 
             expect(template.amount.toString()).to.equal(amount.toString());
+            expect(template.tokenStandard.toString()).to.equal(QSR_ZTS.toString());
+            expect(template.data.toString("hex")).to.equal("d49577f4");
             expect(template.data.toString("hex"))
                 .to.equal(Buffer.from(arrayify(expectedData)).toString("hex"));
         });

@@ -95,7 +95,7 @@ const makeMomentumJson = (overrides: Record<string, any> = {}) => ({
     previousHash: HASH_3,
     height: 100,
     timestamp: 1700000000,
-    data: "deadbeef",
+    data: "3q2+7w==",
     content: [ACCOUNT_HEADER_JSON],
     changesHash: HASH_A,
     publicKey: "pub",
