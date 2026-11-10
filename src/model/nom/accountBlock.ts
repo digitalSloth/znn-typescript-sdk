@@ -124,8 +124,8 @@ export class AccountBlockTemplate extends Model {
             fusedPlasma: json.fusedPlasma,
             difficulty: json.difficulty,
             nonce: json.nonce,
-            publicKey: json.publicKey ? Buffer.from(json.publicKey) : Buffer.from([]),
-            signature: json.signature ? Buffer.from(json.signature) : Buffer.from([])
+            publicKey: json.publicKey ? Buffer.from(json.publicKey, "base64") : Buffer.from([]),
+            signature: json.signature ? Buffer.from(json.signature, "base64") : Buffer.from([])
         });
     }
 
@@ -249,8 +249,8 @@ export class AccountBlock extends AccountBlockTemplate {
             fusedPlasma: json.fusedPlasma,
             difficulty: json.difficulty,
             nonce: json.nonce,
-            publicKey: json.publicKey ? Buffer.from(json.publicKey) : Buffer.from([]),
-            signature: json.signature ? Buffer.from(json.signature) : Buffer.from([]),
+            publicKey: json.publicKey ? Buffer.from(json.publicKey, "base64") : Buffer.from([]),
+            signature: json.signature ? Buffer.from(json.signature, "base64") : Buffer.from([]),
             token: json.token ? Token.fromJson(json.token) : undefined,
             descendantBlocks: json.descendantBlocks
                 ? json.descendantBlocks.map((block: {[key: string]: any}) => AccountBlock.fromJson(block))

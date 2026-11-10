@@ -1,4 +1,4 @@
-import { ExtraData, NetworkInfo, OsInfo, ProcessInfo, SyncInfo } from "../model/stats.js";
+import { NetworkInfo, OsInfo, ProcessInfo, SyncInfo } from "../model/stats.js";
 import { Api } from "./base.js";
 
 export class StatsApi extends Api {
@@ -21,11 +21,5 @@ export class StatsApi extends Api {
     async syncInfo(): Promise<SyncInfo> {
         const response = await this.client.sendRequest("stats.syncInfo", []);
         return SyncInfo.fromJson(response);
-    }
-
-    async extraData(): Promise<ExtraData> {
-        const response = await this.client.sendRequest("stats.extraData", []);
-        const parsed = JSON.parse(response.toString());
-        return ExtraData.fromJson(parsed);
     }
 }
