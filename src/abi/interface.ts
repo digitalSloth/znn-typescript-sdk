@@ -434,7 +434,7 @@ export class Interface {
             if (param.type === "string") {
                 return Hash.id(value);
             } else if (param.type === "bytes") {
-                return Crypto.keccak256(hexlify(value));
+                return Crypto.sha3_256(hexlify(value));
             }
 
             // Check addresses are valid
@@ -492,7 +492,7 @@ export class Interface {
                 if (param.type === "string") {
                     topics.push(Hash.id(value));
                 } else if (param.type === "bytes") {
-                    topics.push(Crypto.keccak256(value));
+                    topics.push(Crypto.sha3_256(value));
                 } else if (param.baseType === "tuple" || param.baseType === "array") {
                     // @TOOD
                     throw new Error("not implemented");

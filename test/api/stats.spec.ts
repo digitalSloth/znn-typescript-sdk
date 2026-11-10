@@ -1,7 +1,6 @@
 import { expect } from "chai";
 import { StatsApi } from "../../src/api/stats.js";
 import {
-    ExtraData,
     NetworkInfo,
     OsInfo,
     ProcessInfo,
@@ -223,28 +222,6 @@ describe("StatsApi", () => {
             const result = await statsApi.syncInfo();
 
             expect(result.state).to.equal(SyncState.Unknown);
-        });
-    });
-
-    describe("extraData", () => {
-        it("should fetch and parse extraData correctly", async () => {
-            const jsonString = JSON.stringify({
-                affiliate: "z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f"
-            });
-
-            mockClient.setMockResponse("stats.extraData", jsonString);
-
-            const result = await statsApi.extraData();
-
-            // Verify the request was made correctly
-            const lastCall = mockClient.getLastCall();
-            expect(lastCall).to.exist;
-            expect(lastCall!.method).to.equal("stats.extraData");
-            expect(lastCall!.parameters).to.deep.equal([]);
-
-            // Verify the response was parsed correctly
-            expect(result).to.be.instanceOf(ExtraData);
-            expect(result.affiliate.toString()).to.equal("z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f");
         });
     });
 });

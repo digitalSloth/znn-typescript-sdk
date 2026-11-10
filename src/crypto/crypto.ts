@@ -68,7 +68,7 @@ export class Crypto {
         return sha3_256.create().update(data).digest()
     }
 
-    public static keccak256(data: BytesLike): string {
+    public static sha3_256(data: BytesLike): string {
         const dataArray = arrayify(data);
         const digest = sha3_256.create().update(dataArray).digest();
         return "0x" + Buffer.from(digest).toString("hex");

@@ -1,6 +1,6 @@
 import { Api } from "../base.js";
 import { RPC_MAX_PAGE_SIZE } from "../../zenon.js";
-import {Address, PILLAR_ADDRESS, ZNN_ZTS} from "../../model/primitives/index.js";
+import {Address, PILLAR_ADDRESS, QSR_ZTS, ZNN_ZTS} from "../../model/primitives/index.js";
 import {
     PillarInfo,
     PillarInfoList,
@@ -257,7 +257,7 @@ export class PillarApi extends Api {
     depositQsr(amount: bigint): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             PILLAR_ADDRESS,
-            ZNN_ZTS,
+            QSR_ZTS,
             amount,
             CommonContract.abi.encodeFunctionData("DepositQsr", [])
         );

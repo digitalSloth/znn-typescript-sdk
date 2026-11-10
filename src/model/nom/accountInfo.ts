@@ -35,7 +35,7 @@ export class AccountInfo extends Model {
 
         return {
             address: this.address.toString(),
-            blockCount: this.blockCount,
+            accountHeight: this.blockCount,
             balanceInfoMap: balanceInfoMapJson,
         };
     }

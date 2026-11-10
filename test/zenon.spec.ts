@@ -142,3 +142,18 @@ describe("Zenon", () => {
         expect(result.nonce).to.equal("0000000000000000");
     });
 });
+
+describe("accelerator constants export", () => {
+    it("exposes the accelerator limits from the package entry", async () => {
+        const sdk = await import("../src/index.js");
+
+        expect(sdk.PROPOSAL_NAME_MAX_LENGTH).to.equal(30);
+        expect(sdk.PROPOSAL_DESCRIPTION_MAX_LENGTH).to.equal(240);
+        expect(sdk.PROPOSAL_MINIMUM_FUNDS_IN_ZNN).to.equal(10);
+        expect(sdk.PROPOSAL_MAXIMUM_FUNDS_IN_ZNN).to.equal(5000);
+        expect(sdk.PROPOSAL_MAXIMUM_FUNDS_IN_QSR).to.equal(50000);
+        expect(sdk.PROPOSAL_CREATION_COST_IN_ZNN).to.equal(1);
+        expect(sdk.PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS).to.equal(100000000n);
+        expect(sdk.PROPOSAL_URL_REG_EXP).to.be.instanceOf(RegExp);
+    });
+});
