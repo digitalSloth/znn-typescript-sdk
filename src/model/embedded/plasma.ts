@@ -46,7 +46,7 @@ export class FusionEntry extends Model {
         public beneficiary: Address,
         public expirationHeight: number,
         public id: Hash,
-        public isRevocable: boolean
+        public isRevocable?: boolean
     ) {
         super()
     }

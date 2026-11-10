@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import {
-    ExtraData,
     NetworkInfo,
     OsInfo,
     Peer,
@@ -8,7 +7,6 @@ import {
     SyncInfo,
     SyncState
 } from "../../src/model/stats.js";
-import { Address } from "../../src/model/primitives/address.js";
 
 describe("Stats Model Classes", () => {
 
@@ -288,37 +286,6 @@ describe("Stats Model Classes", () => {
                 state: 2,
                 currentHeight: 5000,
                 targetHeight: 5000
-            });
-        });
-    });
-
-    describe("ExtraData", () => {
-        it("should create instance with correct properties", () => {
-            const address = Address.parse("z1qqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqqsggv2f");
-            const extraData = new ExtraData(address);
-
-            expect(extraData.affiliate).to.equal(address);
-        });
-
-        it("should deserialize from JSON", () => {
-            const json = {
-                affiliate: "z1qq9n7fpaqd8lpcljandzmx4xtku9w4ftwyg0mq"
-            };
-
-            const extraData = ExtraData.fromJson(json);
-
-            expect(extraData).to.be.instanceOf(ExtraData);
-            expect(extraData.affiliate).to.be.instanceOf(Address);
-            expect(extraData.affiliate.toString()).to.equal("z1qq9n7fpaqd8lpcljandzmx4xtku9w4ftwyg0mq");
-        });
-
-        it("should serialize to JSON", () => {
-            const address = Address.parse("z1qxemdeddedxplasmaxxxxxxxxxxxxxxxxsctrp");
-            const extraData = new ExtraData(address);
-            const json = extraData.toJson();
-
-            expect(json).to.deep.equal({
-                affiliate: "z1qxemdeddedxplasmaxxxxxxxxxxxxxxxxsctrp"
             });
         });
     });
