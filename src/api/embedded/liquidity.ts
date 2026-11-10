@@ -118,10 +118,10 @@ export class LiquidityApi extends Api {
     // Administrator contract methods
 
     setTokenTuple(
-        tokenStandards: string,
-        znnPercentages: number,
-        qsrPercentages: number,
-        minAmounts: bigint
+        tokenStandards: string[],
+        znnPercentages: number[],
+        qsrPercentages: number[],
+        minAmounts: bigint[]
     ): AccountBlockTemplate {
         return AccountBlockTemplate.callContract(
             LIQUIDITY_ADDRESS,
@@ -131,7 +131,7 @@ export class LiquidityApi extends Api {
                 tokenStandards,
                 znnPercentages,
                 qsrPercentages,
-                minAmounts.toString(),
+                minAmounts.map((amount) => amount.toString()),
             ])
         );
     }

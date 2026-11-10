@@ -44,13 +44,19 @@ export const TOKEN_DOMAIN_REG_EXP: RegExp = RegExp(
 );
 
 // Accelerator
+// Mirrors go-zenon's project and phase URL check: an optional http or
+// https scheme, a 2 to 60 character alphanumeric host label, a literal
+// dot, a 1 to 6 letter suffix and up to 100 path characters.
 export const PROPOSAL_URL_REG_EXP: RegExp = RegExp(
-    "^[a-zA-Z0-9]{2,60}.[a-zA-Z]{1,6}([a-zA-Z0-9()@:%_\\+.~#?&/=-]{0,100})$"
+    "^([Hh][Tt][Tt][Pp][Ss]?://)?[a-zA-Z0-9]{2,60}\\.[a-zA-Z]{1,6}([-a-zA-Z0-9()@:%_+.~#?&/=]{0,100})$"
 );
 export const PROPOSAL_DESCRIPTION_MAX_LENGTH: number = 240;
 export const PROPOSAL_NAME_MAX_LENGTH: number = 30;
-export const PROPOSAL_CREATION_COST_IN_ZNN: number = 10;
+export const PROPOSAL_CREATION_COST_IN_ZNN: number = 1;
+export const PROPOSAL_CREATION_COST_IN_ZNN_BASE_UNITS: bigint =
+    BigInt(PROPOSAL_CREATION_COST_IN_ZNN) * BigInt(ONE_ZNN);
 export const PROPOSAL_MAXIMUM_FUNDS_IN_ZNN: number = 5000;
+export const PROPOSAL_MAXIMUM_FUNDS_IN_QSR: number = 50000;
 export const PROPOSAL_MINIMUM_FUNDS_IN_ZNN: number = 10;
 export const PROPOSAL_VOTING_STATUS: number = 0;
 export const PROPOSAL_ACTIVE_STATUS: number = 1;
