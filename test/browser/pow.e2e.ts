@@ -1,24 +1,6 @@
-import { createHash, randomBytes } from "node:crypto";
+import { randomBytes } from "node:crypto";
 import { expect, test, type Page } from "@playwright/test";
-
-const DIFFICULTY = 75000;
-
-/**
- * Zenon PoW check: the first 8 bytes of sha3-256(nonce || hash), read as a
- * little-endian uint64, must reach 2^64 - 2^64 / difficulty.
- */
-function isValidNonce(hash: string, nonce: string, difficulty: number): boolean {
-    const digest = createHash("sha3-256")
-        .update(Buffer.concat([Buffer.from(nonce, "hex"), Buffer.from(hash, "hex")]))
-        .digest();
-    const range = 1n << 64n;
-    return digest.readBigUInt64LE(0) >= range - range / BigInt(difficulty);
-}
-
-async function openPage(page: Page, path: string): Promise<void> {
-    await page.goto(path);
-    await page.waitForFunction(() => "sdk" in window);
-}
+import { cspViolations, DIFFICULTY, isValidNonce, openPage } from "./helpers.js";
 
 function generateOnMainThread(page: Page, basePath: string, hash: string): Promise<string> {
     return page.evaluate(async ({ basePath, hash, difficulty }) => {
@@ -41,11 +23,6 @@ function generateInWorker(page: Page, basePath: string, hash: string): Promise<s
             Zenon.stopPowWorker();
         }
     }, { basePath, hash, difficulty: DIFFICULTY });
-}
-
-function cspViolations(page: Page): Promise<string[]> {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return page.evaluate(() => (window as any).cspViolations);
 }
 
 for (const csp of [false, true]) {
