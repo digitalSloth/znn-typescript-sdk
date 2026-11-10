@@ -19,3 +19,7 @@ Thumbs.db
 
 # Pipeline scratch
 .pipeline/
+
+# Playwright output
+test-results/
+playwright-report/
