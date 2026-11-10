@@ -43,7 +43,9 @@ export async function init(): Promise<void> {
 
                 const powJsPath = join(__dirname, "../../lib/pow.js");
                 const powJsUrl = pathToFileURL(powJsPath);
-                // Preserve the generated JavaScript module specifier under TypeScript-aware loaders.
+                // tsx rewrites .js imports from .ts files to .ts, which
+                // would point at a lib/pow.ts that does not exist. A URL
+                // fragment stops the rewrite and Node ignores it.
                 powJsUrl.hash = "#znn-pow-module";
                 const powModuleImport = await import(
                     /* webpackIgnore: true */
