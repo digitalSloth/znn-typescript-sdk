@@ -25,11 +25,10 @@ if ! command -v emcc &> /dev/null || ! command -v em++ &> /dev/null; then
     exit 1
 fi
 
-EMCC_VERSION_OUTPUT="$(emcc --version 2>&1)"
-if [[ "${EMCC_VERSION_OUTPUT}" != *"${EXPECTED_EMSCRIPTEN_VERSION}"* ]]; then
+EMCC_VERSION="$(emcc -dumpversion)"
+if [ "${EMCC_VERSION}" != "${EXPECTED_EMSCRIPTEN_VERSION}" ]; then
     echo -e "${RED}Error: Emscripten ${EXPECTED_EMSCRIPTEN_VERSION} is required for reproducible PoW assets.${NC}"
-    EMCC_VERSION_LINE="${EMCC_VERSION_OUTPUT%%$'\n'*}"
-    echo "Detected: ${EMCC_VERSION_LINE}"
+    echo "Detected: ${EMCC_VERSION}"
     exit 1
 fi
 

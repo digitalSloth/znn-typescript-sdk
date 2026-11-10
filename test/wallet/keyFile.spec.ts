@@ -70,7 +70,7 @@ describe("KeyFile regression (known vectors)", () => {
 // -------------------------------------------------------------------------
 // Browser Argon2 driver parity — the bundled argon2-browser build must
 // produce the same digest as the native binding, since KeyFile switches
-// between them based on isBrowser().
+// between them based on isNode().
 // -------------------------------------------------------------------------
 
 describe("Browser Argon2 driver", () => {
