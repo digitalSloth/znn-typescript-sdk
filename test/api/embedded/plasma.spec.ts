@@ -13,7 +13,8 @@ import {
     Address,
     Hash,
     PLASMA_ADDRESS,
-    QSR_ZTS
+    QSR_ZTS,
+    ZNN_ZTS
 } from "../../../src/model/primitives/index.js";
 import { arrayify } from "../../../src/utilities/bytes.js";
 import { MockClient } from "../mockClient.js";
@@ -84,6 +85,31 @@ describe("PlasmaApi", () => {
             expect(result).to.be.instanceOf(FusionEntryList);
             expect(result.list[0]).to.be.instanceOf(FusionEntry);
             expect(result.list[0].id.toString()).to.equal(HASH_A);
+            expect(result.list[0].isRevocable).to.equal(true);
+            expect(FusionEntry.fromJson(result.list[0].toJson()).isRevocable).to.equal(true);
+        });
+
+        it("should parse an entry without isRevocable", async () => {
+            const entry = {
+                qsrAmount: "100",
+                beneficiary: ADDRESS,
+                expirationHeight: 123,
+                id: HASH_A
+            };
+            mockClient.setMockResponse(
+                "embedded.plasma.getEntriesByAddress",
+                makeFusionEntryListJson({ list: [entry] })
+            );
+
+            const result = await plasmaApi.getEntriesByAddress(Address.parse(ADDRESS), 0, 5);
+            const parsed = result.list[0];
+
+            expect(parsed.qsrAmount).to.equal(100n);
+            expect(parsed.beneficiary.toString()).to.equal(ADDRESS);
+            expect(parsed.expirationHeight).to.equal(123);
+            expect(parsed.id.toString()).to.equal(HASH_A);
+            expect(parsed.isRevocable).to.equal(undefined);
+            expect(FusionEntry.fromJson(parsed.toJson()).isRevocable).to.equal(undefined);
         });
     });
 
@@ -138,7 +164,8 @@ describe("PlasmaApi", () => {
             ]);
 
             expect(template.amount.toString()).to.equal("0");
-            expect(template.tokenStandard.toString()).to.equal(QSR_ZTS.toString());
+            expect(template.tokenStandard.toString()).to.equal(ZNN_ZTS.toString());
+            expect(template.data.toString("hex")).to.equal("f9ca9dc3" + "a".repeat(64));
             expect(template.data.toString("hex"))
                 .to.equal(Buffer.from(arrayify(expectedData)).toString("hex"));
         });

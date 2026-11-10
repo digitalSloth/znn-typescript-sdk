@@ -12,10 +12,17 @@ export class BooleanCoder extends Coder {
     }
 
     encode(writer: Writer, value: boolean): number {
+        if (typeof value !== "boolean") {
+            this._throwError("invalid boolean value", value);
+        }
         return writer.writeValue(value ? 1 : 0);
     }
 
     decode(reader: Reader): any {
-        return reader.coerce(this.type, reader.readValue() !== 0n);
+        const value = reader.readValue();
+        if (value !== 0n && value !== 1n) {
+            this._throwError("invalid boolean value", value);
+        }
+        return reader.coerce(this.type, value === 1n);
     }
 }

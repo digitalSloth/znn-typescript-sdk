@@ -1,4 +1,3 @@
-import { Address } from "./primitives/address.js";
 import { Model } from "./base.js";
 
 export enum SyncState {
@@ -90,17 +89,5 @@ export class SyncInfo extends Model {
 
     static fromJson(json: { [key: string]: any }): SyncInfo {
         return new SyncInfo(json.state as SyncState, json.currentHeight, json.targetHeight);
-    }
-}
-
-export class ExtraData extends Model {
-    constructor(
-        public affiliate: Address
-    ) {
-        super()
-    }
-
-    static fromJson(json: { [key: string]: any }): ExtraData {
-        return new ExtraData(Address.parse(json.affiliate));
     }
 }
