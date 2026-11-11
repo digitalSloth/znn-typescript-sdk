@@ -57,6 +57,8 @@ const config: Config = {
           // The canonical docs live at the repository root so they stay
           // readable on GitHub and there is a single source of truth.
           path: '../docs',
+          // Top-level guides only, so the gitignored docs/notes/ is never published.
+          include: ['*.md'],
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
           editUrl: ({docPath}) =>
