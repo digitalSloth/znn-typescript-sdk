@@ -33,8 +33,8 @@ From the repository root you can also run `npm run docs:start` / `npm run docs:b
 
 ## Adding Docs
 
-Doc pages live in `docs/` at the repository root as Markdown — the site renders the same files you read on GitHub, so there is a single source of truth. The sidebar order is defined explicitly in `sidebars.ts` — add new page IDs there. The Zenon design tokens (colors, Space Grotesk / JetBrains Mono typography, radius) are mapped onto Docusaurus/Infima variables in `src/css/custom.css`.
+Doc pages live in `docs/` at the repository root as Markdown — the site renders the same files you read on GitHub, so there is a single source of truth. The Getting Started page is generated from the repository `README.md` by `scripts/generate-index.mjs` before every `start` and `build`; edit the README, not `docs/index.md`. The sidebar order is defined explicitly in `sidebars.ts` — add new page IDs there. The Zenon design tokens (colors, Space Grotesk / JetBrains Mono typography, radius) are mapped onto Docusaurus/Infima variables in `src/css/custom.css`.
 
 ## Deployment
 
-Deployment is automated: the [Docs workflow](../.github/workflows/docs.yml) builds the site and publishes it to GitHub Pages on every push to `main` that touches `docs/` or `website/`. The repository's Pages settings must have **Source: GitHub Actions**. There is no manual deploy step.
+Deployment is automated: the [Docs workflow](../.github/workflows/docs.yml) builds the site and publishes it to GitHub Pages on every push to `main` that touches `README.md`, `docs/` or `website/`. The repository's Pages settings must have **Source: GitHub Actions**. There is no manual deploy step.

@@ -19,3 +19,6 @@ Thumbs.db
 
 # Pipeline scratch
 .pipeline/
+
+# Docs site: Getting Started page generated from README.md
+/docs/index.md
