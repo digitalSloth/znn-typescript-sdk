@@ -31,6 +31,9 @@ export class Transactions {
                 throw new Error("Amount must be a positive number");
             }
             const amountInBaseUnits = extractNumberDecimals(amount, decimals);
+            if (amountInBaseUnits <= 0n) {
+                throw new Error("Amount is below the smallest unit for this token");
+            }
 
             if (tokenStandard.toLowerCase() === "znn") {
                 tokenStandard = ZNN_ZTS.toString()

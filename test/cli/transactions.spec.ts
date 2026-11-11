@@ -103,8 +103,7 @@ describe("CLI transaction amounts", () => {
     for (const [amount, decimals, expected] of [
         ["9007199254740993", 0, 9007199254740993n],
         ["90071992.54740993", 8, 9007199254740993n],
-        [" 1e-8 ", 8, 1n],
-        ["0.000000001", 8, 0n]
+        [" 1e-8 ", 8, 1n]
     ] as const) {
         it(`preserves the exact base-unit amount for ${JSON.stringify(amount)}`, async () => {
             const result = await send(amount, decimals);
@@ -123,7 +122,7 @@ describe("CLI transaction amounts", () => {
         });
     }
 
-    for (const amount of ["1junk", "1e2junk", "NaN", "Infinity", "0", "-1"]) {
+    for (const amount of ["1junk", "1e2junk", "NaN", "Infinity", "0", "-1", "0.000000001"]) {
         it(`rejects ${JSON.stringify(amount)} before wallet or node access`, async () => {
             let error: unknown;
             try {
