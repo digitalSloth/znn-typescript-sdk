@@ -40,5 +40,5 @@ module.exports = {
             raw: true
         })
     ],
-    externals: [nodeExternals()]
+    externals: [nodeExternals({ allowlist: ["@open-rpc/client-js", "isomorphic-ws", "ws"] })]
 };

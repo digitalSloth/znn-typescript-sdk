@@ -44,12 +44,12 @@ export class Storage {
     }
 
     /**
-     * Write string data to a file
+     * Write string data to a new file without overwriting an existing target
      */
     private static writeFile(filePath: string, data: string): void {
         const dir = path.dirname(filePath);
         Storage.ensureDirectory(dir);
-        fs.writeFileSync(filePath, data, "utf-8");
+        fs.writeFileSync(filePath, data, { encoding: "utf-8", flag: "wx" });
     }
 
     /**
@@ -138,14 +138,25 @@ export class Storage {
     }
 
     /**
-     * Save a wallet to the wallet directory
+     * Save a new wallet to the wallet directory, rejecting an existing name
      */
     public static saveWallet(address: string, encryptedKeyFileData: object): void {
         const walletPath = Storage.getWalletPath();
         const filePath = path.join(walletPath, address);
 
+        if (Storage.walletExists(address)) {
+            throw new Error(`Wallet already exists: ${address}`);
+        }
+
         const jsonData = JSON.stringify(encryptedKeyFileData, null, 2);
-        Storage.writeFile(filePath, jsonData);
+        try {
+            Storage.writeFile(filePath, jsonData);
+        } catch (error) {
+            if (error instanceof Error && "code" in error && error.code === "EEXIST") {
+                throw new Error(`Wallet already exists: ${address}`);
+            }
+            throw error;
+        }
     }
 
     /**
