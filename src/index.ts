@@ -14,8 +14,8 @@ export type { PowWorkerOptions, ServePowRequestsOptions } from "./pow/index.js";
 
 //
 // Client exports
-export type { WsClientOptions } from "./client/index.js";
-export { WsClient, ZnnClientException } from "./client/index.js";
+export type { WsClientOptions, WsCloseListener } from "./client/index.js";
+export { WsClient, WebsocketStatus, ZnnClientException } from "./client/index.js";
 export { Client } from "./client/interfaces.js";
 
 //

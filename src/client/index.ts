@@ -1,5 +1,5 @@
 export type { Client } from "./interfaces.js"
-export { WSUpdateStream, WsClient, type WsClientOptions } from "./websocket.js"
+export { WSUpdateStream, WsClient, WebsocketStatus, type WsClientOptions, type WsCloseListener } from "./websocket.js"
 export { HttpClient } from "./http.js"
 export { newClient } from "./factory.js"
 export { ZnnClientException } from "./errors.js"

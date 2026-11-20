@@ -50,6 +50,16 @@ await zenon.initialize('wss://node.zenonhub.io:35998', 30000, wsOptions);
 
 **Note:** WebSocket connections automatically reconnect if dropped during operations. The default settings work well for most cases, including PoW generation.
 
+A connect that times out rejects with `Error: Timeout after <n> seconds` and stops retrying the node. `zenon.clearConnection()` cancels any scheduled reconnect, and a connect still in progress rejects with `Error: Connection stopped`. To react when an open connection drops, register a listener on the `WsClient`:
+
+```javascript
+import { WsClient } from 'znn-typescript-sdk';
+
+if (zenon.client instanceof WsClient) {
+  zenon.client.onClose((code) => console.warn('Node connection dropped', code));
+}
+```
+
 ---
 
 ## SDK Configuration
