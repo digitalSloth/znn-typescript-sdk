@@ -97,6 +97,28 @@ const tx = await zenon.send(blockTemplate, keyPair);
 
 **Note**: Node.js environments don't need `setPowBasePath()` - PoW files are loaded automatically.
 
+### Run PoW in a Web Worker (Browser Only)
+
+PoW on the main thread freezes the page and can starve the WebSocket heartbeat. `Zenon.usePowWorker()` moves it to a worker started from a `blob:` URL. Where a `blob:` worker cannot import `pow.js`, such as browser extension pages, start a worker from your own origin that calls `servePowRequests()`:
+
+```javascript
+// pow.worker.js, served from your own origin
+import { servePowRequests } from 'znn-typescript-sdk';
+servePowRequests({ basePath: '/' });
+```
+
+```javascript
+// app code
+import { Zenon } from 'znn-typescript-sdk';
+
+Zenon.setPowBasePath('/');
+Zenon.usePowWorker({
+  createWorker: () => new Worker(new URL('./pow.worker.js', import.meta.url), { type: 'module' }),
+});
+```
+
+Without `createWorker`, `usePowWorker()` uses the built-in `blob:` worker.
+
 ---
 
 ## Basic RPC Reads
