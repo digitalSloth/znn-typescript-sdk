@@ -160,8 +160,11 @@ describe("PowWorker", () => {
         it("is passed through by Zenon.usePowWorker", async () => {
             const g = globalThis as unknown as Record<string, unknown>;
             const saved = { window: g.window, Worker: g.Worker };
+            // isBrowser() also checks navigator, which Node only defines from 21.
+            const stubNavigator = typeof g.navigator === "undefined";
             g.window = { document: {} };
             g.Worker = class {};
+            if (stubNavigator) g.navigator = {};
             try {
                 const fake = new ScriptedWorker((data) => ({ id: data.id, nonce: "from-custom-worker" }));
                 const worker = Zenon.usePowWorker({ createWorker: () => fake as unknown as Worker });
@@ -171,6 +174,7 @@ describe("PowWorker", () => {
                 Zenon.stopPowWorker();
                 g.window = saved.window;
                 g.Worker = saved.Worker;
+                if (stubNavigator) delete g.navigator;
             }
         });
     });
