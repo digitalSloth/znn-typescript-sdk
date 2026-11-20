@@ -1,10 +1,13 @@
 import { expect } from "chai";
+import { pathToFileURL } from "url";
 import {
     PowWorker,
     isPowWorkerSupported,
     resolvePowUrls,
-    buildPowWorkerSource
+    buildPowWorkerSource,
+    servePowRequests
 } from "../../src/pow/powWorker.js";
+import { Zenon } from "../../src/zenon.js";
 
 describe("PowWorker", () => {
     describe("resolvePowUrls", () => {
@@ -101,7 +104,158 @@ describe("PowWorker", () => {
             }
         });
     });
+
+    describe("createWorker", () => {
+        it("starts the given worker instead of a blob: worker", async () => {
+            const saved = URL.createObjectURL;
+            URL.createObjectURL = () => {
+                throw new Error("blob: worker must not be created");
+            };
+            try {
+                const fake = new ScriptedWorker((data) => ({ id: data.id, nonce: `nonce-${data.difficulty}` }));
+                let created = 0;
+                const worker = new PowWorker({
+                    basePath: "/",
+                    createWorker: () => {
+                        created++;
+                        return fake as unknown as Worker;
+                    }
+                });
+
+                const nonces = await Promise.all([
+                    worker.generate("ab".repeat(32), 7),
+                    worker.generate("cd".repeat(32), 8)
+                ]);
+
+                expect(nonces).to.deep.equal(["nonce-7", "nonce-8"]);
+                expect(created).to.equal(1);
+                expect(fake.posted.map((p) => p.hashHex)).to.deep.equal(["ab".repeat(32), "cd".repeat(32)]);
+            } finally {
+                URL.createObjectURL = saved;
+            }
+        });
+
+        it("starts a fresh worker after the given one fails", async () => {
+            const workers: ScriptedWorker[] = [];
+            const worker = new PowWorker({
+                basePath: "/",
+                createWorker: () => {
+                    const fake = new ScriptedWorker((data) => (workers.length > 1 ? { id: data.id, nonce: "ok" } : null));
+                    workers.push(fake);
+                    return fake as unknown as Worker;
+                }
+            });
+
+            const first = worker.generate("ab".repeat(32), 1);
+            workers[0].onerror?.({ message: "load failed" });
+            const error = await first.then(() => null, (err: Error) => err);
+            const second = await worker.generate("ab".repeat(32), 1);
+
+            expect(error?.message).to.equal("PoW worker error: load failed");
+            expect(workers[0].terminated).to.equal(true);
+            expect(workers).to.have.length(2);
+            expect(second).to.equal("ok");
+        });
+
+        it("is passed through by Zenon.usePowWorker", async () => {
+            const g = globalThis as unknown as Record<string, unknown>;
+            const saved = { window: g.window, Worker: g.Worker };
+            g.window = { document: {} };
+            g.Worker = class {};
+            try {
+                const fake = new ScriptedWorker((data) => ({ id: data.id, nonce: "from-custom-worker" }));
+                const worker = Zenon.usePowWorker({ createWorker: () => fake as unknown as Worker });
+
+                expect(await worker.generate("ab".repeat(32), 1)).to.equal("from-custom-worker");
+            } finally {
+                Zenon.stopPowWorker();
+                g.window = saved.window;
+                g.Worker = saved.Worker;
+            }
+        });
+    });
+
+    describe("servePowRequests", () => {
+        const libHref = pathToFileURL(new URL("../../lib/", import.meta.url).pathname).href;
+
+        /** Runs servePowRequests against globalThis as the worker scope. */
+        function serve(options: Parameters<typeof servePowRequests>[0]) {
+            const g = globalThis as unknown as Record<string, unknown>;
+            const saved = { onmessage: g.onmessage, postMessage: g.postMessage };
+            const replies: PowReply[] = [];
+            let notify: () => void = () => undefined;
+            g.postMessage = (message: PowReply) => {
+                replies.push(message);
+                notify();
+            };
+            servePowRequests(options);
+            const handler = g.onmessage as (event: { data: PowRequest }) => void;
+            return {
+                request: (data: PowRequest) => {
+                    const reply = new Promise<PowReply>((resolve) => {
+                        notify = () => resolve(replies[replies.length - 1]);
+                    });
+                    handler({ data });
+                    return reply;
+                },
+                restore: () => {
+                    g.onmessage = saved.onmessage;
+                    g.postMessage = saved.postMessage;
+                }
+            };
+        }
+
+        it("replies with an error for the request when pow.js cannot be loaded", async () => {
+            const worker = serve({ basePath: "missing/", baseHref: libHref });
+            try {
+                const reply = await worker.request({ id: 9, hashHex: "ab".repeat(32), difficulty: 1 });
+
+                expect(reply.id).to.equal(9);
+                expect(reply.nonce).to.equal(undefined);
+                expect(reply.error).to.include("missing/pow");
+            } finally {
+                worker.restore();
+            }
+        });
+
+        it("retries loading pow.js on the next request after a failure", async () => {
+            const worker = serve({ basePath: "missing/", baseHref: libHref });
+            try {
+                const first = await worker.request({ id: 1, hashHex: "ab".repeat(32), difficulty: 1 });
+                const second = await worker.request({ id: 2, hashHex: "ab".repeat(32), difficulty: 1 });
+
+                expect(first.error).to.include("missing/pow");
+                expect(second.id).to.equal(2);
+                expect(second.error).to.include("missing/pow");
+            } finally {
+                worker.restore();
+            }
+        });
+    });
 });
+
+type PowRequest = { id: number; hashHex: string; difficulty: number };
+type PowReply = { id: number; nonce?: string; error?: string };
+
+/** A fake Worker whose replies come from `respond`; it never touches globals. */
+class ScriptedWorker {
+    onmessage: ((event: { data: PowReply }) => void) | null = null;
+    onerror: ((event: { message: string }) => void) | null = null;
+    posted: PowRequest[] = [];
+    terminated = false;
+
+    constructor(private respond: (data: PowRequest) => PowReply | null) {}
+
+    postMessage(data: PowRequest) {
+        this.posted.push(data);
+        const result = this.respond(data);
+        if (result) Promise.resolve().then(() => this.onmessage?.({ data: result }));
+    }
+
+    terminate() {
+        this.terminated = true;
+    }
+}
 
 /**
  * Install minimal globals (`Worker`, `Blob`, `URL.createObjectURL`) so PowWorker

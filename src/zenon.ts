@@ -3,7 +3,7 @@ import { SubscribeApi, LedgerApi, StatsApi, EmbeddedApi } from "./api/index.js";
 import { AccountBlockTemplate } from "./model/nom/accountBlock.js";
 import { KeyPair } from "./wallet/index.js";
 import { prepareBlock, send } from "./utilities/block.js";
-import { PowWorker, isPowWorkerSupported } from "./pow/powWorker.js";
+import { PowWorker, isPowWorkerSupported, type PowWorkerOptions } from "./pow/powWorker.js";
 
 /**
  * A pluggable Proof-of-Work provider.
@@ -184,15 +184,18 @@ export class Zenon {
      * `pow.js` / `pow.wasm`, so call {@link setPowBasePath} first if needed. The
      * worker is created lazily on the first transaction that requires PoW.
      *
+     * Pass `createWorker` where a blob: worker cannot import `pow.js`, such
+     * as browser extension pages. See {@link PowWorkerOptions.createWorker}.
+     *
      * @returns the managed {@link PowWorker} instance.
      */
-    public static usePowWorker(): PowWorker {
+    public static usePowWorker(options: Pick<PowWorkerOptions, "createWorker"> = {}): PowWorker {
         if (!isPowWorkerSupported()) {
             throw new Error("usePowWorker is only supported in browser environments with Web Worker support");
         }
 
         this.stopPowWorker();
-        this.powWorker = new PowWorker({ basePath: this.getPowBasePath() });
+        this.powWorker = new PowWorker({ basePath: this.getPowBasePath(), createWorker: options.createWorker });
         this.powProvider = this.powWorker.generate;
         return this.powWorker;
     }

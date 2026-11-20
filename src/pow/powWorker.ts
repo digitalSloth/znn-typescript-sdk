@@ -8,6 +8,10 @@
  * `pow.wasm` assets used by the main-thread loader, resolved from the
  * configured PoW base path. No extra asset needs to be served and no
  * additional consumer configuration is required beyond `setPowBasePath`.
+ *
+ * Where a blob: worker cannot import `pow.js`, such as browser extension
+ * pages, serve a worker script from the page's own origin that calls
+ * {@link servePowRequests}, and pass a `createWorker` that starts it.
  */
 
 import { isBrowser } from "../utilities/global.js";
@@ -22,6 +26,20 @@ export interface PowWorkerOptions {
      * Base URL the `basePath` is resolved against. Defaults to the document's
      * base URI (or `location.href`). Mainly useful for testing.
      */
+    baseHref?: string;
+    /**
+     * Starts the worker in place of the built-in blob: worker. The worker
+     * script calls {@link servePowRequests}. Use it where a blob: worker
+     * cannot import `pow.js`, such as browser extension pages. `basePath`
+     * and `baseHref` are unused when it is set.
+     */
+    createWorker?: () => Worker;
+}
+
+export interface ServePowRequestsOptions {
+    /** Base path where `pow.js` and `pow.wasm` are served. Defaults to `/`. */
+    basePath?: string;
+    /** Base URL the `basePath` is resolved against. Defaults to the worker's own URL. */
     baseHref?: string;
 }
 
@@ -83,9 +101,62 @@ self.onmessage = async (event) => {
 `;
 }
 
+type PowModule = { generate: (hashHex: string, difficulty: number) => string };
+
+interface PowWorkerScope {
+    onmessage: ((event: MessageEvent) => void) | null;
+    postMessage(message: unknown): void;
+}
+
+/**
+ * Answers PoW requests inside a module worker, with the protocol of the
+ * built-in worker: `{ id, hashHex, difficulty }` in, `{ id, nonce }` or
+ * `{ id, error }` out. Call it from a worker script, then pass a
+ * `createWorker` that starts that script to {@link PowWorker} or
+ * `Zenon.usePowWorker`.
+ *
+ * @example
+ * ```typescript
+ * // pow-worker.ts, served from the page's own origin
+ * import { servePowRequests } from "znn-typescript-sdk";
+ * servePowRequests({ basePath: "/" });
+ * ```
+ */
+export function servePowRequests(options: ServePowRequestsOptions = {}): void {
+    const { powJsUrl, powWasmUrl } = resolvePowUrls(options.basePath ?? "/", options.baseHref);
+    let modulePromise: Promise<PowModule> | undefined;
+
+    const getModule = (): Promise<PowModule> => {
+        if (!modulePromise) {
+            modulePromise = import(/* webpackIgnore: true */ /* @vite-ignore */ powJsUrl)
+                .then((imported) => imported.default({
+                    locateFile: (path: string) => (path.endsWith(".wasm") ? powWasmUrl : path)
+                }))
+                .catch((error: unknown) => {
+                    // Not cached, so the next request retries the load.
+                    modulePromise = undefined;
+                    throw error;
+                });
+        }
+        return modulePromise;
+    };
+
+    const scope = globalThis as unknown as PowWorkerScope;
+    scope.onmessage = async (event: MessageEvent) => {
+        const { id, hashHex, difficulty } = event.data || {};
+        try {
+            const module = await getModule();
+            scope.postMessage({ id, nonce: module.generate(hashHex, difficulty) });
+        } catch (error) {
+            scope.postMessage({ id, error: error instanceof Error ? error.message : String(error) });
+        }
+    };
+}
+
 export class PowWorker {
     private readonly basePath: string;
     private readonly baseHref?: string;
+    private readonly createWorker?: () => Worker;
     private worker?: Worker;
     private nextId = 0;
     private readonly pending = new Map<number, PendingRequest>();
@@ -93,6 +164,7 @@ export class PowWorker {
     constructor(options: PowWorkerOptions) {
         this.basePath = options.basePath;
         this.baseHref = options.baseHref;
+        this.createWorker = options.createWorker;
     }
 
     private ensureWorker(): Worker {
@@ -100,20 +172,7 @@ export class PowWorker {
             return this.worker;
         }
 
-        if (typeof Worker === "undefined" || typeof Blob === "undefined" || typeof URL === "undefined" || !URL.createObjectURL) {
-            throw new Error("PowWorker requires a browser environment with Web Worker and Blob support");
-        }
-
-        const { powJsUrl, powWasmUrl } = resolvePowUrls(this.basePath, this.baseHref);
-        const source = buildPowWorkerSource(powJsUrl, powWasmUrl);
-        const blob = new Blob([source], { type: "text/javascript" });
-        const blobUrl = URL.createObjectURL(blob);
-
-        try {
-            this.worker = new Worker(blobUrl, { type: "module" });
-        } finally {
-            URL.revokeObjectURL(blobUrl);
-        }
+        this.worker = this.createWorker ? this.createWorker() : this.createBlobWorker();
 
         this.worker.onmessage = (event: MessageEvent) => {
             const { id, nonce, error } = event.data || {};
@@ -134,6 +193,23 @@ export class PowWorker {
         };
 
         return this.worker;
+    }
+
+    private createBlobWorker(): Worker {
+        if (typeof Worker === "undefined" || typeof Blob === "undefined" || typeof URL === "undefined" || !URL.createObjectURL) {
+            throw new Error("PowWorker requires a browser environment with Web Worker and Blob support");
+        }
+
+        const { powJsUrl, powWasmUrl } = resolvePowUrls(this.basePath, this.baseHref);
+        const source = buildPowWorkerSource(powJsUrl, powWasmUrl);
+        const blob = new Blob([source], { type: "text/javascript" });
+        const blobUrl = URL.createObjectURL(blob);
+
+        try {
+            return new Worker(blobUrl, { type: "module" });
+        } finally {
+            URL.revokeObjectURL(blobUrl);
+        }
     }
 
     private rejectAll(error: Error): void {

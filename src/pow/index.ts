@@ -14,6 +14,7 @@ export {
     PowWorker,
     isPowWorkerSupported,
     resolvePowUrls,
-    buildPowWorkerSource
+    buildPowWorkerSource,
+    servePowRequests
 } from "./powWorker.js";
-export type { PowWorkerOptions } from "./powWorker.js";
+export type { PowWorkerOptions, ServePowRequestsOptions } from "./powWorker.js";
