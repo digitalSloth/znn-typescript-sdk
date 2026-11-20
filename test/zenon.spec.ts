@@ -5,6 +5,7 @@ import { WsClient } from "../src/client/websocket.js";
 import { AccountBlockTemplate, BlockTypeEnum } from "../src/model/nom/accountBlock.js";
 import { Address, Hash, EMPTY_HASH, ZNN_ZTS } from "../src/model/primitives/index.js";
 import { KeyPair } from "../src/wallet/keyPair.js";
+import { deadNode } from "./client/test-nodes.js";
 
 const ADDRESS_B = "z1qxemdeddedxplasmaxxxxxxxxxxxxxxxxsctrp";
 const HASH_A = "a".repeat(64);
@@ -48,6 +49,40 @@ describe("Zenon", () => {
 
         expect(stopped).to.equal(true);
         expect(zenon.client).to.equal(undefined);
+    });
+
+    it("should clear the client and stop retrying after a failed websocket connect", async () => {
+        const node = await deadNode();
+        const zenon = Zenon.getInstance();
+
+        let error: Error | null = null;
+        try {
+            await zenon.initialize(node.url, 300, { reconnect_interval: 50 });
+        } catch (err) {
+            error = err as Error;
+        }
+        const attempts = node.connections();
+        await new Promise((resolve) => setTimeout(resolve, 300));
+
+        expect(node.connections()).to.equal(attempts);
+        expect(zenon.client).to.equal(undefined);
+        expect(error?.message).to.equal("Timeout after 0.3 seconds");
+        await node.close();
+    });
+
+    it("should stop the previous websocket client on initialize", async () => {
+        const zenon = Zenon.getInstance();
+        const previous = new WsClient("ws://localhost");
+        let stopped = false;
+        previous.stop = () => {
+            stopped = true;
+        };
+        zenon.client = previous;
+
+        await zenon.initialize("http://localhost:35997");
+
+        expect(stopped).to.equal(true);
+        expect(zenon.client).to.be.instanceOf(HttpClient);
     });
 
     it("should update network and chain identifiers", () => {
