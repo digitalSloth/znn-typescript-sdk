@@ -23,3 +23,6 @@ Thumbs.db
 # Playwright output
 test-results/
 playwright-report/
+
+# Docs site: Getting Started page generated from README.md
+/docs/index.md

@@ -67,15 +67,27 @@ export class Zenon {
         }
     }
 
+    /**
+     * Connects to `serverUrl`, closing any previous connection first. On
+     * failure the client is cleared, so no socket keeps retrying the node.
+     */
     async initialize(serverUrl = this.defaultServerUrl, timeout = 30000, wsOptions?: WsClientOptions) {
-        this.client = newClient(serverUrl);
+        this.clearConnection();
+        const client = newClient(serverUrl);
+        this.client = client;
 
         // If it's a WebSocket client, initialize it
-        if (this.client instanceof WsClient) {
-            await this.client.initialize(serverUrl, timeout, wsOptions);
+        if (client instanceof WsClient) {
+            try {
+                await client.initialize(serverUrl, timeout, wsOptions);
+            } catch (err) {
+                // A newer initialize() or clearConnection() may own this.client now.
+                if (this.client === client) this.clearConnection();
+                throw err;
+            }
         }
 
-        this._setClient(this.client);
+        this._setClient(client);
     }
 
     public clearConnection() {

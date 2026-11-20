@@ -1,3 +1,8 @@
+---
+sidebar_label: API Overview
+description: High-level API reference for the ZNN TypeScript SDK.
+---
+
 # API Overview
 
 High-level API reference for the ZNN TypeScript SDK.

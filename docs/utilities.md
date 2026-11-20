@@ -1,3 +1,8 @@
+---
+sidebar_label: Utilities
+description: Utility classes and constants for common operations.
+---
+
 # Utility Classes & Constants
 
 The SDK provides utility classes for common operations. This page summarizes the available classes and constants.

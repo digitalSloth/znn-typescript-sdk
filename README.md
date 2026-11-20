@@ -250,14 +250,32 @@ await zenon.initialize('wss://node.zenonhub.io:35998');
 await zenon.initialize('https://node.zenonhub.io:35997');
 ```
 
+`initialize` closes any connection the instance already holds before it connects. If the node does not answer within `timeout` (default 30 s), it rejects with `Error: Timeout after <n> seconds`, closes the socket, and clears `zenon.client`, so nothing keeps retrying the unreachable node.
+
 > **Note:** WebSocket connections automatically reconnect if dropped, and the default settings are suitable for most use cases. However, reconnect (like all timers) cannot run while the main thread is blocked. The built-in PoW generator is synchronous, so long PoW can starve the heartbeat/reconnect machinery and the node may close the connection before the transaction publishes. To avoid this, run PoW off the main thread with [`Zenon.usePowWorker`](#zenonusepowworker-powworker) (or a custom [`setPowProvider`](#zenonsetpowproviderprovider-powprovider-void)).
 
 ##### `clearConnection(): void`
 
-Disconnect and clean up resources.
+Disconnect and clean up resources. It also cancels any scheduled reconnect, and a connect still in progress rejects with `Error: Connection stopped`.
 
 ```javascript
 zenon.clearConnection();
+```
+
+##### Connection status and drops
+
+For a WebSocket connection, `zenon.client` is a `WsClient`. `status()` returns a `WebsocketStatus`: `Uninitialized`, `Connecting`, `Running` or `Stopped`. `onClose(listener)` calls the listener with the close code each time an open connection drops, including drops the client then reconnects from. It does not report the close that `clearConnection()` or a new `initialize()` causes. It returns a function that removes the listener.
+
+```typescript
+import { WebsocketStatus, WsClient, Zenon } from 'znn-typescript-sdk';
+
+const zenon = Zenon.getInstance();
+await zenon.initialize('wss://node.zenonhub.io:35998');
+
+if (zenon.client instanceof WsClient) {
+  const stopWatching = zenon.client.onClose((code) => console.warn('Node connection dropped', code));
+  console.log(zenon.client.status() === WebsocketStatus.Running); // true
+}
 ```
 
 ##### `send(blockTemplate: AccountBlockTemplate, keyPair: KeyPair): Promise<AccountBlockTemplate>`
@@ -288,7 +306,6 @@ await zenon.ledger.publishRawTransaction(prepared);
 
 - **[Examples](./docs/examples.md)** – Complete working examples
 - **[API Overview](./docs/api-overview.md)** – All API methods and embedded contract calls
-- **[Embedded Contracts](./docs/embedded-contracts/index.md)** – Detailed documentation for embedded contracts
 - **[Utilities](./docs/utilities.md)** – Utilities and constants for common tasks
 - **[CLI Tool](./docs/cli.md)** – Command-line interface
 - **[Wallet Management](./docs/wallet.md)** – Creating and managing wallets
@@ -315,7 +332,7 @@ npm test
 
 ## License
 
-BSD-3-Clause
+MIT
 
 ## Contributing
 
