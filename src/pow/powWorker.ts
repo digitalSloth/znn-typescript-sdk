@@ -19,9 +19,9 @@ import { isBrowser } from "../utilities/global.js";
 export interface PowWorkerOptions {
     /**
      * Base path where `pow.js` and `pow.wasm` are served, e.g. `/` or
-     * `/assets/`. Mirrors {@link Zenon.setPowBasePath}.
+     * `/assets/`. Mirrors {@link Zenon.setPowBasePath}. Defaults to `/`.
      */
-    basePath: string;
+    basePath?: string;
     /**
      * Base URL the `basePath` is resolved against. Defaults to the document's
      * base URI (or `location.href`). Mainly useful for testing.
@@ -83,6 +83,10 @@ async function getModule() {
         const createPowModule = imported.default;
         modulePromise = createPowModule({
             locateFile: (path) => path.endsWith(".wasm") ? ${JSON.stringify(powWasmUrl)} : path
+        }).catch((error) => {
+            // Not cached, so the next request retries the load.
+            modulePromise = undefined;
+            throw error;
         });
     }
     return modulePromise;
@@ -162,7 +166,7 @@ export class PowWorker {
     private readonly pending = new Map<number, PendingRequest>();
 
     constructor(options: PowWorkerOptions) {
-        this.basePath = options.basePath;
+        this.basePath = options.basePath ?? "/";
         this.baseHref = options.baseHref;
         this.createWorker = options.createWorker;
     }

@@ -1,4 +1,7 @@
 import { expect } from "chai";
+import { mkdtempSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
 import { pathToFileURL } from "url";
 import {
     PowWorker,
@@ -42,6 +45,28 @@ describe("PowWorker", () => {
             const source = buildPowWorkerSource('https://x/"; evil()//pow.js', "https://x/pow.wasm");
             // The malicious URL must be JSON-escaped, not break out of the string literal.
             expect(source).to.include(JSON.stringify('https://x/"; evil()//pow.js'));
+        });
+
+        it("retries creating the PoW module on the next request after it fails", async () => {
+            const { href } = flakyPowDir();
+            const source = buildPowWorkerSource(`${href}pow.js`, `${href}pow.wasm`);
+
+            const g = globalThis as unknown as Record<string, unknown>;
+            const replies: PowReply[] = [];
+            const scope: { onmessage?: (event: { data: PowRequest }) => Promise<void> } = {};
+            g.self = Object.assign(scope, { postMessage: (message: PowReply) => replies.push(message) });
+            try {
+                new Function(source)();
+                await scope.onmessage!({ data: { id: 1, hashHex: "ab".repeat(32), difficulty: 1 } });
+                await scope.onmessage!({ data: { id: 2, hashHex: "ab".repeat(32), difficulty: 1 } });
+
+                expect(replies).to.deep.equal([
+                    { id: 1, error: "wasm instantiate failed" },
+                    { id: 2, nonce: "nonce-2" }
+                ]);
+            } finally {
+                delete g.self;
+            }
         });
     });
 
@@ -115,7 +140,6 @@ describe("PowWorker", () => {
                 const fake = new ScriptedWorker((data) => ({ id: data.id, nonce: `nonce-${data.difficulty}` }));
                 let created = 0;
                 const worker = new PowWorker({
-                    basePath: "/",
                     createWorker: () => {
                         created++;
                         return fake as unknown as Worker;
@@ -138,7 +162,6 @@ describe("PowWorker", () => {
         it("starts a fresh worker after the given one fails", async () => {
             const workers: ScriptedWorker[] = [];
             const worker = new PowWorker({
-                basePath: "/",
                 createWorker: () => {
                     const fake = new ScriptedWorker((data) => (workers.length > 1 ? { id: data.id, nonce: "ok" } : null));
                     workers.push(fake);
@@ -222,15 +245,14 @@ describe("PowWorker", () => {
             }
         });
 
-        it("retries loading pow.js on the next request after a failure", async () => {
-            const worker = serve({ basePath: "missing/", baseHref: libHref });
+        it("retries creating the PoW module on the next request after it fails", async () => {
+            const worker = serve({ basePath: "./", baseHref: flakyPowDir().href });
             try {
                 const first = await worker.request({ id: 1, hashHex: "ab".repeat(32), difficulty: 1 });
                 const second = await worker.request({ id: 2, hashHex: "ab".repeat(32), difficulty: 1 });
 
-                expect(first.error).to.include("missing/pow");
-                expect(second.id).to.equal(2);
-                expect(second.error).to.include("missing/pow");
+                expect(first).to.deep.equal({ id: 1, error: "wasm instantiate failed" });
+                expect(second).to.deep.equal({ id: 2, nonce: "nonce-2" });
             } finally {
                 worker.restore();
             }
@@ -239,6 +261,27 @@ describe("PowWorker", () => {
 });
 
 type PowRequest = { id: number; hashHex: string; difficulty: number };
+
+/**
+ * A temp directory holding a stub `pow.js` whose module factory rejects on
+ * its first call and succeeds after, like a wasm load that fails once. The
+ * stub is also written as `pow.ts` because the ts-node test loader maps
+ * `.js` imports to `.ts`, beside a package.json that marks it ESM.
+ */
+function flakyPowDir(): { href: string } {
+    const path = mkdtempSync(join(tmpdir(), "znn-pow-"));
+    const stub = `let calls = 0;
+export default async () => {
+    calls++;
+    if (calls === 1) throw new Error("wasm instantiate failed");
+    return { generate: () => "nonce-" + calls };
+};
+`;
+    writeFileSync(join(path, "pow.js"), stub);
+    writeFileSync(join(path, "pow.ts"), stub);
+    writeFileSync(join(path, "package.json"), '{ "type": "module" }');
+    return { href: `${pathToFileURL(path).href}/` };
+}
 type PowReply = { id: number; nonce?: string; error?: string };
 
 /** A fake Worker whose replies come from `respond`; it never touches globals. */
