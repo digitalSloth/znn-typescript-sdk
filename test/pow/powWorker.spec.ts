@@ -1,10 +1,16 @@
 import { expect } from "chai";
+import { mkdtempSync, writeFileSync } from "fs";
+import { tmpdir } from "os";
+import { join } from "path";
+import { pathToFileURL } from "url";
 import {
     PowWorker,
     isPowWorkerSupported,
     resolvePowUrls,
-    buildPowWorkerSource
+    buildPowWorkerSource,
+    servePowRequests
 } from "../../src/pow/powWorker.js";
+import { Zenon } from "../../src/zenon.js";
 
 describe("PowWorker", () => {
     describe("resolvePowUrls", () => {
@@ -39,6 +45,28 @@ describe("PowWorker", () => {
             const source = buildPowWorkerSource('https://x/"; evil()//pow.js', "https://x/pow.wasm");
             // The malicious URL must be JSON-escaped, not break out of the string literal.
             expect(source).to.include(JSON.stringify('https://x/"; evil()//pow.js'));
+        });
+
+        it("retries creating the PoW module on the next request after it fails", async () => {
+            const { href } = flakyPowDir();
+            const source = buildPowWorkerSource(`${href}pow.js`, `${href}pow.wasm`);
+
+            const g = globalThis as unknown as Record<string, unknown>;
+            const replies: PowReply[] = [];
+            const scope: { onmessage?: (event: { data: PowRequest }) => Promise<void> } = {};
+            g.self = Object.assign(scope, { postMessage: (message: PowReply) => replies.push(message) });
+            try {
+                new Function(source)();
+                await scope.onmessage!({ data: { id: 1, hashHex: "ab".repeat(32), difficulty: 1 } });
+                await scope.onmessage!({ data: { id: 2, hashHex: "ab".repeat(32), difficulty: 1 } });
+
+                expect(replies).to.deep.equal([
+                    { id: 1, error: "wasm instantiate failed" },
+                    { id: 2, nonce: "nonce-2" }
+                ]);
+            } finally {
+                delete g.self;
+            }
         });
     });
 
@@ -101,7 +129,180 @@ describe("PowWorker", () => {
             }
         });
     });
+
+    describe("createWorker", () => {
+        it("starts the given worker instead of a blob: worker", async () => {
+            const saved = URL.createObjectURL;
+            URL.createObjectURL = () => {
+                throw new Error("blob: worker must not be created");
+            };
+            try {
+                const fake = new ScriptedWorker((data) => ({ id: data.id, nonce: `nonce-${data.difficulty}` }));
+                let created = 0;
+                const worker = new PowWorker({
+                    createWorker: () => {
+                        created++;
+                        return fake as unknown as Worker;
+                    }
+                });
+
+                const nonces = await Promise.all([
+                    worker.generate("ab".repeat(32), 7),
+                    worker.generate("cd".repeat(32), 8)
+                ]);
+
+                expect(nonces).to.deep.equal(["nonce-7", "nonce-8"]);
+                expect(created).to.equal(1);
+                expect(fake.posted.map((p) => p.hashHex)).to.deep.equal(["ab".repeat(32), "cd".repeat(32)]);
+            } finally {
+                URL.createObjectURL = saved;
+            }
+        });
+
+        it("starts a fresh worker after the given one fails", async () => {
+            const workers: ScriptedWorker[] = [];
+            const worker = new PowWorker({
+                createWorker: () => {
+                    const fake = new ScriptedWorker((data) => (workers.length > 1 ? { id: data.id, nonce: "ok" } : null));
+                    workers.push(fake);
+                    return fake as unknown as Worker;
+                }
+            });
+
+            const first = worker.generate("ab".repeat(32), 1);
+            workers[0].onerror?.({ message: "load failed" });
+            const error = await first.then(() => null, (err: Error) => err);
+            const second = await worker.generate("ab".repeat(32), 1);
+
+            expect(error?.message).to.equal("PoW worker error: load failed");
+            expect(workers[0].terminated).to.equal(true);
+            expect(workers).to.have.length(2);
+            expect(second).to.equal("ok");
+        });
+
+        it("is passed through by Zenon.usePowWorker", async () => {
+            const g = globalThis as unknown as Record<string, unknown>;
+            const saved = { window: g.window, Worker: g.Worker };
+            // isBrowser() also checks navigator, which Node only defines from 21.
+            const stubNavigator = typeof g.navigator === "undefined";
+            g.window = { document: {} };
+            g.Worker = class {};
+            if (stubNavigator) g.navigator = {};
+            try {
+                const fake = new ScriptedWorker((data) => ({ id: data.id, nonce: "from-custom-worker" }));
+                const worker = Zenon.usePowWorker({ createWorker: () => fake as unknown as Worker });
+
+                expect(await worker.generate("ab".repeat(32), 1)).to.equal("from-custom-worker");
+            } finally {
+                Zenon.stopPowWorker();
+                g.window = saved.window;
+                g.Worker = saved.Worker;
+                if (stubNavigator) delete g.navigator;
+            }
+        });
+    });
+
+    describe("servePowRequests", () => {
+        const libHref = pathToFileURL(new URL("../../lib/", import.meta.url).pathname).href;
+
+        /** Runs servePowRequests against globalThis as the worker scope. */
+        function serve(options: Parameters<typeof servePowRequests>[0]) {
+            const g = globalThis as unknown as Record<string, unknown>;
+            const saved = { onmessage: g.onmessage, postMessage: g.postMessage };
+            const replies: PowReply[] = [];
+            let notify: () => void = () => undefined;
+            g.postMessage = (message: PowReply) => {
+                replies.push(message);
+                notify();
+            };
+            servePowRequests(options);
+            const handler = g.onmessage as (event: { data: PowRequest }) => void;
+            return {
+                request: (data: PowRequest) => {
+                    const reply = new Promise<PowReply>((resolve) => {
+                        notify = () => resolve(replies[replies.length - 1]);
+                    });
+                    handler({ data });
+                    return reply;
+                },
+                restore: () => {
+                    g.onmessage = saved.onmessage;
+                    g.postMessage = saved.postMessage;
+                }
+            };
+        }
+
+        it("replies with an error for the request when pow.js cannot be loaded", async () => {
+            const worker = serve({ basePath: "missing/", baseHref: libHref });
+            try {
+                const reply = await worker.request({ id: 9, hashHex: "ab".repeat(32), difficulty: 1 });
+
+                expect(reply.id).to.equal(9);
+                expect(reply.nonce).to.equal(undefined);
+                expect(reply.error).to.include("missing/pow");
+            } finally {
+                worker.restore();
+            }
+        });
+
+        it("retries creating the PoW module on the next request after it fails", async () => {
+            const worker = serve({ basePath: "./", baseHref: flakyPowDir().href });
+            try {
+                const first = await worker.request({ id: 1, hashHex: "ab".repeat(32), difficulty: 1 });
+                const second = await worker.request({ id: 2, hashHex: "ab".repeat(32), difficulty: 1 });
+
+                expect(first).to.deep.equal({ id: 1, error: "wasm instantiate failed" });
+                expect(second).to.deep.equal({ id: 2, nonce: "nonce-2" });
+            } finally {
+                worker.restore();
+            }
+        });
+    });
 });
+
+type PowRequest = { id: number; hashHex: string; difficulty: number };
+
+/**
+ * A temp directory holding a stub `pow.js` whose module factory rejects on
+ * its first call and succeeds after, like a wasm load that fails once. The
+ * stub is also written as `pow.ts` because the ts-node test loader maps
+ * `.js` imports to `.ts`, beside a package.json that marks it ESM.
+ */
+function flakyPowDir(): { href: string } {
+    const path = mkdtempSync(join(tmpdir(), "znn-pow-"));
+    const stub = `let calls = 0;
+export default async () => {
+    calls++;
+    if (calls === 1) throw new Error("wasm instantiate failed");
+    return { generate: () => "nonce-" + calls };
+};
+`;
+    writeFileSync(join(path, "pow.js"), stub);
+    writeFileSync(join(path, "pow.ts"), stub);
+    writeFileSync(join(path, "package.json"), '{ "type": "module" }');
+    return { href: `${pathToFileURL(path).href}/` };
+}
+type PowReply = { id: number; nonce?: string; error?: string };
+
+/** A fake Worker whose replies come from `respond`; it never touches globals. */
+class ScriptedWorker {
+    onmessage: ((event: { data: PowReply }) => void) | null = null;
+    onerror: ((event: { message: string }) => void) | null = null;
+    posted: PowRequest[] = [];
+    terminated = false;
+
+    constructor(private respond: (data: PowRequest) => PowReply | null) {}
+
+    postMessage(data: PowRequest) {
+        this.posted.push(data);
+        const result = this.respond(data);
+        if (result) Promise.resolve().then(() => this.onmessage?.({ data: result }));
+    }
+
+    terminate() {
+        this.terminated = true;
+    }
+}
 
 /**
  * Install minimal globals (`Worker`, `Blob`, `URL.createObjectURL`) so PowWorker

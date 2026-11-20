@@ -9,8 +9,8 @@ export type { PowProvider } from "./zenon.js";
 
 //
 // PoW exports
-export { PowWorker, isPowWorkerSupported, generate } from "./pow/index.js";
-export type { PowWorkerOptions } from "./pow/index.js";
+export { PowWorker, isPowWorkerSupported, generate, servePowRequests } from "./pow/index.js";
+export type { PowWorkerOptions, ServePowRequestsOptions } from "./pow/index.js";
 
 //
 // Client exports

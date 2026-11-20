@@ -177,7 +177,7 @@ By default, PoW runs **synchronously on the main thread**. In the browser this b
 
 Register the SDK's built-in Web Worker as the PoW provider. PoW then runs off the main thread automatically — no worker file or app-side code required. Browser-only.
 
-The worker locates `pow.js` / `pow.wasm` using the current [PoW base path](#zenonsetpowbasepathbasepath-string-void), so call `setPowBasePath` first if needed. The worker is created lazily on the first transaction that requires PoW.
+The worker locates `pow.js` / `pow.wasm` using the current [PoW base path](#zenonsetpowbasepathbasepath-string-void), so call `setPowBasePath` first if needed. The worker is created lazily on the first transaction that requires PoW. It takes an optional `{ createWorker }` to start a worker from your own origin instead (see below).
 
 ```javascript
 import { Zenon } from 'znn-typescript-sdk';
@@ -193,14 +193,36 @@ const tx = await zenon.send(blockTemplate, keyPair);
 > same-origin PoW assets. The relevant directives are `worker-src 'self' blob:`,
 > `script-src 'self' 'wasm-unsafe-eval'`, and `connect-src 'self'`. The shipped
 > PoW loader is built without dynamic JavaScript execution and does not require
-> `'unsafe-eval'`. If your CSP forbids blob workers, supply your own provider
-> with `setPowProvider` instead.
+> `'unsafe-eval'`. If your CSP forbids blob workers, start the worker from your
+> own origin with `createWorker` (below).
+
+###### Workers served from your own origin (`createWorker`)
+
+Where a `blob:` worker cannot import `pow.js`, start the worker from a script on your own origin instead. Browser extension pages need this: a `blob:` worker there cannot import `pow.js`. A strict CSP without `blob:` in `worker-src` needs it too. The worker script calls `servePowRequests()`, which answers the same messages as the built-in worker and loads `pow.js` / `pow.wasm` from `basePath`, resolved against the worker script's URL (default `/`).
+
+```typescript
+// pow.worker.ts: bundled as its own file on your origin
+import { servePowRequests } from 'znn-typescript-sdk';
+
+servePowRequests({ basePath: '/' });
+```
+
+```typescript
+// app code
+import { Zenon } from 'znn-typescript-sdk';
+
+Zenon.usePowWorker({
+  createWorker: () => new Worker(new URL('./pow.worker.ts', import.meta.url), { type: 'module' }),
+});
+```
+
+For a Manifest V3 extension, serve `pow.js` and `pow.wasm` from the extension root. The default extension page CSP needs only `script-src 'self' 'wasm-unsafe-eval'`, with no sandbox page and no `'unsafe-eval'`.
 
 Call `Zenon.stopPowWorker()` to terminate the worker and clear the provider. `clearPowProvider()` also stops it.
 
 ##### `Zenon.setPowProvider(provider: PowProvider): void`
 
-Register a custom Proof of Work provider. When set, it is used instead of the built-in WASM module during `send` and `prepareBlock`. Use this when `usePowWorker` doesn't fit (e.g. strict CSP, a shared worker, a native module, or a remote PoW service).
+Register a custom Proof of Work provider. When set, it is used instead of the built-in WASM module during `send` and `prepareBlock`. Use this when `usePowWorker` doesn't fit (e.g. a shared worker, a native module, or a remote PoW service). For a strict CSP or a browser extension, `usePowWorker` with `createWorker` is usually enough.
 
 The provider receives the PoW data as a 64-character hex string and the required difficulty, and resolves to the 8-byte nonce as a hex string:
 
