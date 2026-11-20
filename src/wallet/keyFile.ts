@@ -1,6 +1,6 @@
 import { Buffer } from "buffer";
 import { Crypto } from "../crypto/crypto.js";
-import { isBrowser } from "../utilities/global.js";
+import { isNode } from "../utilities/global.js";
 import { Encryptor } from "./encryptor.js";
 import { KeyStore } from "./keyStore.js";
 
@@ -117,7 +117,7 @@ export class KeyFile {
 
     private async hashPassword(password: string, salt: string, config: KdfConfig): Promise<Uint8Array> {
 
-        if (isBrowser()) {
+        if (!isNode()) {
             const argon2 = (await import("argon2-browser/dist/argon2-bundled.min.js")).default;
             const result = await argon2.hash({
                 pass: password,

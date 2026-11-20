@@ -34,20 +34,18 @@ export async function init(): Promise<void> {
 
                 // Import pow.js module using Node.js path resolution
                 // @ts-ignore
-                const { readFileSync } = await import(/* webpackIgnore: true */ /* @vite-ignore */ "node:fs");
-                // @ts-ignore
                 const { fileURLToPath, pathToFileURL } = await import(/* webpackIgnore: true */ /* @vite-ignore */ "node:url");
                 // @ts-ignore
                 const { dirname, join } = await import(/* webpackIgnore: true */ /* @vite-ignore */ "node:path");
 
                 const __filename = fileURLToPath(import.meta.url);
                 const __dirname = dirname(__filename);
-                const wasmPath = join(__dirname, "../../lib/pow.wasm");
-                const wasmBinary = readFileSync(wasmPath);
 
                 const powJsPath = join(__dirname, "../../lib/pow.js");
                 const powJsUrl = pathToFileURL(powJsPath);
-                // Preserve the generated JavaScript module specifier under TypeScript-aware loaders.
+                // tsx rewrites .js imports from .ts files to .ts, which
+                // would point at a lib/pow.ts that does not exist. A URL
+                // fragment stops the rewrite and Node ignores it.
                 powJsUrl.hash = "#znn-pow-module";
                 const powModuleImport = await import(
                     /* webpackIgnore: true */
@@ -56,8 +54,8 @@ export async function init(): Promise<void> {
                 );
                 const createPowModule = powModuleImport.default;
 
-                // Pass WASM binary directly to avoid file system access
-                powModule = await createPowModule({ wasmBinary });
+                // The glue loads pow.wasm from its own directory.
+                powModule = await createPowModule();
 
             } else {
                 logger.info("[PoW Init] Browser environment");
